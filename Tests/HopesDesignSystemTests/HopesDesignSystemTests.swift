@@ -25,6 +25,11 @@ func buttonVariantsCanBeConstructed() {
         size: .compact,
         width: .fit
     ) {}
+    _ = HopesButton(
+        "Fixed",
+        size: .medium,
+        width: .fixed(66)
+    ) {}
     _ = HopesButton("Danger", variant: .danger) {}
     _ = HopesButton("Disabled", isEnabled: false) {}
 }
@@ -110,4 +115,11 @@ func toastVariantsCanBeConstructed() {
     _ = HopesToast("문의: gsm-chatbot@gsm.hs.kr")
     _ = HopesToast("프로필이 저장되었습니다.", accent: .hopesSuccess)
     _ = HopesToast("요청을 처리하지 못했습니다.", accent: .hopesDanger)
+}
+
+@Test
+@MainActor
+func loginSwipeGuideCanBeConstructed() {
+    _ = LoginSwipeGuideView()
+    _ = LoginSwipeGuideView(onOpenLogin: {})
 }

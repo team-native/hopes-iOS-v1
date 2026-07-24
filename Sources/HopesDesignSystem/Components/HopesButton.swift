@@ -10,6 +10,7 @@ public struct HopesButton: View {
     public enum Size: Sendable {
         case compact
         case small
+        case medium
         case regular
         case large
 
@@ -19,6 +20,8 @@ public struct HopesButton: View {
                 32
             case .small:
                 36
+            case .medium:
+                38
             case .regular:
                 46
             case .large:
@@ -32,6 +35,8 @@ public struct HopesButton: View {
                 12
             case .small:
                 14
+            case .medium:
+                21
             case .regular, .large:
                 20
             }
@@ -41,7 +46,7 @@ public struct HopesButton: View {
             switch self {
             case .compact, .regular, .large:
                 .subheadline.weight(.semibold)
-            case .small:
+            case .small, .medium:
                 .footnote.weight(.semibold)
             }
         }
@@ -50,6 +55,25 @@ public struct HopesButton: View {
     public enum Width: Sendable {
         case fit
         case fill
+        case fixed(CGFloat)
+
+        fileprivate var minimum: CGFloat? {
+            if case let .fixed(value) = self {
+                return value
+            }
+            return nil
+        }
+
+        fileprivate var maximum: CGFloat? {
+            switch self {
+            case .fill:
+                .infinity
+            case .fit:
+                nil
+            case let .fixed(value):
+                value
+            }
+        }
     }
 
     private let title: String
@@ -81,7 +105,8 @@ public struct HopesButton: View {
             .foregroundStyle(foregroundColor)
             .padding(.horizontal, size.horizontalPadding)
             .frame(
-                maxWidth: width == .fill ? .infinity : nil,
+                minWidth: width.minimum,
+                maxWidth: width.maximum,
                 minHeight: size.height,
                 maxHeight: size.height
             )
@@ -144,6 +169,7 @@ private struct HopesPressButtonStyle: ButtonStyle {
         HopesButton("이 근거로 더 물어보기", size: .large) {}
         HopesButton("로그아웃", variant: .danger) {}
         HopesButton("열기", variant: .secondary, size: .compact, width: .fit) {}
+        HopesButton("열기", size: .medium, width: .fixed(66)) {}
         HopesButton("채팅으로", variant: .secondary, size: .small, width: .fit) {}
         HopesButton("비활성화", isEnabled: false) {}
     }
