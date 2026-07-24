@@ -13,3 +13,17 @@ func logoCanBeConstructed() {
     _ = HopesLogo(placement: .onBrand)
     _ = HopesLogo(size: .large)
 }
+
+@Test
+@MainActor
+func buttonVariantsCanBeConstructed() {
+    _ = HopesButton("Primary") {}
+    _ = HopesButton(
+        "Secondary",
+        variant: .secondary,
+        size: .compact,
+        width: .fit
+    ) {}
+    _ = HopesButton("Danger", variant: .danger) {}
+    _ = HopesButton("Disabled", isEnabled: false) {}
+}
