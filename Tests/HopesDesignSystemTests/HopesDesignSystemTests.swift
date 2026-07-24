@@ -1,3 +1,4 @@
+import SwiftUI
 import Testing
 @testable import HopesDesignSystem
 
@@ -26,4 +27,17 @@ func buttonVariantsCanBeConstructed() {
     ) {}
     _ = HopesButton("Danger", variant: .danger) {}
     _ = HopesButton("Disabled", isEnabled: false) {}
+}
+
+@Test
+@MainActor
+func cardVariantsCanBeConstructed() {
+    _ = HopesCard { Text("Raised") }
+    _ = HopesCard(
+        padding: 20,
+        cornerRadius: HopesMetrics.controlCornerRadius,
+        elevation: .flat
+    ) {
+        Text("Flat")
+    }
 }
