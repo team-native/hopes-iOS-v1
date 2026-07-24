@@ -62,3 +62,17 @@ func labeledTextFieldVariantsCanBeConstructed() {
         isEnabled: false
     )
 }
+
+@Test
+@MainActor
+func actionRowVariantsCanBeConstructed() {
+    _ = HopesActionRow(
+        title: "일반",
+        subtitle: "다크 모드, 표시 방식"
+    ) {}
+    _ = HopesActionRow(
+        title: "점호 시간",
+        subtitle: "생활관 기본 루틴",
+        actionTitle: "보기"
+    ) {}
+}
