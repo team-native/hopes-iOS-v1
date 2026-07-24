@@ -1,0 +1,76 @@
+{
+  "source": {
+    "figmaFileKey": "zplHxamGxpqzCmlN5xhV1y",
+    "pageId": "0:1",
+    "pageName": "Hopes iOS App Design",
+    "auditedNodeCount": 670
+  },
+  "fonts": {
+    "custom": [
+      { "family": "Inter", "style": "Regular", "postScriptName": "Inter-Regular" },
+      { "family": "Inter", "style": "Semi Bold", "postScriptName": "Inter-SemiBold" },
+      { "family": "Inter", "style": "Bold", "postScriptName": "Inter-Bold" }
+    ],
+    "system": [
+      { "family": "SF Pro", "styles": ["Regular", "Medium", "Semibold", "Bold"] }
+    ]
+  },
+  "colors": {
+    "brandPrimary": "#0D8AE5",
+    "background": "#F6F9FC",
+    "textPrimary": "#0E121A",
+    "textSecondary": "#6B7A94",
+    "textPlaceholder": "#9CABC2",
+    "brandTint": "#E5F5FF",
+    "blueSecondaryText": "#D9F0FF",
+    "dangerSurface": "#FFEDED",
+    "danger": "#E0211C",
+    "success": "#0DAD73",
+    "warning": "#FF8C1F",
+    "swipeHint": "#DDF0FF",
+    "handle": "#D6E2EE",
+    "sheetTitle": "#0F172A",
+    "sheetSecondary": "#718096",
+    "swipeButton": "#1594E8",
+    "homeIndicator": "#111827",
+    "heroSecondary": "#D6EDFF",
+    "inputBackground": "#FBFCFF",
+    "sheetHandle": "#D1DEED",
+    "neutralGray": "#D9D9D9"
+  },
+  "gradients": {
+    "hero": [
+      { "location": 0, "color": "#2EA1ED" },
+      { "location": 1, "color": "#0D6BC7" }
+    ],
+    "danger": [
+      { "location": 0, "color": "#FFFFFF" },
+      { "location": 0.4375, "color": "#FF7373" },
+      { "location": 1, "color": "#FF0000" }
+    ]
+  },
+  "shadows": {
+    "screen": { "color": "#0814262E", "x": 0, "y": 22, "blur": 44, "spread": 0 },
+    "sheetTop": { "color": "#0A1F3829", "x": 0, "y": -12, "blur": 28, "spread": 0 },
+    "logo": { "color": "#0D1A2E17", "x": 0, "y": 8, "blur": 22, "spread": -12 },
+    "card": { "color": "#0D1A2E12", "x": 0, "y": 6, "blur": 16, "spread": -10 },
+    "elevated": { "color": "#0D1A2E1F", "x": 0, "y": 14, "blur": 32, "spread": -16 },
+    "medium": { "color": "#0D1A2E14", "x": 0, "y": 8, "blur": 18, "spread": -10 }
+  },
+  "imageAssets": {
+    "rawImageFillCount": 0,
+    "vectors": [
+      { "name": "SwipeChevronBack", "figmaNodeId": "93:166", "rotationDegrees": -90 },
+      { "name": "SwipeChevronFront", "figmaNodeId": "93:167", "rotationDegrees": -90 }
+    ]
+  },
+  "systemRendered": [
+    "SF Pro typography",
+    "iOS status bar",
+    "cellular, Wi-Fi and battery indicators",
+    "home indicator",
+    "text fields",
+    "switches",
+    "tab bar material"
+  ]
+}
