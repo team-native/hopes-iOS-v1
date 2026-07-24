@@ -7,7 +7,8 @@ struct HopesApp: App {
         WindowGroup {
             LoginFlowView(
                 isLoginInitiallyOpen: ProcessInfo.processInfo.arguments.contains("--show-login"),
-                isSignUpInitiallyOpen: ProcessInfo.processInfo.arguments.contains("--show-sign-up")
+                isSignUpInitiallyOpen: ProcessInfo.processInfo.arguments.contains("--show-sign-up"),
+                isOnboardingInitiallyOpen: ProcessInfo.processInfo.arguments.contains("--show-onboarding")
             )
         }
     }

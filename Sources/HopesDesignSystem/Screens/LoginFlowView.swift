@@ -5,6 +5,7 @@ public struct LoginFlowView: View {
         case guide
         case login
         case signUp
+        case onboarding
     }
 
     @State private var screen: Screen
@@ -17,14 +18,19 @@ public struct LoginFlowView: View {
 
     private let onLogin: () -> Void
     private let onSignUp: (SignUpFormData) -> Void
+    private let onStartChat: () -> Void
 
     public init(
         isLoginInitiallyOpen: Bool = false,
         isSignUpInitiallyOpen: Bool = false,
+        isOnboardingInitiallyOpen: Bool = false,
         onLogin: @escaping () -> Void = {},
-        onSignUp: @escaping (SignUpFormData) -> Void = { _ in }
+        onSignUp: @escaping (SignUpFormData) -> Void = { _ in },
+        onStartChat: @escaping () -> Void = {}
     ) {
-        let initialScreen: Screen = if isSignUpInitiallyOpen {
+        let initialScreen: Screen = if isOnboardingInitiallyOpen {
+            .onboarding
+        } else if isSignUpInitiallyOpen {
             .signUp
         } else if isLoginInitiallyOpen {
             .login
@@ -35,6 +41,7 @@ public struct LoginFlowView: View {
         _screen = State(initialValue: initialScreen)
         self.onLogin = onLogin
         self.onSignUp = onSignUp
+        self.onStartChat = onStartChat
     }
 
     public var body: some View {
@@ -63,12 +70,19 @@ public struct LoginFlowView: View {
                     name: $name,
                     major: $major,
                     cohort: $cohort,
-                    onSignUp: onSignUp,
+                    onSignUp: { data in
+                        onSignUp(data)
+                        transition(to: .onboarding)
+                    },
                     onGoToLogin: {
                         transition(to: .login)
                     }
                 )
                 .transition(.move(edge: .trailing))
+
+            case .onboarding:
+                OnboardingView(onStartChat: onStartChat)
+                    .transition(.move(edge: .trailing))
             }
         }
     }
