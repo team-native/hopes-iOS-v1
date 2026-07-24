@@ -156,3 +156,15 @@ func onboardingViewCanBeConstructed() {
     _ = OnboardingView(onStartChat: {})
     _ = HopesTabBar(selection: .constant(.home))
 }
+
+@Test
+@MainActor
+func chatHomeViewCanBeConstructed() {
+    _ = ChatHomeView(message: .constant(""))
+    _ = ChatHomeView(
+        message: .constant("기숙사 하루 일과가 어떻게 돼?"),
+        onNewChat: {},
+        onSend: { _ in }
+    )
+    _ = LoginFlowView(isChatHomeInitiallyOpen: true)
+}

@@ -8,7 +8,8 @@ struct HopesApp: App {
             LoginFlowView(
                 isLoginInitiallyOpen: ProcessInfo.processInfo.arguments.contains("--show-login"),
                 isSignUpInitiallyOpen: ProcessInfo.processInfo.arguments.contains("--show-sign-up"),
-                isOnboardingInitiallyOpen: ProcessInfo.processInfo.arguments.contains("--show-onboarding")
+                isOnboardingInitiallyOpen: ProcessInfo.processInfo.arguments.contains("--show-onboarding"),
+                isChatHomeInitiallyOpen: ProcessInfo.processInfo.arguments.contains("--show-chat-home")
             )
         }
     }
