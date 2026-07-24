@@ -5,7 +5,9 @@ import SwiftUI
 struct HopesApp: App {
     var body: some Scene {
         WindowGroup {
-            LoginSwipeGuideView()
+            LoginFlowView(
+                isLoginInitiallyOpen: ProcessInfo.processInfo.arguments.contains("--show-login")
+            )
         }
     }
 }

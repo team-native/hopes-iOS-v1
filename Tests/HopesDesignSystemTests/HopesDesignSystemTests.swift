@@ -123,3 +123,14 @@ func loginSwipeGuideCanBeConstructed() {
     _ = LoginSwipeGuideView()
     _ = LoginSwipeGuideView(onOpenLogin: {})
 }
+
+@Test
+@MainActor
+func loginViewsCanBeConstructed() {
+    _ = LoginView(
+        email: .constant(""),
+        password: .constant("")
+    )
+    _ = LoginFlowView()
+    _ = LoginFlowView(isLoginInitiallyOpen: true)
+}
