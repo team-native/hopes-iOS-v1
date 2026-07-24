@@ -87,3 +87,19 @@ func questionCardCanBeConstructed() {
         Text("⌂")
     }
 }
+
+@Test
+@MainActor
+func statTileVariantsCanBeConstructed() {
+    _ = HopesStatTile(value: "6개", label: "근거")
+    _ = HopesStatTile(
+        value: "3명",
+        label: "선배",
+        tint: .hopesSuccess
+    )
+    _ = HopesStatTile(
+        value: "2026",
+        label: "최신",
+        tint: .hopesWarning
+    )
+}
