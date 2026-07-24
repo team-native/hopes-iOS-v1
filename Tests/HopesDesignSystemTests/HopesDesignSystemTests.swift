@@ -133,4 +133,16 @@ func loginViewsCanBeConstructed() {
     )
     _ = LoginFlowView()
     _ = LoginFlowView(isLoginInitiallyOpen: true)
+    _ = LoginFlowView(isSignUpInitiallyOpen: true)
+}
+
+@Test
+@MainActor
+func signUpViewCanBeConstructed() {
+    _ = SignUpView(
+        email: .constant("s26055@gsm.hs.kr"),
+        name: .constant("임서하"),
+        major: .constant("소프트웨어개발과"),
+        cohort: .constant("10기")
+    )
 }
