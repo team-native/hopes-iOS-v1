@@ -20,6 +20,7 @@ let package = Package(
             path: ".",
             exclude: [
                 ".github",
+                "App",
                 "README.md",
                 "Resources/DesignTokens.json",
                 "Resources/README.md",

@@ -18,12 +18,13 @@ public struct LoginSwipeGuideView: View {
                 VStack(spacing: 0) {
                     HopesLogo(placement: .onBrand)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.top, proxy.safeAreaInsets.top + 14)
+                        .padding(.top, 14)
                         .padding(.horizontal, 32)
 
                     hero
                         .padding(.horizontal, 32)
                         .padding(.top, max(72, proxy.size.height * 0.192))
+                        .offset(y: 14)
 
                     Spacer(minLength: 20)
 
@@ -59,12 +60,14 @@ public struct LoginSwipeGuideView: View {
             ZStack {
                 Image("SwipeChevronBack", bundle: .module)
                     .resizable()
-                    .frame(width: 34, height: 17)
+                    .frame(width: 17, height: 34)
+                    .rotationEffect(.degrees(90))
                     .offset(y: -9)
 
                 Image("SwipeChevronFront", bundle: .module)
                     .resizable()
-                    .frame(width: 34, height: 17)
+                    .frame(width: 17, height: 34)
+                    .rotationEffect(.degrees(90))
                     .offset(y: 9)
             }
             .frame(height: 42)
@@ -86,15 +89,13 @@ public struct LoginSwipeGuideView: View {
     }
 
     private var loginSheet: some View {
-        VStack(spacing: 0) {
+        ZStack(alignment: .top) {
             Capsule()
                 .fill(Color("HopesSheetHandle", bundle: .module))
                 .frame(width: 86, height: 5)
                 .padding(.top, 20)
 
-            Spacer()
-
-            HStack(alignment: .center, spacing: 16) {
+            HStack(alignment: .top, spacing: 16) {
                 VStack(alignment: .leading, spacing: 7) {
                     Text("로그인")
                         .font(HopesTypography.inter(size: 25, weight: .bold, relativeTo: .title2))
@@ -109,16 +110,15 @@ public struct LoginSwipeGuideView: View {
 
                 HopesButton(
                     "열기",
-                    size: .small,
-                    width: .fit,
+                    size: .medium,
+                    width: .fixed(66),
                     action: openLogin
                 )
             }
             .padding(.horizontal, 30)
-
-            Spacer()
+            .padding(.top, 78)
         }
-        .frame(height: 190)
+        .frame(height: 190, alignment: .top)
         .frame(maxWidth: .infinity)
         .background(.white)
         .clipShape(

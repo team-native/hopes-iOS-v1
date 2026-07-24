@@ -25,6 +25,11 @@ func buttonVariantsCanBeConstructed() {
         size: .compact,
         width: .fit
     ) {}
+    _ = HopesButton(
+        "Fixed",
+        size: .medium,
+        width: .fixed(66)
+    ) {}
     _ = HopesButton("Danger", variant: .danger) {}
     _ = HopesButton("Disabled", isEnabled: false) {}
 }
