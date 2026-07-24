@@ -17,6 +17,7 @@
   },
   "colors": {
     "brandPrimary": "#0D8AE5",
+    "border": "#D6E0ED",
     "background": "#F6F9FC",
     "textPrimary": "#0E121A",
     "textSecondary": "#6B7A94",
