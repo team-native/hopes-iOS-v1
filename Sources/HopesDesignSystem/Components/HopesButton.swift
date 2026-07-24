@@ -40,7 +40,7 @@ public struct HopesButton: View {
             case .small:
                 14
             case .medium:
-                21
+                12
             case .regular, .large, .extraLarge:
                 20
             }
@@ -106,6 +106,7 @@ public struct HopesButton: View {
     public var body: some View {
         Button(title, action: action)
             .font(size.font)
+            .lineLimit(1)
             .foregroundStyle(foregroundColor)
             .padding(.horizontal, size.horizontalPadding)
             .frame(
