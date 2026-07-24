@@ -103,3 +103,11 @@ func statTileVariantsCanBeConstructed() {
         tint: .hopesWarning
     )
 }
+
+@Test
+@MainActor
+func toastVariantsCanBeConstructed() {
+    _ = HopesToast("문의: gsm-chatbot@gsm.hs.kr")
+    _ = HopesToast("프로필이 저장되었습니다.", accent: .hopesSuccess)
+    _ = HopesToast("요청을 처리하지 못했습니다.", accent: .hopesDanger)
+}
