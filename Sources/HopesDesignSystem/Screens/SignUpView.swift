@@ -20,6 +20,8 @@ public struct SignUpFormData: Equatable, Sendable {
 }
 
 public struct SignUpView: View {
+    @State private var selectedTab: HopesTab = .home
+
     @Binding private var email: String
     @Binding private var name: String
     @Binding private var major: String
@@ -150,45 +152,7 @@ public struct SignUpView: View {
     }
 
     private var authTabBar: some View {
-        HStack(spacing: 0) {
-            authTabItem("홈", symbol: "●", isSelected: true)
-            authTabItem("채팅", symbol: "○")
-            authTabItem("기록", symbol: "○")
-            authTabItem("설정", symbol: "○")
-        }
-        .frame(height: 84)
-        .frame(maxWidth: .infinity)
-        .background(.white)
-        .overlay(alignment: .top) {
-            Rectangle()
-                .fill(Color.hopesBorder)
-                .frame(height: 1)
-        }
-    }
-
-    private func authTabItem(
-        _ title: String,
-        symbol: String,
-        isSelected: Bool = false
-    ) -> some View {
-        VStack(spacing: 5) {
-            Text(symbol)
-                .font(.system(size: 12, weight: .semibold))
-                .foregroundStyle(
-                    isSelected ? Color.hopesBrandPrimary : Color.hopesTextPlaceholder
-                )
-                .frame(width: 60, height: 30)
-                .background(isSelected ? Color.hopesBrandTint : .clear)
-                .clipShape(Capsule())
-
-            Text(title)
-                .font(.system(size: 10, weight: .semibold))
-                .foregroundStyle(
-                    isSelected ? Color.hopesBrandPrimary : Color.hopesTextSecondary
-                )
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.bottom, 12)
+        HopesTabBar(selection: $selectedTab)
     }
 
     private func signUpField(

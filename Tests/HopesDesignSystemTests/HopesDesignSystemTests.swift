@@ -31,6 +31,7 @@ func buttonVariantsCanBeConstructed() {
         width: .fixed(66)
     ) {}
     _ = HopesButton("Danger", variant: .danger) {}
+    _ = HopesButton("Dark", variant: .dark, size: .extraLarge) {}
     _ = HopesButton("Disabled", isEnabled: false) {}
 }
 
@@ -134,6 +135,7 @@ func loginViewsCanBeConstructed() {
     _ = LoginFlowView()
     _ = LoginFlowView(isLoginInitiallyOpen: true)
     _ = LoginFlowView(isSignUpInitiallyOpen: true)
+    _ = LoginFlowView(isOnboardingInitiallyOpen: true)
 }
 
 @Test
@@ -145,4 +147,12 @@ func signUpViewCanBeConstructed() {
         major: .constant("소프트웨어개발과"),
         cohort: .constant("10기")
     )
+}
+
+@Test
+@MainActor
+func onboardingViewCanBeConstructed() {
+    _ = OnboardingView()
+    _ = OnboardingView(onStartChat: {})
+    _ = HopesTabBar(selection: .constant(.home))
 }

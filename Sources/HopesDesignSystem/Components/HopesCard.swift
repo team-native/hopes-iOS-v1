@@ -26,7 +26,11 @@ public struct HopesCard<Content: View>: View {
     public var body: some View {
         content
             .padding(padding)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(
+                maxWidth: .infinity,
+                maxHeight: .infinity,
+                alignment: .leading
+            )
             .background(.white)
             .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
             .overlay {

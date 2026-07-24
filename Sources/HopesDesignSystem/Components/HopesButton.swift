@@ -5,6 +5,7 @@ public struct HopesButton: View {
         case primary
         case secondary
         case danger
+        case dark
     }
 
     public enum Size: Sendable {
@@ -13,6 +14,7 @@ public struct HopesButton: View {
         case medium
         case regular
         case large
+        case extraLarge
 
         fileprivate var height: CGFloat {
             switch self {
@@ -26,6 +28,8 @@ public struct HopesButton: View {
                 46
             case .large:
                 48
+            case .extraLarge:
+                52
             }
         }
 
@@ -37,14 +41,14 @@ public struct HopesButton: View {
                 14
             case .medium:
                 21
-            case .regular, .large:
+            case .regular, .large, .extraLarge:
                 20
             }
         }
 
         fileprivate var font: Font {
             switch self {
-            case .compact, .regular, .large:
+            case .compact, .regular, .large, .extraLarge:
                 .subheadline.weight(.semibold)
             case .small, .medium:
                 .footnote.weight(.semibold)
@@ -124,7 +128,7 @@ public struct HopesButton: View {
 
     private var foregroundColor: Color {
         switch variant {
-        case .primary:
+        case .primary, .dark:
             .white
         case .secondary:
             .hopesTextPrimary
@@ -141,12 +145,14 @@ public struct HopesButton: View {
             .white
         case .danger:
             .hopesDangerSurface
+        case .dark:
+            .hopesTextPrimary
         }
     }
 
     private var borderColor: Color {
         switch variant {
-        case .primary:
+        case .primary, .dark:
             .clear
         case .secondary, .danger:
             .hopesBorder
@@ -166,6 +172,7 @@ private struct HopesPressButtonStyle: ButtonStyle {
 #Preview("Hopes Buttons") {
     VStack(alignment: .leading, spacing: 20) {
         HopesButton("로그인") {}
+        HopesButton("채팅 시작하기", variant: .dark, size: .extraLarge) {}
         HopesButton("이 근거로 더 물어보기", size: .large) {}
         HopesButton("로그아웃", variant: .danger) {}
         HopesButton("열기", variant: .secondary, size: .compact, width: .fit) {}
