@@ -76,3 +76,14 @@ func actionRowVariantsCanBeConstructed() {
         actionTitle: "보기"
     ) {}
 }
+
+@Test
+@MainActor
+func questionCardCanBeConstructed() {
+    _ = HopesQuestionCard(
+        title: "기숙사 하루 일과가 어떻게 돼?",
+        action: {}
+    ) {
+        Text("⌂")
+    }
+}
