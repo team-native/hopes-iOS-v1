@@ -28,12 +28,12 @@ public struct HopesTabBar: View {
     }
 
     public var body: some View {
-        HStack(spacing: 0) {
+        HStack(alignment: .top, spacing: 28) {
             ForEach(HopesTab.allCases, id: \.self) { tab in
                 Button {
                     selection = tab
                 } label: {
-                    VStack(spacing: 5) {
+                    VStack(spacing: -1) {
                         Text(selection == tab ? "●" : "○")
                             .font(.system(size: 12, weight: .semibold))
                             .foregroundStyle(
@@ -57,7 +57,7 @@ public struct HopesTabBar: View {
                                     : Color.hopesTextSecondary
                             )
                     }
-                    .frame(maxWidth: .infinity)
+                    .frame(width: 60)
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
@@ -65,8 +65,10 @@ public struct HopesTabBar: View {
                 .accessibilityAddTraits(selection == tab ? .isSelected : [])
             }
         }
-        .padding(.bottom, 12)
-        .frame(height: 84)
+        .padding(.leading, 25)
+        .padding(.top, 10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(height: 84, alignment: .top)
         .frame(maxWidth: .infinity)
         .background(.white)
         .overlay(alignment: .top) {
