@@ -229,3 +229,19 @@ func notificationsViewCanBeConstructed() {
     )
     _ = LoginFlowView(isNotificationsInitiallyOpen: true)
 }
+
+@Test
+@MainActor
+func myPageViewCanBeConstructed() {
+    _ = MyPageView(
+        name: .constant("임서하"),
+        introduction: .constant("")
+    )
+    _ = MyPageView(
+        name: .constant("임서하"),
+        introduction: .constant("프론트엔드에 관심이 많아요."),
+        onBackToChat: {},
+        onSave: { _ in }
+    )
+    _ = LoginFlowView(isMyPageInitiallyOpen: true)
+}
