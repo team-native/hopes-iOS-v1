@@ -11,6 +11,7 @@ public struct LoginFlowView: View {
         case answerEvidence
         case conversationHistory
         case notifications
+        case myPage
     }
 
     @State private var screen: Screen
@@ -22,6 +23,8 @@ public struct LoginFlowView: View {
     @State private var cohort = ""
     @State private var chatMessage = ""
     @State private var chatReply = ""
+    @State private var profileName = "임서하"
+    @State private var profileIntroduction = ""
 
     private let onLogin: () -> Void
     private let onSignUp: (SignUpFormData) -> Void
@@ -36,11 +39,14 @@ public struct LoginFlowView: View {
         isAnswerEvidenceInitiallyOpen: Bool = false,
         isConversationHistoryInitiallyOpen: Bool = false,
         isNotificationsInitiallyOpen: Bool = false,
+        isMyPageInitiallyOpen: Bool = false,
         onLogin: @escaping () -> Void = {},
         onSignUp: @escaping (SignUpFormData) -> Void = { _ in },
         onStartChat: @escaping () -> Void = {}
     ) {
-        let initialScreen: Screen = if isNotificationsInitiallyOpen {
+        let initialScreen: Screen = if isMyPageInitiallyOpen {
+            .myPage
+        } else if isNotificationsInitiallyOpen {
             .notifications
         } else if isConversationHistoryInitiallyOpen {
             .conversationHistory
@@ -160,6 +166,16 @@ public struct LoginFlowView: View {
                         transition(to: .chatDetail)
                     }
                 }
+                    .transition(.move(edge: .trailing))
+
+            case .myPage:
+                MyPageView(
+                    name: $profileName,
+                    introduction: $profileIntroduction,
+                    onBackToChat: {
+                        transition(to: .chatHome)
+                    }
+                )
                     .transition(.move(edge: .trailing))
             }
         }
