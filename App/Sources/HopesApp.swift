@@ -9,7 +9,8 @@ struct HopesApp: App {
                 isLoginInitiallyOpen: ProcessInfo.processInfo.arguments.contains("--show-login"),
                 isSignUpInitiallyOpen: ProcessInfo.processInfo.arguments.contains("--show-sign-up"),
                 isOnboardingInitiallyOpen: ProcessInfo.processInfo.arguments.contains("--show-onboarding"),
-                isChatHomeInitiallyOpen: ProcessInfo.processInfo.arguments.contains("--show-chat-home")
+                isChatHomeInitiallyOpen: ProcessInfo.processInfo.arguments.contains("--show-chat-home"),
+                isChatDetailInitiallyOpen: ProcessInfo.processInfo.arguments.contains("--show-chat-detail")
             )
         }
     }
