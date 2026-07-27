@@ -182,3 +182,19 @@ func chatDetailViewCanBeConstructed() {
     )
     _ = LoginFlowView(isChatDetailInitiallyOpen: true)
 }
+
+@Test
+@MainActor
+func answerEvidenceViewCanBeConstructed() {
+    _ = AnswerEvidenceView()
+    _ = AnswerEvidenceView(
+        evidenceItems: [
+            .init(title: "점호 시간", subtitle: "생활관 기본 루틴"),
+        ],
+        onBack: {},
+        onShare: {},
+        onOpenEvidence: { _ in },
+        onAskMore: {}
+    )
+    _ = LoginFlowView(isAnswerEvidenceInitiallyOpen: true)
+}

@@ -8,6 +8,7 @@ public struct LoginFlowView: View {
         case onboarding
         case chatHome
         case chatDetail
+        case answerEvidence
     }
 
     @State private var screen: Screen
@@ -30,11 +31,14 @@ public struct LoginFlowView: View {
         isOnboardingInitiallyOpen: Bool = false,
         isChatHomeInitiallyOpen: Bool = false,
         isChatDetailInitiallyOpen: Bool = false,
+        isAnswerEvidenceInitiallyOpen: Bool = false,
         onLogin: @escaping () -> Void = {},
         onSignUp: @escaping (SignUpFormData) -> Void = { _ in },
         onStartChat: @escaping () -> Void = {}
     ) {
-        let initialScreen: Screen = if isChatDetailInitiallyOpen {
+        let initialScreen: Screen = if isAnswerEvidenceInitiallyOpen {
+            .answerEvidence
+        } else if isChatDetailInitiallyOpen {
             .chatDetail
         } else if isChatHomeInitiallyOpen {
             .chatHome
@@ -111,6 +115,21 @@ public struct LoginFlowView: View {
                     reply: $chatReply,
                     onBack: {
                         transition(to: .chatHome)
+                    },
+                    onShowSources: {
+                        transition(to: .answerEvidence)
+                    }
+                )
+                    .transition(.move(edge: .trailing))
+
+            case .answerEvidence:
+                AnswerEvidenceView(
+                    onBack: {
+                        transition(to: .chatDetail)
+                    },
+                    onAskMore: {
+                        chatReply = "이 근거를 바탕으로 더 자세히 알려줘."
+                        transition(to: .chatDetail)
                     }
                 )
                     .transition(.move(edge: .trailing))
