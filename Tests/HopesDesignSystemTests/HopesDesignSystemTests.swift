@@ -168,3 +168,17 @@ func chatHomeViewCanBeConstructed() {
     )
     _ = LoginFlowView(isChatHomeInitiallyOpen: true)
 }
+
+@Test
+@MainActor
+func chatDetailViewCanBeConstructed() {
+    _ = ChatDetailView(reply: .constant(""))
+    _ = ChatDetailView(
+        reply: .constant("점호는 몇 시야?"),
+        onBack: {},
+        onShowSources: {},
+        onSend: { _ in },
+        onShare: {}
+    )
+    _ = LoginFlowView(isChatDetailInitiallyOpen: true)
+}

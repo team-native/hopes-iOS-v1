@@ -7,6 +7,7 @@ public struct LoginFlowView: View {
         case signUp
         case onboarding
         case chatHome
+        case chatDetail
     }
 
     @State private var screen: Screen
@@ -17,6 +18,7 @@ public struct LoginFlowView: View {
     @State private var major = ""
     @State private var cohort = ""
     @State private var chatMessage = ""
+    @State private var chatReply = ""
 
     private let onLogin: () -> Void
     private let onSignUp: (SignUpFormData) -> Void
@@ -27,11 +29,14 @@ public struct LoginFlowView: View {
         isSignUpInitiallyOpen: Bool = false,
         isOnboardingInitiallyOpen: Bool = false,
         isChatHomeInitiallyOpen: Bool = false,
+        isChatDetailInitiallyOpen: Bool = false,
         onLogin: @escaping () -> Void = {},
         onSignUp: @escaping (SignUpFormData) -> Void = { _ in },
         onStartChat: @escaping () -> Void = {}
     ) {
-        let initialScreen: Screen = if isChatHomeInitiallyOpen {
+        let initialScreen: Screen = if isChatDetailInitiallyOpen {
+            .chatDetail
+        } else if isChatHomeInitiallyOpen {
             .chatHome
         } else if isOnboardingInitiallyOpen {
             .onboarding
@@ -93,7 +98,21 @@ public struct LoginFlowView: View {
                     .transition(.move(edge: .trailing))
 
             case .chatHome:
-                ChatHomeView(message: $chatMessage)
+                ChatHomeView(
+                    message: $chatMessage,
+                    onSend: { _ in
+                        transition(to: .chatDetail)
+                    }
+                )
+                    .transition(.move(edge: .trailing))
+
+            case .chatDetail:
+                ChatDetailView(
+                    reply: $chatReply,
+                    onBack: {
+                        transition(to: .chatHome)
+                    }
+                )
                     .transition(.move(edge: .trailing))
             }
         }
