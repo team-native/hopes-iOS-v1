@@ -198,3 +198,17 @@ func answerEvidenceViewCanBeConstructed() {
     )
     _ = LoginFlowView(isAnswerEvidenceInitiallyOpen: true)
 }
+
+@Test
+@MainActor
+func conversationHistoryViewCanBeConstructed() {
+    _ = ConversationHistoryView()
+    _ = ConversationHistoryView(
+        conversations: [
+            .init(title: "기숙사 생활", period: .recent),
+        ],
+        onNewConversation: {},
+        onSelectConversation: { _ in }
+    )
+    _ = LoginFlowView(isConversationHistoryInitiallyOpen: true)
+}
