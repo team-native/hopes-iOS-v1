@@ -12,6 +12,7 @@ public struct LoginFlowView: View {
         case conversationHistory
         case notifications
         case myPage
+        case settings
     }
 
     @State private var screen: Screen
@@ -40,11 +41,14 @@ public struct LoginFlowView: View {
         isConversationHistoryInitiallyOpen: Bool = false,
         isNotificationsInitiallyOpen: Bool = false,
         isMyPageInitiallyOpen: Bool = false,
+        isSettingsInitiallyOpen: Bool = false,
         onLogin: @escaping () -> Void = {},
         onSignUp: @escaping (SignUpFormData) -> Void = { _ in },
         onStartChat: @escaping () -> Void = {}
     ) {
-        let initialScreen: Screen = if isMyPageInitiallyOpen {
+        let initialScreen: Screen = if isSettingsInitiallyOpen {
+            .settings
+        } else if isMyPageInitiallyOpen {
             .myPage
         } else if isNotificationsInitiallyOpen {
             .notifications
@@ -174,6 +178,17 @@ public struct LoginFlowView: View {
                     introduction: $profileIntroduction,
                     onBackToChat: {
                         transition(to: .chatHome)
+                    }
+                )
+                    .transition(.move(edge: .trailing))
+
+            case .settings:
+                SettingsView(
+                    onBackToChat: {
+                        transition(to: .chatHome)
+                    },
+                    onLogout: {
+                        transition(to: .login)
                     }
                 )
                     .transition(.move(edge: .trailing))
