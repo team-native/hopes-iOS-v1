@@ -17,7 +17,8 @@ struct HopesApp: App {
                 isMyPageInitiallyOpen: ProcessInfo.processInfo.arguments.contains("--show-my-page"),
                 isSettingsInitiallyOpen: ProcessInfo.processInfo.arguments.contains("--show-settings"),
                 isGeneralSettingsInitiallyOpen: ProcessInfo.processInfo.arguments.contains("--show-general-settings"),
-                isPersonalSettingsInitiallyOpen: ProcessInfo.processInfo.arguments.contains("--show-personal-settings")
+                isPersonalSettingsInitiallyOpen: ProcessInfo.processInfo.arguments.contains("--show-personal-settings"),
+                isContactInitiallyOpen: ProcessInfo.processInfo.arguments.contains("--show-contact")
             )
         }
     }

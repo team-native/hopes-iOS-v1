@@ -143,6 +143,14 @@ func personalSettingsViewCanBeConstructed() {
 
 @Test
 @MainActor
+func contactViewCanBeConstructed() {
+    _ = ContactView()
+    _ = ContactView(email: "student@gsm.hs.kr", message: "문의 내용")
+    _ = LoginFlowView(isContactInitiallyOpen: true)
+}
+
+@Test
+@MainActor
 func loginSwipeGuideCanBeConstructed() {
     _ = LoginSwipeGuideView()
     _ = LoginSwipeGuideView(onOpenLogin: {})
