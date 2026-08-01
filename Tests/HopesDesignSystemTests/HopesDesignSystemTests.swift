@@ -135,6 +135,14 @@ func generalSettingsViewCanBeConstructed() {
 
 @Test
 @MainActor
+func personalSettingsViewCanBeConstructed() {
+    _ = PersonalSettingsView()
+    _ = PersonalSettingsView(systemPrompt: "답변을 짧게 해줘.")
+    _ = LoginFlowView(isPersonalSettingsInitiallyOpen: true)
+}
+
+@Test
+@MainActor
 func loginSwipeGuideCanBeConstructed() {
     _ = LoginSwipeGuideView()
     _ = LoginSwipeGuideView(onOpenLogin: {})
