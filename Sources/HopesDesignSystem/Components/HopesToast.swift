@@ -25,7 +25,7 @@ public struct HopesToast: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.trailing, 20)
         }
-        .frame(minHeight: 58)
+        .frame(height: 58)
         .background(.white)
         .clipShape(
             RoundedRectangle(cornerRadius: HopesMetrics.controlCornerRadius)

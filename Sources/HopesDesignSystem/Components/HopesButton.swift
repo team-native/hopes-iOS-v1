@@ -108,7 +108,7 @@ public struct HopesButton: View {
             .font(size.font)
             .lineLimit(1)
             .foregroundStyle(foregroundColor)
-            .padding(.horizontal, size.horizontalPadding)
+            .padding(.horizontal, horizontalPadding)
             .frame(
                 minWidth: width.minimum,
                 maxWidth: width.maximum,
@@ -125,6 +125,13 @@ public struct HopesButton: View {
             .disabled(!isEnabled)
             .opacity(isEnabled ? 1 : 0.45)
             .accessibilityHint(isEnabled ? "" : "사용할 수 없는 버튼")
+    }
+
+    private var horizontalPadding: CGFloat {
+        if case .fixed = width {
+            return 0
+        }
+        return size.horizontalPadding
     }
 
     private var foregroundColor: Color {

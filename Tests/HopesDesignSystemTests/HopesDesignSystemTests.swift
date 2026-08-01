@@ -120,6 +120,13 @@ func toastVariantsCanBeConstructed() {
 
 @Test
 @MainActor
+func settingsViewCanBeConstructed() {
+    _ = SettingsView()
+    _ = LoginFlowView(isSettingsInitiallyOpen: true)
+}
+
+@Test
+@MainActor
 func loginSwipeGuideCanBeConstructed() {
     _ = LoginSwipeGuideView()
     _ = LoginSwipeGuideView(onOpenLogin: {})
