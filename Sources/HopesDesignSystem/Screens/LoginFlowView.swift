@@ -13,6 +13,7 @@ public struct LoginFlowView: View {
         case notifications
         case myPage
         case settings
+        case generalSettings
     }
 
     @State private var screen: Screen
@@ -42,11 +43,14 @@ public struct LoginFlowView: View {
         isNotificationsInitiallyOpen: Bool = false,
         isMyPageInitiallyOpen: Bool = false,
         isSettingsInitiallyOpen: Bool = false,
+        isGeneralSettingsInitiallyOpen: Bool = false,
         onLogin: @escaping () -> Void = {},
         onSignUp: @escaping (SignUpFormData) -> Void = { _ in },
         onStartChat: @escaping () -> Void = {}
     ) {
-        let initialScreen: Screen = if isSettingsInitiallyOpen {
+        let initialScreen: Screen = if isGeneralSettingsInitiallyOpen {
+            .generalSettings
+        } else if isSettingsInitiallyOpen {
             .settings
         } else if isMyPageInitiallyOpen {
             .myPage
@@ -187,8 +191,25 @@ public struct LoginFlowView: View {
                     onBackToChat: {
                         transition(to: .chatHome)
                     },
+                    onOpenGeneral: {
+                        transition(to: .generalSettings)
+                    },
                     onLogout: {
                         transition(to: .login)
+                    }
+                )
+                    .transition(.move(edge: .trailing))
+
+            case .generalSettings:
+                GeneralSettingsView(
+                    onBack: {
+                        transition(to: .settings)
+                    },
+                    onDone: {
+                        transition(to: .settings)
+                    },
+                    onBackToChat: {
+                        transition(to: .chatHome)
                     }
                 )
                     .transition(.move(edge: .trailing))
