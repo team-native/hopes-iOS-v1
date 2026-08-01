@@ -127,6 +127,14 @@ func settingsViewCanBeConstructed() {
 
 @Test
 @MainActor
+func generalSettingsViewCanBeConstructed() {
+    _ = GeneralSettingsView()
+    _ = GeneralSettingsView(isDarkModeEnabled: true)
+    _ = LoginFlowView(isGeneralSettingsInitiallyOpen: true)
+}
+
+@Test
+@MainActor
 func loginSwipeGuideCanBeConstructed() {
     _ = LoginSwipeGuideView()
     _ = LoginSwipeGuideView(onOpenLogin: {})
