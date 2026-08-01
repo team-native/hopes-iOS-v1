@@ -14,6 +14,7 @@ public struct LoginFlowView: View {
         case myPage
         case settings
         case generalSettings
+        case personalSettings
     }
 
     @State private var screen: Screen
@@ -44,11 +45,14 @@ public struct LoginFlowView: View {
         isMyPageInitiallyOpen: Bool = false,
         isSettingsInitiallyOpen: Bool = false,
         isGeneralSettingsInitiallyOpen: Bool = false,
+        isPersonalSettingsInitiallyOpen: Bool = false,
         onLogin: @escaping () -> Void = {},
         onSignUp: @escaping (SignUpFormData) -> Void = { _ in },
         onStartChat: @escaping () -> Void = {}
     ) {
-        let initialScreen: Screen = if isGeneralSettingsInitiallyOpen {
+        let initialScreen: Screen = if isPersonalSettingsInitiallyOpen {
+            .personalSettings
+        } else if isGeneralSettingsInitiallyOpen {
             .generalSettings
         } else if isSettingsInitiallyOpen {
             .settings
@@ -194,6 +198,9 @@ public struct LoginFlowView: View {
                     onOpenGeneral: {
                         transition(to: .generalSettings)
                     },
+                    onOpenPersonalSettings: {
+                        transition(to: .personalSettings)
+                    },
                     onLogout: {
                         transition(to: .login)
                     }
@@ -202,6 +209,20 @@ public struct LoginFlowView: View {
 
             case .generalSettings:
                 GeneralSettingsView(
+                    onBack: {
+                        transition(to: .settings)
+                    },
+                    onDone: {
+                        transition(to: .settings)
+                    },
+                    onBackToChat: {
+                        transition(to: .chatHome)
+                    }
+                )
+                    .transition(.move(edge: .trailing))
+
+            case .personalSettings:
+                PersonalSettingsView(
                     onBack: {
                         transition(to: .settings)
                     },

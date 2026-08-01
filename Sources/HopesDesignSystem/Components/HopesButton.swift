@@ -107,6 +107,7 @@ public struct HopesButton: View {
         Button(title, action: action)
             .font(size.font)
             .lineLimit(1)
+            .minimumScaleFactor(0.8)
             .foregroundStyle(foregroundColor)
             .padding(.horizontal, horizontalPadding)
             .frame(
