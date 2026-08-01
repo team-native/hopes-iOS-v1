@@ -151,6 +151,14 @@ func contactViewCanBeConstructed() {
 
 @Test
 @MainActor
+func accountInfoViewCanBeConstructed() {
+    _ = AccountInfoView()
+    _ = AccountInfoView(isSchoolVerified: false)
+    _ = LoginFlowView(isAccountInfoInitiallyOpen: true)
+}
+
+@Test
+@MainActor
 func loginSwipeGuideCanBeConstructed() {
     _ = LoginSwipeGuideView()
     _ = LoginSwipeGuideView(onOpenLogin: {})

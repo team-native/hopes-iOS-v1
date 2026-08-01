@@ -21,6 +21,7 @@ public struct MyPageView: View {
     private let major: String
     private let onBackToChat: () -> Void
     private let onSave: (Profile) -> Void
+    private let onOpenAccountInfo: () -> Void
 
     public init(
         name: Binding<String>,
@@ -28,7 +29,8 @@ public struct MyPageView: View {
         email: String = "s26055@gsm.hs.kr",
         major: String = "인공지능소프트웨어과",
         onBackToChat: @escaping () -> Void = {},
-        onSave: @escaping (Profile) -> Void = { _ in }
+        onSave: @escaping (Profile) -> Void = { _ in },
+        onOpenAccountInfo: @escaping () -> Void = {}
     ) {
         _name = name
         _introduction = introduction
@@ -42,6 +44,7 @@ public struct MyPageView: View {
         self.major = major
         self.onBackToChat = onBackToChat
         self.onSave = onSave
+        self.onOpenAccountInfo = onOpenAccountInfo
     }
 
     public var body: some View {
@@ -74,7 +77,11 @@ public struct MyPageView: View {
             .padding(.horizontal, 48)
             .padding(.top, 538)
 
-            accountCard
+            Button(action: onOpenAccountInfo) {
+                accountCard
+            }
+            .buttonStyle(.plain)
+            .accessibilityHint("계정 정보 상세 화면을 엽니다")
                 .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
                 .padding(.top, 628)
 

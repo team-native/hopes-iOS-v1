@@ -16,6 +16,7 @@ public struct LoginFlowView: View {
         case generalSettings
         case personalSettings
         case contact
+        case accountInfo
     }
 
     @State private var screen: Screen
@@ -48,11 +49,14 @@ public struct LoginFlowView: View {
         isGeneralSettingsInitiallyOpen: Bool = false,
         isPersonalSettingsInitiallyOpen: Bool = false,
         isContactInitiallyOpen: Bool = false,
+        isAccountInfoInitiallyOpen: Bool = false,
         onLogin: @escaping () -> Void = {},
         onSignUp: @escaping (SignUpFormData) -> Void = { _ in },
         onStartChat: @escaping () -> Void = {}
     ) {
-        let initialScreen: Screen = if isContactInitiallyOpen {
+        let initialScreen: Screen = if isAccountInfoInitiallyOpen {
+            .accountInfo
+        } else if isContactInitiallyOpen {
             .contact
         } else if isPersonalSettingsInitiallyOpen {
             .personalSettings
@@ -190,6 +194,9 @@ public struct LoginFlowView: View {
                     introduction: $profileIntroduction,
                     onBackToChat: {
                         transition(to: .chatHome)
+                    },
+                    onOpenAccountInfo: {
+                        transition(to: .accountInfo)
                     }
                 )
                     .transition(.move(edge: .trailing))
@@ -249,6 +256,17 @@ public struct LoginFlowView: View {
                     },
                     onDone: {
                         transition(to: .settings)
+                    }
+                )
+                    .transition(.move(edge: .trailing))
+
+            case .accountInfo:
+                AccountInfoView(
+                    onBack: {
+                        transition(to: .myPage)
+                    },
+                    onDone: {
+                        transition(to: .myPage)
                     }
                 )
                     .transition(.move(edge: .trailing))
