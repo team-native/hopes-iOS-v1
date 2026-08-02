@@ -27,13 +27,16 @@ public struct NotificationsView: View {
     @State private var isEditing = false
 
     private let onOpenNotification: (NotificationItem) -> Void
+    private let onSelectTab: (HopesTab) -> Void
 
     public init(
         notifications: [NotificationItem] = Self.sampleNotifications,
-        onOpenNotification: @escaping (NotificationItem) -> Void = { _ in }
+        onOpenNotification: @escaping (NotificationItem) -> Void = { _ in },
+        onSelectTab: @escaping (HopesTab) -> Void = { _ in }
     ) {
         _notifications = State(initialValue: notifications)
         self.onOpenNotification = onOpenNotification
+        self.onSelectTab = onSelectTab
     }
 
     public var body: some View {
@@ -57,7 +60,7 @@ public struct NotificationsView: View {
             .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
             .padding(.top, 686)
 
-            HopesTabBar(selection: $selectedTab)
+            HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
                 .frame(maxHeight: .infinity, alignment: .bottom)
         }
         .ignoresSafeArea()

@@ -25,15 +25,18 @@ public struct ConversationHistoryView: View {
     private let conversations: [Conversation]
     private let onNewConversation: () -> Void
     private let onSelectConversation: (Conversation) -> Void
+    private let onSelectTab: (HopesTab) -> Void
 
     public init(
         conversations: [Conversation] = Self.sampleConversations,
         onNewConversation: @escaping () -> Void = {},
-        onSelectConversation: @escaping (Conversation) -> Void = { _ in }
+        onSelectConversation: @escaping (Conversation) -> Void = { _ in },
+        onSelectTab: @escaping (HopesTab) -> Void = { _ in }
     ) {
         self.conversations = conversations
         self.onNewConversation = onNewConversation
         self.onSelectConversation = onSelectConversation
+        self.onSelectTab = onSelectTab
     }
 
     public var body: some View {
@@ -61,7 +64,7 @@ public struct ConversationHistoryView: View {
                 .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
                 .padding(.top, 282)
 
-            HopesTabBar(selection: $selectedTab)
+            HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
                 .frame(maxHeight: .infinity, alignment: .bottom)
         }
         .ignoresSafeArea()

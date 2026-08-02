@@ -9,6 +9,7 @@ public struct PersonalSettingsView: View {
     private let onBackToChat: () -> Void
     private let onSavePrompt: (String) -> Void
     private let onDeleteAllConversations: () -> Void
+    private let onSelectTab: (HopesTab) -> Void
 
     public init(
         systemPrompt: String = "",
@@ -16,7 +17,8 @@ public struct PersonalSettingsView: View {
         onDone: @escaping () -> Void = {},
         onBackToChat: @escaping () -> Void = {},
         onSavePrompt: @escaping (String) -> Void = { _ in },
-        onDeleteAllConversations: @escaping () -> Void = {}
+        onDeleteAllConversations: @escaping () -> Void = {},
+        onSelectTab: @escaping (HopesTab) -> Void = { _ in }
     ) {
         _systemPrompt = State(initialValue: systemPrompt)
         self.onBack = onBack
@@ -24,6 +26,7 @@ public struct PersonalSettingsView: View {
         self.onBackToChat = onBackToChat
         self.onSavePrompt = onSavePrompt
         self.onDeleteAllConversations = onDeleteAllConversations
+        self.onSelectTab = onSelectTab
     }
 
     public var body: some View {
@@ -42,7 +45,7 @@ public struct PersonalSettingsView: View {
                 .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
                 .padding(.top, 562)
 
-            HopesTabBar(selection: $selectedTab)
+            HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
                 .frame(maxHeight: .infinity, alignment: .bottom)
         }
         .ignoresSafeArea()

@@ -9,6 +9,7 @@ public struct SettingsView: View {
     private let onOpenPersonalSettings: () -> Void
     private let onOpenContact: () -> Void
     private let onLogout: () -> Void
+    private let onSelectTab: (HopesTab) -> Void
 
     public init(
         contactEmail: String = "gsm-chatbot@gsm.hs.kr",
@@ -16,7 +17,8 @@ public struct SettingsView: View {
         onOpenGeneral: @escaping () -> Void = {},
         onOpenPersonalSettings: @escaping () -> Void = {},
         onOpenContact: @escaping () -> Void = {},
-        onLogout: @escaping () -> Void = {}
+        onLogout: @escaping () -> Void = {},
+        onSelectTab: @escaping (HopesTab) -> Void = { _ in }
     ) {
         self.contactEmail = contactEmail
         self.onBackToChat = onBackToChat
@@ -24,6 +26,7 @@ public struct SettingsView: View {
         self.onOpenPersonalSettings = onOpenPersonalSettings
         self.onOpenContact = onOpenContact
         self.onLogout = onLogout
+        self.onSelectTab = onSelectTab
     }
 
     public var body: some View {
@@ -42,7 +45,7 @@ public struct SettingsView: View {
                 .padding(.horizontal, 44)
                 .padding(.top, 536)
 
-            HopesTabBar(selection: $selectedTab)
+            HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
                 .frame(maxHeight: .infinity, alignment: .bottom)
         }
         .ignoresSafeArea()

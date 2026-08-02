@@ -16,6 +16,7 @@ public struct LoginFlowView: View {
         case generalSettings
         case personalSettings
         case contact
+        case accountInfo
     }
 
     @State private var screen: Screen
@@ -48,11 +49,14 @@ public struct LoginFlowView: View {
         isGeneralSettingsInitiallyOpen: Bool = false,
         isPersonalSettingsInitiallyOpen: Bool = false,
         isContactInitiallyOpen: Bool = false,
+        isAccountInfoInitiallyOpen: Bool = false,
         onLogin: @escaping () -> Void = {},
         onSignUp: @escaping (SignUpFormData) -> Void = { _ in },
         onStartChat: @escaping () -> Void = {}
     ) {
-        let initialScreen: Screen = if isContactInitiallyOpen {
+        let initialScreen: Screen = if isAccountInfoInitiallyOpen {
+            .accountInfo
+        } else if isContactInitiallyOpen {
             .contact
         } else if isPersonalSettingsInitiallyOpen {
             .personalSettings
@@ -136,7 +140,8 @@ public struct LoginFlowView: View {
                     message: $chatMessage,
                     onSend: { _ in
                         transition(to: .chatDetail)
-                    }
+                    },
+                    onSelectTab: navigateFromTab
                 )
                     .transition(.move(edge: .trailing))
 
@@ -172,16 +177,20 @@ public struct LoginFlowView: View {
                     },
                     onSelectConversation: { _ in
                         transition(to: .chatDetail)
-                    }
+                    },
+                    onSelectTab: navigateFromTab
                 )
                     .transition(.move(edge: .trailing))
 
             case .notifications:
-                NotificationsView { notification in
-                    if notification.title == "새 답변 도착" {
-                        transition(to: .chatDetail)
-                    }
-                }
+                NotificationsView(
+                    onOpenNotification: { notification in
+                        if notification.title == "새 답변 도착" {
+                            transition(to: .chatDetail)
+                        }
+                    },
+                    onSelectTab: navigateFromTab
+                )
                     .transition(.move(edge: .trailing))
 
             case .myPage:
@@ -190,7 +199,11 @@ public struct LoginFlowView: View {
                     introduction: $profileIntroduction,
                     onBackToChat: {
                         transition(to: .chatHome)
-                    }
+                    },
+                    onOpenAccountInfo: {
+                        transition(to: .accountInfo)
+                    },
+                    onSelectTab: navigateFromTab
                 )
                     .transition(.move(edge: .trailing))
 
@@ -210,7 +223,8 @@ public struct LoginFlowView: View {
                     },
                     onLogout: {
                         transition(to: .login)
-                    }
+                    },
+                    onSelectTab: navigateFromTab
                 )
                     .transition(.move(edge: .trailing))
 
@@ -224,7 +238,8 @@ public struct LoginFlowView: View {
                     },
                     onBackToChat: {
                         transition(to: .chatHome)
-                    }
+                    },
+                    onSelectTab: navigateFromTab
                 )
                     .transition(.move(edge: .trailing))
 
@@ -238,7 +253,8 @@ public struct LoginFlowView: View {
                     },
                     onBackToChat: {
                         transition(to: .chatHome)
-                    }
+                    },
+                    onSelectTab: navigateFromTab
                 )
                     .transition(.move(edge: .trailing))
 
@@ -249,7 +265,20 @@ public struct LoginFlowView: View {
                     },
                     onDone: {
                         transition(to: .settings)
-                    }
+                    },
+                    onSelectTab: navigateFromTab
+                )
+                    .transition(.move(edge: .trailing))
+
+            case .accountInfo:
+                AccountInfoView(
+                    onBack: {
+                        transition(to: .myPage)
+                    },
+                    onDone: {
+                        transition(to: .myPage)
+                    },
+                    onSelectTab: navigateFromTab
                 )
                     .transition(.move(edge: .trailing))
             }
@@ -259,6 +288,19 @@ public struct LoginFlowView: View {
     private func transition(to screen: Screen) {
         withAnimation(.spring(response: 0.42, dampingFraction: 0.88)) {
             self.screen = screen
+        }
+    }
+
+    private func navigateFromTab(_ tab: HopesTab) {
+        switch tab {
+        case .home:
+            transition(to: .notifications)
+        case .chat:
+            transition(to: .chatHome)
+        case .history:
+            transition(to: .conversationHistory)
+        case .settings:
+            transition(to: .settings)
         }
     }
 }
