@@ -9,13 +9,15 @@ public struct GeneralSettingsView: View {
     private let onDone: () -> Void
     private let onBackToChat: () -> Void
     private let onSave: (Bool) -> Void
+    private let onSelectTab: (HopesTab) -> Void
 
     public init(
         isDarkModeEnabled: Bool = false,
         onBack: @escaping () -> Void = {},
         onDone: @escaping () -> Void = {},
         onBackToChat: @escaping () -> Void = {},
-        onSave: @escaping (Bool) -> Void = { _ in }
+        onSave: @escaping (Bool) -> Void = { _ in },
+        onSelectTab: @escaping (HopesTab) -> Void = { _ in }
     ) {
         _isDarkModeEnabled = State(initialValue: isDarkModeEnabled)
         _savedDarkModeEnabled = State(initialValue: isDarkModeEnabled)
@@ -23,6 +25,7 @@ public struct GeneralSettingsView: View {
         self.onDone = onDone
         self.onBackToChat = onBackToChat
         self.onSave = onSave
+        self.onSelectTab = onSelectTab
     }
 
     public var body: some View {
@@ -41,7 +44,7 @@ public struct GeneralSettingsView: View {
                 .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
                 .padding(.top, 688)
 
-            HopesTabBar(selection: $selectedTab)
+            HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
                 .frame(maxHeight: .infinity, alignment: .bottom)
         }
         .ignoresSafeArea()

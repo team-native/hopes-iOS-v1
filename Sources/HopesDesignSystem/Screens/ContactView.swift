@@ -9,6 +9,7 @@ public struct ContactView: View {
     private let onBack: () -> Void
     private let onDone: () -> Void
     private let onSend: (String, String) -> Void
+    private let onSelectTab: (HopesTab) -> Void
 
     public init(
         email: String = "",
@@ -16,7 +17,8 @@ public struct ContactView: View {
         contactEmail: String = "gsm-chatbot@gsm.hs.kr",
         onBack: @escaping () -> Void = {},
         onDone: @escaping () -> Void = {},
-        onSend: @escaping (String, String) -> Void = { _, _ in }
+        onSend: @escaping (String, String) -> Void = { _, _ in },
+        onSelectTab: @escaping (HopesTab) -> Void = { _ in }
     ) {
         _email = State(initialValue: email)
         _message = State(initialValue: message)
@@ -24,6 +26,7 @@ public struct ContactView: View {
         self.onBack = onBack
         self.onDone = onDone
         self.onSend = onSend
+        self.onSelectTab = onSelectTab
     }
 
     public var body: some View {
@@ -42,7 +45,7 @@ public struct ContactView: View {
                 .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
                 .padding(.top, 624)
 
-            HopesTabBar(selection: $selectedTab)
+            HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
                 .frame(maxHeight: .infinity, alignment: .bottom)
         }
         .ignoresSafeArea()

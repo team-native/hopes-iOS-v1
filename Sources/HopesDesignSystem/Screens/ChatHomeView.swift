@@ -6,6 +6,7 @@ public struct ChatHomeView: View {
 
     private let onNewChat: () -> Void
     private let onSend: (String) -> Void
+    private let onSelectTab: (HopesTab) -> Void
 
     private let suggestions = [
         ("⌂", "기숙사 하루 일과가 어떻게 돼?"),
@@ -17,11 +18,13 @@ public struct ChatHomeView: View {
     public init(
         message: Binding<String>,
         onNewChat: @escaping () -> Void = {},
-        onSend: @escaping (String) -> Void = { _ in }
+        onSend: @escaping (String) -> Void = { _ in },
+        onSelectTab: @escaping (HopesTab) -> Void = { _ in }
     ) {
         _message = message
         self.onNewChat = onNewChat
         self.onSend = onSend
+        self.onSelectTab = onSelectTab
     }
 
     public var body: some View {
@@ -64,7 +67,7 @@ public struct ChatHomeView: View {
                 .padding(.horizontal, 24)
                 .padding(.top, 728)
 
-            HopesTabBar(selection: $selectedTab)
+            HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
                 .frame(maxHeight: .infinity, alignment: .bottom)
         }
         .ignoresSafeArea()

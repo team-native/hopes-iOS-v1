@@ -22,9 +22,14 @@ public enum HopesTab: String, CaseIterable, Sendable {
 
 public struct HopesTabBar: View {
     @Binding private var selection: HopesTab
+    private let onSelect: (HopesTab) -> Void
 
-    public init(selection: Binding<HopesTab>) {
+    public init(
+        selection: Binding<HopesTab>,
+        onSelect: @escaping (HopesTab) -> Void = { _ in }
+    ) {
         _selection = selection
+        self.onSelect = onSelect
     }
 
     public var body: some View {
@@ -32,6 +37,7 @@ public struct HopesTabBar: View {
             ForEach(HopesTab.allCases, id: \.self) { tab in
                 Button {
                     selection = tab
+                    onSelect(tab)
                 } label: {
                     VStack(spacing: -1) {
                         Text(selection == tab ? "●" : "○")
