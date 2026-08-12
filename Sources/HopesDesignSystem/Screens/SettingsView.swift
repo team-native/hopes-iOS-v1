@@ -2,6 +2,7 @@ import SwiftUI
 
 public struct SettingsView: View {
     @State private var selectedTab: HopesTab = .settings
+    @State private var isDarkModeEnabled = false
 
     private let contactEmail: String
     private let onBackToChat: () -> Void
@@ -37,13 +38,41 @@ public struct SettingsView: View {
                 .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
                 .padding(.top, 76)
 
-            settingsCard
-                .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
-                .padding(.top, 172)
+            HopesActionRow(
+                title: "개인 설정",
+                subtitle: "시스템 프롬프트 관리",
+                action: onOpenPersonalSettings
+            )
+            .frame(width: 314)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.leading, 37)
+            .padding(.top, 150)
 
-            HopesToast("문의: \(contactEmail)")
-                .padding(.horizontal, 44)
-                .padding(.top, 536)
+            HopesActionRow(
+                title: "문의하기",
+                subtitle: contactEmail,
+                action: onOpenContact
+            )
+            .frame(width: 314)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.leading, 37)
+            .padding(.top, 217)
+
+            darkModeRow
+                .frame(width: 314)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.leading, 39)
+                .padding(.top, 307)
+
+            HopesButton(
+                "로그아웃",
+                variant: .danger,
+                width: .fixed(330),
+                action: onLogout
+            )
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.leading, 29)
+            .padding(.top, 397)
 
             HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
                 .frame(maxHeight: .infinity, alignment: .bottom)
@@ -52,59 +81,46 @@ public struct SettingsView: View {
     }
 
     private var header: some View {
-        HStack(alignment: .top) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text("설정")
-                    .font(.title.weight(.bold))
+        VStack(alignment: .leading, spacing: 2) {
+            Text("설정")
+                .font(.title.weight(.bold))
+                .foregroundStyle(Color.hopesTextPrimary)
+
+            Text("앱 설정과 도움말을 관리해요.")
+                .font(.footnote)
+                .foregroundStyle(Color.hopesTextSecondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var darkModeRow: some View {
+        HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("다크 모드")
+                    .font(.callout.weight(.semibold))
                     .foregroundStyle(Color.hopesTextPrimary)
 
-                Text("앱 설정과 도움말을 관리해요.")
-                    .font(.footnote)
+                Text("시스템 설정에 맞춰 전환")
+                    .font(.caption)
                     .foregroundStyle(Color.hopesTextSecondary)
             }
 
-            Spacer()
+            Spacer(minLength: 8)
 
-            HopesButton(
-                "채팅으로",
-                variant: .secondary,
-                size: .small,
-                width: .fixed(54),
-                action: onBackToChat
-            )
+            Toggle("다크 모드", isOn: $isDarkModeEnabled)
+                .labelsHidden()
+                .frame(width: 44)
+                .scaleEffect(0.78)
         }
-    }
-
-    private var settingsCard: some View {
-        HopesCard(padding: 20) {
-            VStack(spacing: 12) {
-                HopesActionRow(
-                    title: "일반",
-                    subtitle: "다크 모드, 표시 방식",
-                    action: onOpenGeneral
-                )
-
-                HopesActionRow(
-                    title: "개인 설정",
-                    subtitle: "시스템 프롬프트 관리",
-                    action: onOpenPersonalSettings
-                )
-
-                HopesActionRow(
-                    title: "문의하기",
-                    subtitle: contactEmail,
-                    action: onOpenContact
-                )
-
-                HopesButton(
-                    "로그아웃",
-                    variant: .danger,
-                    size: .regular,
-                    action: onLogout
-                )
-            }
+        .padding(.horizontal, 20)
+        .frame(height: 64)
+        .background(.white)
+        .clipShape(RoundedRectangle(cornerRadius: HopesMetrics.cardCornerRadius))
+        .overlay {
+            RoundedRectangle(cornerRadius: HopesMetrics.cardCornerRadius)
+                .stroke(Color.hopesBorder, lineWidth: 1)
         }
-        .frame(height: 317)
+        .shadow(color: Color.black.opacity(0.045), radius: 7, y: 4)
     }
 }
 
