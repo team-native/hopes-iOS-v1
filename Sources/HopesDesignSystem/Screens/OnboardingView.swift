@@ -35,19 +35,23 @@ public struct OnboardingView: View {
                 .padding(.top, 330)
 
             tipCard(
-                "1. “기숙사 어때?”보다 “1학년 기숙사 평일 루틴\n알려줘”"
+                number: "1",
+                caption: "“기숙사 어때” 보단,",
+                detail: "“1학년 기숙사 평일 루틴 알려줘”"
             )
             .padding(.top, 450)
 
             tipCard(
-                "2. 입학/전공/학교생활 중 카테고리를 먼저 골라\n요."
+                number: "2",
+                caption: "질문 전에,",
+                detail: "입학 / 전공 / 학교생활 중 카테고리를 골라요."
             )
-            .padding(.top, 546)
+            .padding(.top, 543)
 
             HopesButton(
                 "채팅 시작하기",
-                variant: .dark,
-                size: .extraLarge,
+                variant: .secondary,
+                size: .regular,
                 width: .fixed(338),
                 action: onStartChat
             )
@@ -59,20 +63,34 @@ public struct OnboardingView: View {
         .ignoresSafeArea()
     }
 
-    private func tipCard(_ text: String) -> some View {
+    private func tipCard(number: String, caption: String, detail: String) -> some View {
         HopesCard(
             padding: 0,
             cornerRadius: HopesMetrics.cardCornerRadius,
             elevation: .flat
         ) {
-            Text(text)
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundStyle(Color.hopesTextPrimary)
-                .lineSpacing(2)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 22)
-                .padding(.top, 24)
-                .frame(maxHeight: .infinity, alignment: .top)
+            HStack(alignment: .top, spacing: 12) {
+                Text(number)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(Color(red: 10 / 255, green: 90 / 255, blue: 150 / 255))
+                    .frame(width: 24, height: 24)
+                    .background(Color.hopesBrandTint)
+                    .clipShape(Circle())
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(caption)
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(Color.hopesTextSecondary)
+
+                    Text(detail)
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(Color.hopesTextPrimary)
+                        .lineLimit(2)
+                }
+            }
+            .padding(.horizontal, 14)
+            .padding(.top, 14)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         }
         .frame(width: 338, height: 78)
     }
