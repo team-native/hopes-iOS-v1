@@ -79,13 +79,6 @@ public struct ContactView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
-            HopesButton(
-                "완료",
-                variant: .secondary,
-                size: .small,
-                width: .fixed(54),
-                action: onDone
-            )
         }
     }
 
@@ -118,19 +111,18 @@ public struct ContactView: View {
     }
 
     private var emailField: some View {
-        VStack(spacing: 0) {
-            Rectangle()
-                .fill(Color.hopesBorder)
-                .frame(height: 1)
-
-            TextField("student@gsm.hs.kr", text: $email)
-                .textFieldStyle(.plain)
-                .font(.subheadline)
-                .foregroundStyle(Color.hopesTextPrimary)
-                .padding(.horizontal, 16)
-                .frame(height: 51)
-        }
-        .frame(height: 52)
+        TextField("이메일", text: $email)
+            .textFieldStyle(.plain)
+            .font(.subheadline)
+            .foregroundStyle(Color.hopesTextPrimary)
+            .padding(.horizontal, 16)
+            .frame(height: 40)
+            .background(.white)
+            .clipShape(RoundedRectangle(cornerRadius: HopesMetrics.controlCornerRadius))
+            .overlay {
+                RoundedRectangle(cornerRadius: HopesMetrics.controlCornerRadius)
+                    .stroke(Color(red: 217 / 255, green: 217 / 255, blue: 217 / 255), lineWidth: 1)
+            }
     }
 
     private var messageEditor: some View {
