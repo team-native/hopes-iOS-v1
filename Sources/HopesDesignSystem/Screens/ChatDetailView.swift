@@ -10,19 +10,22 @@ public struct ChatDetailView: View {
     private let onShowSources: () -> Void
     private let onSend: (String) -> Void
     private let onShare: () -> Void
+    private let onSelectTab: (HopesTab) -> Void
 
     public init(
         reply: Binding<String>,
         onBack: @escaping () -> Void = {},
         onShowSources: @escaping () -> Void = {},
         onSend: @escaping (String) -> Void = { _ in },
-        onShare: @escaping () -> Void = {}
+        onShare: @escaping () -> Void = {},
+        onSelectTab: @escaping (HopesTab) -> Void = { _ in }
     ) {
         _reply = reply
         self.onBack = onBack
         self.onShowSources = onShowSources
         self.onSend = onSend
         self.onShare = onShare
+        self.onSelectTab = onSelectTab
     }
 
     public var body: some View {
@@ -52,7 +55,7 @@ public struct ChatDetailView: View {
             composer
                 .padding(.top, 716)
 
-            HopesTabBar(selection: $selectedTab)
+            HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
                 .frame(maxHeight: .infinity, alignment: .bottom)
         }
         .ignoresSafeArea()
