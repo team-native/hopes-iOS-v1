@@ -33,7 +33,7 @@ public struct HopesTabBar: View {
     }
 
     public var body: some View {
-        HStack(alignment: .top, spacing: 28) {
+        HStack(alignment: .top, spacing: 0) {
             ForEach(HopesTab.allCases, id: \.self) { tab in
                 Button {
                     selection = tab
@@ -62,14 +62,14 @@ public struct HopesTabBar: View {
                     .frame(width: 60, height: 42, alignment: .top)
                     .contentShape(Rectangle())
                 }
+                .frame(maxWidth: .infinity, alignment: .center)
                 .buttonStyle(.plain)
                 .accessibilityLabel(tab.title)
                 .accessibilityAddTraits(selection == tab ? .isSelected : [])
             }
         }
-        .padding(.leading, 25)
         .padding(.top, 12)
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity)
         .frame(height: 84, alignment: .top)
         .frame(maxWidth: .infinity)
         .background(.white)
