@@ -47,13 +47,8 @@ public struct HopesTabBar: View {
                                     ? Color.hopesBrandPrimary
                                     : Color.hopesTextPlaceholder
                             )
-                            .frame(width: 60, height: 30)
-                            .background(
-                                selection == tab
-                                    ? Color.hopesBrandTint
-                                    : .clear
-                            )
-                            .clipShape(Capsule())
+                            .frame(width: 34, height: 14)
+                            .modifier(TabIconContainerModifier(isSelected: selection == tab))
 
                         Text(tab.title)
                             .font(.system(size: 10, weight: .semibold))
@@ -62,8 +57,9 @@ public struct HopesTabBar: View {
                                     ? Color.hopesBrandPrimary
                                     : Color.hopesTextSecondary
                             )
+                            .frame(width: 46, height: 12, alignment: .center)
                     }
-                    .frame(width: 60)
+                    .frame(width: 60, height: 42, alignment: .top)
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
@@ -82,6 +78,19 @@ public struct HopesTabBar: View {
                 .fill(Color.hopesBorder)
                 .frame(height: 1)
         }
+    }
+}
+
+private struct TabIconContainerModifier: ViewModifier {
+    let isSelected: Bool
+
+    func body(content: Content) -> some View {
+        content
+            .frame(width: 60, height: 30, alignment: .center)
+            .background {
+                Capsule()
+                    .fill(isSelected ? Color.hopesBrandTint : .clear)
+            }
     }
 }
 
