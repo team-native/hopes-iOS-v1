@@ -95,26 +95,16 @@ public struct LoginSwipeGuideView: View {
                 .frame(width: 86, height: 5)
                 .padding(.top, 20)
 
-            HStack(alignment: .top, spacing: 16) {
-                VStack(alignment: .leading, spacing: 7) {
-                    Text("로그인")
-                        .font(HopesTypography.inter(size: 25, weight: .bold, relativeTo: .title2))
-                        .foregroundStyle(Color("HopesSheetTitle", bundle: .module))
+            VStack(alignment: .leading, spacing: 7) {
+                Text("로그인")
+                    .font(HopesTypography.inter(size: 25, weight: .bold, relativeTo: .title2))
+                    .foregroundStyle(Color("HopesSheetTitle", bundle: .module))
 
-                    Text("학교 이메일로 로그인하세요.")
-                        .font(HopesTypography.inter(size: 12, relativeTo: .caption))
-                        .foregroundStyle(Color("HopesSheetSecondary", bundle: .module))
-                }
-
-                Spacer(minLength: 0)
-
-                HopesButton(
-                    "열기",
-                    size: .medium,
-                    width: .fixed(66),
-                    action: openLogin
-                )
+                Text("학교 이메일로 로그인하세요.")
+                    .font(HopesTypography.inter(size: 12, relativeTo: .caption))
+                    .foregroundStyle(Color("HopesSheetSecondary", bundle: .module))
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 30)
             .padding(.top, 78)
         }
@@ -128,6 +118,8 @@ public struct LoginSwipeGuideView: View {
             )
         )
         .shadow(color: Color(red: 10 / 255, green: 31 / 255, blue: 56 / 255).opacity(0.16), radius: 14, y: -6)
+        .contentShape(Rectangle())
+        .onTapGesture(perform: openLogin)
         .accessibilityAction(named: "로그인 열기", openLogin)
     }
 
