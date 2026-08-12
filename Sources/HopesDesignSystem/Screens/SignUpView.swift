@@ -56,15 +56,10 @@ public struct SignUpView: View {
                 .padding(.top, 217)
 
             signUpButton
-                .padding(.top, 579)
+                .padding(.top, 645)
 
-            HopesButton(
-                "이미 계정이 있어요",
-                variant: .secondary,
-                width: .fixed(354),
-                action: onGoToLogin
-            )
-            .padding(.top, 645)
+            loginLink
+                .padding(.top, 701)
 
             authTabBar
                 .frame(maxHeight: .infinity, alignment: .bottom)
@@ -105,9 +100,10 @@ public struct SignUpView: View {
                 placeholder: "임서하"
             )
             signUpField(
-                "전공",
+                "과",
                 text: $major,
-                placeholder: ""
+                placeholder: "AI",
+                kind: .major
             )
             signUpField(
                 "기수",
@@ -116,9 +112,9 @@ public struct SignUpView: View {
                 kind: .cohort
             )
         }
-        .padding(.horizontal, 24)
-        .padding(.top, 22)
-        .frame(width: 354, height: 338, alignment: .top)
+        .padding(.horizontal, 17)
+        .padding(.top, 30)
+        .frame(width: 354, height: 386, alignment: .top)
         .background(.white)
         .clipShape(RoundedRectangle(cornerRadius: HopesMetrics.cardCornerRadius))
         .overlay {
@@ -130,6 +126,10 @@ public struct SignUpView: View {
 
     private var signUpButton: some View {
         Button {
+            guard isFormValid else {
+                return
+            }
+
             onSignUp(
                 SignUpFormData(
                     email: email.trimmingCharacters(in: .whitespacesAndNewlines),
@@ -143,12 +143,24 @@ public struct SignUpView: View {
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundStyle(.white)
                 .frame(width: 354, height: 46)
-                .background(isFormValid ? Color.hopesBrandPrimary : .clear)
+                .background(Color.hopesBrandPrimary)
                 .clipShape(RoundedRectangle(cornerRadius: HopesMetrics.controlCornerRadius))
         }
         .buttonStyle(.plain)
-        .disabled(!isFormValid)
         .accessibilityHint(isFormValid ? "" : "모든 항목을 올바르게 입력해 주세요.")
+    }
+
+    private var loginLink: some View {
+        Button(action: onGoToLogin) {
+            (Text("계정이 있으신가요?  ")
+                .foregroundStyle(Color.hopesTextSecondary)
+                + Text("로그인")
+                .foregroundStyle(Color.hopesBrandPrimary)
+                .underline())
+                .font(.footnote)
+                .frame(width: 338, height: 18)
+        }
+        .buttonStyle(.plain)
     }
 
     private var authTabBar: some View {
@@ -161,30 +173,54 @@ public struct SignUpView: View {
         placeholder: String,
         kind: SignUpFieldKind = .plain
     ) -> some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(alignment: .leading, spacing: 7) {
             Text(title)
                 .font(.system(size: 12, weight: .semibold))
                 .foregroundStyle(Color.hopesTextPrimary)
 
-            TextField(
-                "",
-                text: text,
-                prompt: Text(placeholder)
-                    .foregroundStyle(Color.hopesTextSecondary)
-            )
-                .signUpInputTraits(kind)
-                .textFieldStyle(.plain)
-                .font(.system(size: 15))
-                .foregroundStyle(Color.hopesTextPrimary)
-                .padding(.horizontal, 16)
-                .frame(height: 52)
-                .overlay(alignment: .top) {
-                    Rectangle()
-                        .fill(Color.hopesBorder)
-                        .frame(height: 1)
+            Group {
+                if kind == .major {
+                    Menu {
+                        ForEach(["AI", "SW", "IoT"], id: \.self) { option in
+                            Button(option) {
+                                text.wrappedValue = option
+                            }
+                        }
+                    } label: {
+                        HStack {
+                            Text(text.wrappedValue.isEmpty ? placeholder : text.wrappedValue)
+                                .foregroundStyle(Color.hopesTextSecondary)
+
+                            Spacer()
+
+                            Image(systemName: "chevron.down")
+                                .font(.caption2.weight(.semibold))
+                                .foregroundStyle(Color.hopesTextPrimary)
+                        }
+                    }
+                } else {
+                    TextField(
+                        "",
+                        text: text,
+                        prompt: Text(placeholder)
+                            .foregroundStyle(Color.hopesTextSecondary)
+                    )
+                    .signUpInputTraits(kind)
                 }
+            }
+            .textFieldStyle(.plain)
+            .font(.system(size: 15))
+            .foregroundStyle(Color.hopesTextPrimary)
+            .padding(.horizontal, 12)
+            .frame(height: 43)
+            .background(.white)
+            .clipShape(RoundedRectangle(cornerRadius: HopesMetrics.controlCornerRadius))
+            .overlay {
+                RoundedRectangle(cornerRadius: HopesMetrics.controlCornerRadius)
+                    .stroke(Color(red: 217 / 255, green: 217 / 255, blue: 217 / 255), lineWidth: 1)
+            }
         }
-        .frame(height: 76, alignment: .top)
+        .frame(height: 89, alignment: .top)
     }
 
     private var isFormValid: Bool {
@@ -204,6 +240,7 @@ public struct SignUpView: View {
 private enum SignUpFieldKind {
     case plain
     case email
+    case major
     case cohort
 }
 
@@ -212,7 +249,7 @@ private extension View {
     func signUpInputTraits(_ kind: SignUpFieldKind) -> some View {
         #if os(iOS)
         switch kind {
-        case .plain:
+        case .plain, .major:
             textInputAutocapitalization(.never)
         case .email:
             textInputAutocapitalization(.never)
