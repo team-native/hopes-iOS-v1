@@ -20,6 +20,7 @@ public struct AnswerEvidenceView: View {
     private let onShare: () -> Void
     private let onOpenEvidence: (Evidence) -> Void
     private let onAskMore: () -> Void
+    private let onSelectTab: (HopesTab) -> Void
 
     public init(
         evidenceItems: [Evidence] = [
@@ -30,13 +31,15 @@ public struct AnswerEvidenceView: View {
         onBack: @escaping () -> Void = {},
         onShare: @escaping () -> Void = {},
         onOpenEvidence: @escaping (Evidence) -> Void = { _ in },
-        onAskMore: @escaping () -> Void = {}
+        onAskMore: @escaping () -> Void = {},
+        onSelectTab: @escaping (HopesTab) -> Void = { _ in }
     ) {
         self.evidenceItems = evidenceItems
         self.onBack = onBack
         self.onShare = onShare
         self.onOpenEvidence = onOpenEvidence
         self.onAskMore = onAskMore
+        self.onSelectTab = onSelectTab
     }
 
     public var body: some View {
@@ -63,7 +66,7 @@ public struct AnswerEvidenceView: View {
             .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
             .padding(.top, 684)
 
-            HopesTabBar(selection: $selectedTab)
+            HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
                 .frame(maxHeight: .infinity, alignment: .bottom)
         }
         .ignoresSafeArea()

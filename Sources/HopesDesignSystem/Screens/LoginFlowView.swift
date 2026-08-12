@@ -105,7 +105,10 @@ public struct LoginFlowView: View {
                 LoginView(
                     email: $email,
                     password: $password,
-                    onLogin: onLogin,
+                    onLogin: {
+                        onLogin()
+                        transition(to: .chatHome)
+                    },
                     onSignUp: {
                         transition(to: .signUp)
                     }
@@ -153,7 +156,8 @@ public struct LoginFlowView: View {
                     },
                     onShowSources: {
                         transition(to: .answerEvidence)
-                    }
+                    },
+                    onSelectTab: navigateFromTab
                 )
                     .transition(.move(edge: .trailing))
 
@@ -165,7 +169,8 @@ public struct LoginFlowView: View {
                     onAskMore: {
                         chatReply = "이 근거를 바탕으로 더 자세히 알려줘."
                         transition(to: .chatDetail)
-                    }
+                    },
+                    onSelectTab: navigateFromTab
                 )
                     .transition(.move(edge: .trailing))
 
@@ -266,6 +271,9 @@ public struct LoginFlowView: View {
                     onDone: {
                         transition(to: .settings)
                     },
+                    onSend: { _, _ in
+                        transition(to: .settings)
+                    },
                     onSelectTab: navigateFromTab
                 )
                     .transition(.move(edge: .trailing))
@@ -300,7 +308,7 @@ public struct LoginFlowView: View {
         case .history:
             transition(to: .conversationHistory)
         case .settings:
-            transition(to: .settings)
+            transition(to: .myPage)
         }
     }
 }

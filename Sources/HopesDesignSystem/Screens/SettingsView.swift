@@ -95,15 +95,20 @@ public struct SettingsView: View {
 
     private var darkModeRow: some View {
         HStack(spacing: 12) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text("다크 모드")
-                    .font(.callout.weight(.semibold))
-                    .foregroundStyle(Color.hopesTextPrimary)
+            Button(action: onOpenGeneral) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("다크 모드")
+                        .font(.callout.weight(.semibold))
+                        .foregroundStyle(Color.hopesTextPrimary)
 
-                Text("시스템 설정에 맞춰 전환")
-                    .font(.caption)
-                    .foregroundStyle(Color.hopesTextSecondary)
+                    Text("시스템 설정에 맞춰 전환")
+                        .font(.caption)
+                        .foregroundStyle(Color.hopesTextSecondary)
+                }
+                .contentShape(Rectangle())
             }
+            .buttonStyle(.plain)
+            .accessibilityHint("일반 설정 화면을 엽니다")
 
             Spacer(minLength: 8)
 
