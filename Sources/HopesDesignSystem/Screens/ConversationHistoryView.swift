@@ -71,49 +71,25 @@ public struct ConversationHistoryView: View {
     }
 
     private var header: some View {
-        HStack(alignment: .top) {
-            VStack(alignment: .leading, spacing: 1) {
-                Text("지난 대화")
-                    .font(.system(size: 27, weight: .bold))
-                    .foregroundStyle(Color.hopesTextPrimary)
+        VStack(alignment: .leading, spacing: 1) {
+            Text("지난 대화")
+                .font(.system(size: 27, weight: .bold))
+                .foregroundStyle(Color.hopesTextPrimary)
 
-                Text("웹사이트 구성을 리스트로 정리했어요.")
-                    .font(.footnote)
-                    .foregroundStyle(Color.hopesTextSecondary)
-            }
-
-            Spacer()
-
-            HopesButton(
-                "검색",
-                variant: .secondary,
-                size: .small,
-                width: .fixed(54)
-            ) {
-                isSearchFocused = true
-            }
+            Text("웹사이트 구성을 리스트로 정리했어요.")
+                .font(.footnote)
+                .foregroundStyle(Color.hopesTextSecondary)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var searchBar: some View {
-        HStack(spacing: 10) {
+        HStack(spacing: 0) {
             TextField("지난 대화 검색", text: $query)
                 .font(.footnote)
                 .foregroundStyle(Color.hopesTextPrimary)
                 .padding(.horizontal, 20)
-                .frame(height: 44)
-                .background(.white)
-                .clipShape(
-                    RoundedRectangle(
-                        cornerRadius: HopesMetrics.controlCornerRadius
-                    )
-                )
-                .overlay {
-                    RoundedRectangle(
-                        cornerRadius: HopesMetrics.controlCornerRadius
-                    )
-                    .stroke(Color.hopesBorder, lineWidth: 1)
-                }
+                .frame(height: 41)
                 .focused($isSearchFocused)
                 .submitLabel(.search)
 
@@ -121,24 +97,19 @@ public struct ConversationHistoryView: View {
                 isSearchFocused = true
             } label: {
                 Text("⌕")
-                    .font(.headline.weight(.semibold))
+                    .font(.subheadline.weight(.semibold))
                     .foregroundStyle(Color.hopesTextPrimary)
-                    .frame(width: 52, height: 44)
-                    .background(.white)
-                    .clipShape(
-                        RoundedRectangle(
-                            cornerRadius: HopesMetrics.controlCornerRadius
-                        )
-                    )
-                    .overlay {
-                        RoundedRectangle(
-                            cornerRadius: HopesMetrics.controlCornerRadius
-                        )
-                        .stroke(Color.hopesBorder, lineWidth: 1)
-                    }
+                    .frame(width: 38, height: 41)
             }
             .buttonStyle(.plain)
             .accessibilityLabel("지난 대화 검색")
+        }
+        .frame(height: 41)
+        .background(.white)
+        .clipShape(RoundedRectangle(cornerRadius: HopesMetrics.controlCornerRadius))
+        .overlay {
+            RoundedRectangle(cornerRadius: HopesMetrics.controlCornerRadius)
+                .stroke(Color.hopesBorder, lineWidth: 1)
         }
     }
 
