@@ -69,41 +69,52 @@ public struct LoginView: View {
                 Text("이메일")
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(Color.hopesTextPrimary)
-                    .padding(.top, 42)
+                    .padding(.top, 39)
 
-                TextField("", text: $email)
+                TextField("이메일", text: $email)
                     .hopesEmailInputTraits()
                     .font(.system(size: 15))
                     .foregroundStyle(Color.hopesTextPrimary)
-                    .padding(.horizontal, 13)
+                    .padding(.horizontal, 16)
                     .frame(height: 40)
-                    .background(Color(red: 217 / 255, green: 217 / 255, blue: 217 / 255))
+                    .background(.white)
                     .clipShape(RoundedRectangle(cornerRadius: 14))
-                    .padding(.horizontal, 3)
-                    .padding(.top, 12)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 14)
+                            .stroke(Color(red: 217 / 255, green: 217 / 255, blue: 217 / 255), lineWidth: 1)
+                    }
+                    .padding(.top, 7)
                     .accessibilityLabel("이메일")
 
                 Text("비밀번호")
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(Color.hopesTextPrimary)
-                    .padding(.top, 18)
+                    .padding(.top, 15)
 
-                SecureField("", text: $password)
+                SecureField("비밀번호", text: $password)
                     .hopesPasswordInputTraits()
                     .font(.system(size: 15))
                     .foregroundStyle(Color.hopesTextPrimary)
-                    .padding(.horizontal, 16)
-                    .frame(height: 52)
-                    .overlay(alignment: .top) {
-                        Rectangle()
-                            .fill(Color.hopesBorder)
-                            .frame(height: 1)
+                    .padding(.leading, 16)
+                    .padding(.trailing, 42)
+                    .frame(height: 40)
+                    .background(.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 14)
+                            .stroke(Color(red: 217 / 255, green: 217 / 255, blue: 217 / 255), lineWidth: 1)
                     }
-                    .padding(.top, 10)
+                    .overlay(alignment: .trailing) {
+                        Image(systemName: "eye.slash")
+                            .font(.system(size: 14))
+                            .foregroundStyle(Color.hopesTextSecondary)
+                            .padding(.trailing, 10)
+                    }
+                    .padding(.top, 9)
                     .accessibilityLabel("비밀번호")
             }
             .padding(.horizontal, 32)
-            .padding(.top, 110)
+            .padding(.top, 68)
 
             HopesButton("로그인", action: onLogin)
                 .padding(.horizontal, 32)
@@ -117,7 +128,7 @@ public struct LoginView: View {
             }
             .buttonStyle(.plain)
             .padding(.horizontal, 32)
-            .padding(.top, 419)
+            .padding(.top, 422)
         }
         .frame(height: 502, alignment: .top)
         .frame(maxWidth: .infinity)
