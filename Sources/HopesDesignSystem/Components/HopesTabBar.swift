@@ -68,6 +68,7 @@ public struct HopesTabBar: View {
                 .accessibilityAddTraits(selection == tab ? .isSelected : [])
             }
         }
+        .padding(.horizontal, 25)
         .padding(.top, 12)
         .frame(maxWidth: .infinity)
         .frame(height: 84, alignment: .top)
