@@ -43,11 +43,11 @@ public struct ChatDetailView: View {
 
             responseActions
                 .padding(.leading, 44)
-                .padding(.top, 386)
+                .padding(.top, 364)
 
             sourceCard
                 .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
-                .padding(.top, 452)
+                .padding(.top, 430)
 
             composer
                 .padding(.top, 716)
@@ -123,7 +123,7 @@ public struct ChatDetailView: View {
         .lineSpacing(2)
         .padding(.horizontal, 20)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .frame(height: 132)
+        .frame(height: 110)
         .background(.white)
         .clipShape(RoundedRectangle(cornerRadius: HopesMetrics.cardCornerRadius))
         .overlay {
