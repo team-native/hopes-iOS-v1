@@ -198,7 +198,7 @@ public struct LoginFlowView: View {
                     name: $profileName,
                     introduction: $profileIntroduction,
                     onBackToChat: {
-                        transition(to: .chatHome)
+                        transition(to: .settings)
                     },
                     onOpenAccountInfo: {
                         transition(to: .accountInfo)

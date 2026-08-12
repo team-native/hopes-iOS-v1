@@ -65,9 +65,17 @@ public struct MyPageView: View {
                 .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
                 .padding(.top, 138)
 
+            Button(action: onOpenAccountInfo) {
+                accountCard
+            }
+            .buttonStyle(.plain)
+            .accessibilityHint("계정 정보 상세 화면을 엽니다")
+                .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
+                .padding(.top, 194)
+
             profileCard
                 .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
-                .padding(.top, 190)
+                .padding(.top, 350)
 
             HopesButton(
                 hasSaved && !hasUnsavedChanges ? "저장됨" : "저장",
@@ -77,16 +85,8 @@ public struct MyPageView: View {
                 action: saveProfile
             )
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 48)
-            .padding(.top, 538)
-
-            Button(action: onOpenAccountInfo) {
-                accountCard
-            }
-            .buttonStyle(.plain)
-            .accessibilityHint("계정 정보 상세 화면을 엽니다")
-                .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
-                .padding(.top, 628)
+            .padding(.horizontal, 18)
+            .padding(.top, 694)
 
             HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
                 .frame(maxHeight: .infinity, alignment: .bottom)
@@ -101,10 +101,10 @@ public struct MyPageView: View {
             Spacer()
 
             HopesButton(
-                "채팅으로",
+                "설정",
                 variant: .secondary,
-                size: .medium,
-                width: .fixed(78),
+                size: .small,
+                width: .fixed(54),
                 action: onBackToChat
             )
         }
