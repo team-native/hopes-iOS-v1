@@ -51,7 +51,7 @@ public struct ChatHomeView: View {
             }
             .padding(.top, 283)
 
-            VStack(spacing: 14) {
+            VStack(spacing: 6) {
                 ForEach(suggestions, id: \.1) { icon, title in
                     HopesQuestionCard(title: title) {
                         message = title
@@ -83,7 +83,7 @@ public struct ChatHomeView: View {
                 "새 대화",
                 variant: .secondary,
                 size: .medium,
-                width: .fixed(78)
+                width: .fixed(70)
             ) {
                 message = ""
                 onNewChat()
@@ -93,7 +93,7 @@ public struct ChatHomeView: View {
 
     private var composer: some View {
         HStack(spacing: 8) {
-            TextField("선배에게 메시지 보내기...", text: $message)
+            TextField("선배에게 메시지 보내기", text: $message)
                 .font(.footnote)
                 .foregroundStyle(Color.hopesTextPrimary)
                 .onSubmit(sendMessage)
@@ -102,7 +102,7 @@ public struct ChatHomeView: View {
                 Image(systemName: "arrow.up")
                     .font(.footnote.weight(.semibold))
                     .foregroundStyle(.white)
-                    .frame(width: 38, height: 38)
+                    .frame(width: 30, height: 30)
                     .background(Color.hopesBrandPrimary)
                     .clipShape(
                         RoundedRectangle(
@@ -113,8 +113,8 @@ public struct ChatHomeView: View {
             .buttonStyle(.plain)
             .accessibilityLabel("메시지 보내기")
         }
-        .padding(.leading, 20)
-        .padding(.trailing, 14)
+        .padding(.leading, 14)
+        .padding(.trailing, 18)
         .frame(height: 52)
         .background(.white)
         .clipShape(RoundedRectangle(cornerRadius: HopesMetrics.cardCornerRadius))
