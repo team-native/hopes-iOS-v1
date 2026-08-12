@@ -41,10 +41,6 @@ public struct PersonalSettingsView: View {
                 .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
                 .padding(.top, 158)
 
-            backToChatRow
-                .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
-                .padding(.top, 562)
-
             HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
                 .frame(maxHeight: .infinity, alignment: .bottom)
         }
@@ -79,13 +75,6 @@ public struct PersonalSettingsView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
-            HopesButton(
-                "완료",
-                variant: .secondary,
-                size: .small,
-                width: .fixed(54),
-                action: onDone
-            )
         }
     }
 
@@ -104,27 +93,18 @@ public struct PersonalSettingsView: View {
                 promptEditor
                     .padding(.top, 16)
 
-                HStack(spacing: 14) {
-                    HopesButton(
-                        "프롬프트 저장",
-                        size: .regular,
-                        width: .fixed(134)
-                    ) {
-                        onSavePrompt(systemPrompt)
-                    }
-
-                    HopesButton(
-                        "모든 대화 삭제",
-                        variant: .danger,
-                        size: .regular,
-                        width: .fixed(126),
-                        action: onDeleteAllConversations
-                    )
+                HopesButton(
+                    "프롬프트 저장",
+                    size: .regular,
+                    width: .fixed(100)
+                ) {
+                    onSavePrompt(systemPrompt)
                 }
-                .padding(.top, 28)
+                .frame(maxWidth: .infinity, alignment: .trailing)
+                .padding(.top, 19)
             }
         }
-        .frame(height: 360)
+        .frame(height: 408)
     }
 
     private var promptEditor: some View {
@@ -145,7 +125,7 @@ public struct PersonalSettingsView: View {
                     .allowsHitTesting(false)
             }
         }
-        .frame(height: 136)
+        .frame(height: 210)
         .background(.white)
         .clipShape(RoundedRectangle(cornerRadius: HopesMetrics.controlCornerRadius))
         .overlay {
@@ -154,38 +134,6 @@ public struct PersonalSettingsView: View {
         }
     }
 
-    private var backToChatRow: some View {
-        HStack(spacing: 16) {
-            VStack(alignment: .leading, spacing: 5) {
-                Text("뒤로")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(Color.hopesTextPrimary)
-
-                Text("채팅 화면으로 돌아가기")
-                    .font(.caption)
-                    .foregroundStyle(Color.hopesTextSecondary)
-            }
-
-            Spacer()
-
-            HopesButton(
-                "이동",
-                variant: .secondary,
-                size: .compact,
-                width: .fixed(56),
-                action: onBackToChat
-            )
-        }
-        .padding(.horizontal, 20)
-        .frame(height: 72)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: HopesMetrics.cardCornerRadius))
-        .overlay {
-            RoundedRectangle(cornerRadius: HopesMetrics.cardCornerRadius)
-                .stroke(Color.hopesBorder, lineWidth: 1)
-        }
-        .shadow(color: Color.black.opacity(0.045), radius: 7, y: 4)
-    }
 }
 
 #Preview("개인 설정") {
