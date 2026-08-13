@@ -10,9 +10,13 @@ public struct SettingsView: View {
     private let onOpenContact: () -> Void
     private let onLogout: () -> Void
     private let onSelectTab: (HopesTab) -> Void
+    private let isLoggingOut: Bool
+    private let errorMessage: String?
 
     public init(
         contactEmail: String = "gsm-chatbot@gsm.hs.kr",
+        isLoggingOut: Bool = false,
+        errorMessage: String? = nil,
         onBackToChat: @escaping () -> Void = {},
         onOpenGeneral: @escaping () -> Void = {},
         onOpenPersonalSettings: @escaping () -> Void = {},
@@ -21,6 +25,8 @@ public struct SettingsView: View {
         onSelectTab: @escaping (HopesTab) -> Void = { _ in }
     ) {
         self.contactEmail = contactEmail
+        self.isLoggingOut = isLoggingOut
+        self.errorMessage = errorMessage
         self.onBackToChat = onBackToChat
         self.onOpenGeneral = onOpenGeneral
         self.onOpenPersonalSettings = onOpenPersonalSettings
@@ -58,14 +64,23 @@ public struct SettingsView: View {
             .padding(.top, 217)
 
             HopesButton(
-                "로그아웃",
+                isLoggingOut ? "로그아웃 중..." : "로그아웃",
                 variant: .danger,
                 width: .fixed(330),
+                isEnabled: !isLoggingOut,
                 action: onLogout
             )
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.leading, 29)
             .padding(.top, 307)
+
+            if let errorMessage {
+                Text(errorMessage)
+                    .font(.footnote)
+                    .foregroundStyle(Color.hopesDanger)
+                    .padding(.horizontal, 30)
+                    .padding(.top, 365)
+            }
 
             HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
                 .frame(maxHeight: .infinity, alignment: .bottom)

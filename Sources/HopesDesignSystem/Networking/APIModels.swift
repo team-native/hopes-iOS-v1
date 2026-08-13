@@ -131,6 +131,10 @@ public struct SettingMainResponse: Decodable, Sendable, Equatable {
     public let inquiry: Bool
 }
 
+public struct InquiryRequest: Encodable, Sendable {
+    public let content: String
+}
+
 public enum HopesAPIError: LocalizedError, Sendable, Equatable {
     case invalidResponse
     case unauthorized(String)

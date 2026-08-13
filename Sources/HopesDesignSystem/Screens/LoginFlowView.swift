@@ -39,6 +39,9 @@ public struct LoginFlowView: View {
     @State private var customPrompt = ""
     @State private var isSavingSettings = false
     @State private var settingsErrorMessage: String?
+    @State private var isSendingInquiry = false
+    @State private var inquiryErrorMessage: String?
+    @State private var isLoggingOut = false
     @State private var conversations: [ConversationHistoryView.Conversation] = []
     @State private var isLoadingConversations = false
     @State private var conversationErrorMessage: String?
@@ -245,6 +248,8 @@ public struct LoginFlowView: View {
 
             case .settings:
                 SettingsView(
+                    isLoggingOut: isLoggingOut,
+                    errorMessage: settingsErrorMessage,
                     onBackToChat: {
                         transition(to: .chatHome)
                     },
@@ -258,7 +263,7 @@ public struct LoginFlowView: View {
                         transition(to: .contact)
                     },
                     onLogout: {
-                        transition(to: .login)
+                        logout()
                     },
                     onSelectTab: navigateFromTab
                 )
@@ -303,14 +308,17 @@ public struct LoginFlowView: View {
 
             case .contact:
                 ContactView(
+                    email: profileEmail,
+                    isSending: isSendingInquiry,
+                    errorMessage: inquiryErrorMessage,
                     onBack: {
                         transition(to: .settings)
                     },
                     onDone: {
                         transition(to: .settings)
                     },
-                    onSend: { _, _ in
-                        transition(to: .settings)
+                    onSend: { _, content in
+                        submitInquiry(content: content)
                     },
                     onSelectTab: navigateFromTab
                 )
@@ -433,6 +441,48 @@ public struct LoginFlowView: View {
         profileIntroduction = profile.profileInfo
         profileEmail = profile.email
         profileMajor = profile.major ?? "미설정"
+    }
+
+    private func submitInquiry(content: String) {
+        guard !isSendingInquiry else { return }
+        isSendingInquiry = true
+        inquiryErrorMessage = nil
+        Task {
+            do {
+                try await HopesAPIClient.shared.submitInquiry(content: content)
+                await MainActor.run {
+                    isSendingInquiry = false
+                    transition(to: .settings)
+                }
+            } catch {
+                await MainActor.run {
+                    isSendingInquiry = false
+                    inquiryErrorMessage = error.localizedDescription
+                }
+            }
+        }
+    }
+
+    private func logout() {
+        guard !isLoggingOut else { return }
+        isLoggingOut = true
+        settingsErrorMessage = nil
+        Task {
+            do {
+                try await HopesAPIClient.shared.logout()
+                await MainActor.run {
+                    isLoggingOut = false
+                    activeChat = nil
+                    conversations = []
+                    transition(to: .login)
+                }
+            } catch {
+                await MainActor.run {
+                    isLoggingOut = false
+                    settingsErrorMessage = error.localizedDescription
+                }
+            }
+        }
     }
 
     private func loadConversations(searchKeyword: String? = nil) {

@@ -182,6 +182,26 @@ public actor HopesAPIClient {
         )
     }
 
+    public func submitInquiry(content: String) async throws -> MessageEnvelope {
+        try await request(
+            path: "/api/setting/inquiry",
+            method: "POST",
+            body: InquiryRequest(content: content),
+            requiresAuthentication: true
+        )
+    }
+
+    public func logout() async throws -> MessageEnvelope {
+        let response: MessageEnvelope = try await request(
+            path: "/api/logout",
+            method: "POST",
+            body: EmptyRequest(),
+            requiresAuthentication: true
+        )
+        try await tokenStore.clear()
+        return response
+    }
+
     private func authenticatedGet<Response: Decodable>(path: String) async throws -> Response {
         guard let url = URL(string: path, relativeTo: baseURL) else {
             throw HopesAPIError.invalidResponse
@@ -256,3 +276,5 @@ public actor HopesAPIClient {
         }
     }
 }
+
+private struct EmptyRequest: Encodable {}
