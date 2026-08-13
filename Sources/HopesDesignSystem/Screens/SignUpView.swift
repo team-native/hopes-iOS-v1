@@ -71,10 +71,9 @@ public struct SignUpView: View {
             Color.hopesBackground.ignoresSafeArea()
             header
 
-            signUpCard
+            signUpPanel
                 .padding(.horizontal, 24)
                 .padding(.top, 217)
-                .padding(.bottom, 92)
 
             HopesTabBar(selection: $selectedTab)
                 .frame(maxHeight: .infinity, alignment: .bottom)
@@ -86,6 +85,15 @@ public struct SignUpView: View {
             statusMessage = nil
             errorMessage = nil
         }
+    }
+
+    private var signUpPanel: some View {
+        VStack(spacing: 14) {
+            signUpCard
+            signUpButton
+            loginLink
+        }
+        .padding(.bottom, 96)
     }
 
     private var header: some View {
@@ -107,38 +115,34 @@ public struct SignUpView: View {
 
     private var signUpCard: some View {
         ScrollView(showsIndicators: true) {
-            VStack(spacing: 20) {
-                VStack(spacing: 0) {
-                    signUpField("학교 이메일", text: $email, placeholder: "s26055@gsm.hs.kr", kind: .email)
-                    verificationField
-                    signUpField("이름", text: $name, placeholder: "임서하")
-                    signUpField(
-                        "비밀번호",
-                        text: $password,
-                        placeholder: "영문·숫자 포함 8~15자",
-                        kind: .password,
-                        isPasswordVisible: $isPasswordVisible
-                    )
-                    signUpField(
-                        "비밀번호 확인",
-                        text: $passwordConfirm,
-                        placeholder: "비밀번호 재입력",
-                        kind: .password,
-                        isPasswordVisible: $isPasswordConfirmVisible
-                    )
-                    signUpField("과", text: $major, placeholder: "AI", kind: .major)
-                    signUpField("기수", text: $cohort, placeholder: "10기", kind: .cohort)
-                }
-
-                signUpButton
-                loginLink
+            VStack(spacing: 0) {
+                signUpField("학교 이메일", text: $email, placeholder: "s26055@gsm.hs.kr", kind: .email)
+                verificationField
+                signUpField("이름", text: $name, placeholder: "임서하")
+                signUpField(
+                    "비밀번호",
+                    text: $password,
+                    placeholder: "영문·숫자 포함 8~15자",
+                    kind: .password,
+                    isPasswordVisible: $isPasswordVisible
+                )
+                signUpField(
+                    "비밀번호 확인",
+                    text: $passwordConfirm,
+                    placeholder: "비밀번호 재입력",
+                    kind: .password,
+                    isPasswordVisible: $isPasswordConfirmVisible
+                )
+                signUpField("과", text: $major, placeholder: "AI", kind: .major)
+                signUpField("기수", text: $cohort, placeholder: "10기", kind: .cohort)
             }
             .padding(.horizontal, 17)
             .padding(.top, 30)
             .padding(.bottom, 28)
         }
         .scrollBounceBehavior(.basedOnSize)
-        .frame(maxWidth: 354, maxHeight: .infinity)
+        .frame(maxWidth: 354)
+        .frame(height: 450)
         .background(.white)
         .clipShape(RoundedRectangle(cornerRadius: HopesMetrics.cardCornerRadius))
         .overlay {
