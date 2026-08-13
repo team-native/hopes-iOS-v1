@@ -44,8 +44,9 @@ public struct LoginView: View {
             VStack(spacing: 0) {
                 Rectangle()
                     .fill(.ultraThinMaterial)
+                    .opacity(0.55)
                     .overlay {
-                        Color.black.opacity(0.1)
+                        Color.black.opacity(0.06)
                     }
                     .frame(height: 397)
 
