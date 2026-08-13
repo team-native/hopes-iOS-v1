@@ -67,6 +67,39 @@ public struct MainResponse: Decodable, Sendable, Equatable {
     public let hasNext: Bool
 }
 
+public struct CreateChatRequest: Encodable, Sendable {
+    public let title: String?
+
+    public init(title: String? = nil) {
+        self.title = title
+    }
+}
+
+public struct SendMessageRequest: Encodable, Sendable {
+    public let content: String
+}
+
+public struct MessageResponse: Decodable, Sendable, Equatable, Identifiable {
+    public enum Role: String, Decodable, Sendable {
+        case user = "USER"
+        case assistant = "ASSISTANT"
+    }
+
+    public let id: Int64
+    public let role: Role
+    public let content: String
+    public let createdAt: String
+}
+
+public struct ChatResponse: Decodable, Sendable, Equatable {
+    public let id: Int64
+    public let title: String
+    public let messages: [MessageResponse]
+    public let messagePage: Int
+    public let messageSize: Int
+    public let hasMoreMessages: Bool
+}
+
 public enum HopesAPIError: LocalizedError, Sendable, Equatable {
     case invalidResponse
     case unauthorized(String)

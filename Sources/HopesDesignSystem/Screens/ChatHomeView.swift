@@ -135,7 +135,7 @@ public struct ChatHomeView: View {
     }
 
     private func sendMessage() {
-        guard !trimmedMessage.isEmpty else {
+        guard !trimmedMessage.isEmpty, trimmedMessage.count <= 12_000 else {
             return
         }
 
