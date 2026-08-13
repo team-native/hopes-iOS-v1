@@ -31,6 +31,14 @@ public struct LoginFlowView: View {
     @State private var chatReply = ""
     @State private var profileName = "임서하"
     @State private var profileIntroduction = ""
+    @State private var profileEmail = ""
+    @State private var profileMajor = ""
+    @State private var isLoadingProfile = false
+    @State private var isSavingProfile = false
+    @State private var profileErrorMessage: String?
+    @State private var customPrompt = ""
+    @State private var isSavingSettings = false
+    @State private var settingsErrorMessage: String?
     @State private var conversations: [ConversationHistoryView.Conversation] = []
     @State private var isLoadingConversations = false
     @State private var conversationErrorMessage: String?
@@ -217,8 +225,16 @@ public struct LoginFlowView: View {
                 MyPageView(
                     name: $profileName,
                     introduction: $profileIntroduction,
+                    email: profileEmail,
+                    major: profileMajor,
+                    isLoading: isLoadingProfile,
+                    isSaving: isSavingProfile,
+                    errorMessage: profileErrorMessage,
                     onBackToChat: {
                         transition(to: .settings)
+                    },
+                    onSave: { profile in
+                        saveProfile(profile)
                     },
                     onOpenAccountInfo: {
                         transition(to: .accountInfo)
@@ -265,6 +281,9 @@ public struct LoginFlowView: View {
 
             case .personalSettings:
                 PersonalSettingsView(
+                    systemPrompt: customPrompt,
+                    isSaving: isSavingSettings,
+                    errorMessage: settingsErrorMessage,
                     onBack: {
                         transition(to: .settings)
                     },
@@ -274,8 +293,12 @@ public struct LoginFlowView: View {
                     onBackToChat: {
                         transition(to: .chatHome)
                     },
+                    onSavePrompt: { prompt in
+                        saveSettings(prompt: prompt)
+                    },
                     onSelectTab: navigateFromTab
                 )
+                    .id(customPrompt)
                     .transition(.move(edge: .trailing))
 
             case .contact:
@@ -319,7 +342,97 @@ public struct LoginFlowView: View {
         }
         if screen == .chatHome || screen == .conversationHistory {
             loadConversations()
+        } else if screen == .myPage {
+            loadProfile()
+        } else if screen == .settings || screen == .personalSettings {
+            loadSettings()
         }
+    }
+
+    private func loadProfile() {
+        guard !isLoadingProfile else { return }
+        isLoadingProfile = true
+        profileErrorMessage = nil
+        Task {
+            do {
+                let profile = try await HopesAPIClient.shared.myPage()
+                await MainActor.run {
+                    apply(profile: profile)
+                    isLoadingProfile = false
+                }
+            } catch {
+                await MainActor.run {
+                    isLoadingProfile = false
+                    profileErrorMessage = error.localizedDescription
+                }
+            }
+        }
+    }
+
+    private func saveProfile(_ profile: MyPageView.Profile) {
+        guard !isSavingProfile else { return }
+        isSavingProfile = true
+        profileErrorMessage = nil
+        Task {
+            do {
+                let updated = try await HopesAPIClient.shared.updateMyPage(
+                    username: profile.name,
+                    nickname: nil,
+                    profileInfo: profile.introduction
+                )
+                await MainActor.run {
+                    apply(profile: updated)
+                    isSavingProfile = false
+                }
+            } catch {
+                await MainActor.run {
+                    isSavingProfile = false
+                    profileErrorMessage = error.localizedDescription
+                }
+            }
+        }
+    }
+
+    private func loadSettings() {
+        Task {
+            do {
+                let settings = try await HopesAPIClient.shared.settings()
+                await MainActor.run {
+                    customPrompt = settings.customPrompt
+                    apply(profile: settings.accountSetting)
+                    settingsErrorMessage = nil
+                }
+            } catch {
+                await MainActor.run { settingsErrorMessage = error.localizedDescription }
+            }
+        }
+    }
+
+    private func saveSettings(prompt: String) {
+        guard !isSavingSettings else { return }
+        isSavingSettings = true
+        settingsErrorMessage = nil
+        Task {
+            do {
+                let settings = try await HopesAPIClient.shared.updateSettings(customPrompt: prompt)
+                await MainActor.run {
+                    customPrompt = settings.customPrompt
+                    isSavingSettings = false
+                }
+            } catch {
+                await MainActor.run {
+                    isSavingSettings = false
+                    settingsErrorMessage = error.localizedDescription
+                }
+            }
+        }
+    }
+
+    private func apply(profile: UserResponse) {
+        profileName = profile.username
+        profileIntroduction = profile.profileInfo
+        profileEmail = profile.email
+        profileMajor = profile.major ?? "미설정"
     }
 
     private func loadConversations(searchKeyword: String? = nil) {

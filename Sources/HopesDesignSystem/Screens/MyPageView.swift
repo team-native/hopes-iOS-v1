@@ -19,6 +19,9 @@ public struct MyPageView: View {
 
     private let email: String
     private let major: String
+    private let isLoading: Bool
+    private let isSaving: Bool
+    private let errorMessage: String?
     private let onBackToChat: () -> Void
     private let onSave: (Profile) -> Void
     private let onOpenAccountInfo: () -> Void
@@ -29,6 +32,9 @@ public struct MyPageView: View {
         introduction: Binding<String>,
         email: String = "s26055@gsm.hs.kr",
         major: String = "인공지능소프트웨어과",
+        isLoading: Bool = false,
+        isSaving: Bool = false,
+        errorMessage: String? = nil,
         onBackToChat: @escaping () -> Void = {},
         onSave: @escaping (Profile) -> Void = { _ in },
         onOpenAccountInfo: @escaping () -> Void = {},
@@ -44,6 +50,9 @@ public struct MyPageView: View {
         )
         self.email = email
         self.major = major
+        self.isLoading = isLoading
+        self.isSaving = isSaving
+        self.errorMessage = errorMessage
         self.onBackToChat = onBackToChat
         self.onSave = onSave
         self.onOpenAccountInfo = onOpenAccountInfo
@@ -78,15 +87,26 @@ public struct MyPageView: View {
                 .padding(.top, 350)
 
             HopesButton(
-                hasSaved && !hasUnsavedChanges ? "저장됨" : "저장",
+                isSaving ? "저장 중" : "저장",
                 size: .regular,
                 width: .fixed(hasSaved && !hasUnsavedChanges ? 104 : 96),
-                isEnabled: canSave,
+                isEnabled: canSave && !isLoading && !isSaving,
                 action: saveProfile
             )
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 18)
             .padding(.top, 694)
+
+            if isLoading {
+                ProgressView("프로필을 불러오는 중...")
+                    .padding(.top, 660)
+            } else if let errorMessage {
+                Text(errorMessage)
+                    .font(.footnote)
+                    .foregroundStyle(Color.hopesDanger)
+                    .padding(.horizontal, 24)
+                    .padding(.top, 660)
+            }
 
             HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
                 .frame(maxHeight: .infinity, alignment: .bottom)
@@ -222,10 +242,6 @@ public struct MyPageView: View {
             return
         }
 
-        name = currentProfile.name
-        introduction = currentProfile.introduction
-        lastSavedProfile = currentProfile
-        hasSaved = true
         onSave(currentProfile)
     }
 }

@@ -53,6 +53,16 @@ func chatMessageRolesMatchBackendEnum() {
 }
 
 @Test
+func userAndSettingsResponsesMatchBackendPayloads() throws {
+    let payload = Data(#"{"accountSetting":{"username":"홍길동","email":"s26055@gsm.hs.kr","nickname":"길동","profileInfo":"AI 전공","profileImage":null,"gender":null,"major":"AI","cohort":10},"theme":"LIGHT","customPrompt":"세 문장으로 답해줘","logout":true,"inquiry":true}"#.utf8)
+    let response = try JSONDecoder().decode(SettingMainResponse.self, from: payload)
+
+    #expect(response.accountSetting.email == "s26055@gsm.hs.kr")
+    #expect(response.accountSetting.cohort == 10)
+    #expect(response.customPrompt == "세 문장으로 답해줘")
+}
+
+@Test
 func logoMetricsMatchFigma() {
     #expect(HopesMetrics.smallCornerRadius == 12)
 }

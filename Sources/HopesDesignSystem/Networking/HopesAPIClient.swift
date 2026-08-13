@@ -143,6 +143,52 @@ public actor HopesAPIClient {
         return try await request(url: url, method: "GET", body: nil, requiresAuthentication: true)
     }
 
+    public func myPage() async throws -> UserResponse {
+        try await authenticatedGet(path: "/api/mypage")
+    }
+
+    public func updateMyPage(
+        username: String?,
+        nickname: String?,
+        profileInfo: String?,
+        profileImage: String? = nil
+    ) async throws -> UserResponse {
+        try await request(
+            path: "/api/mypage",
+            method: "PATCH",
+            body: MyPageUpdateRequest(
+                username: username,
+                nickname: nickname,
+                profileInfo: profileInfo,
+                profileImage: profileImage
+            ),
+            requiresAuthentication: true
+        )
+    }
+
+    public func settings() async throws -> SettingMainResponse {
+        try await authenticatedGet(path: "/api/setting/main")
+    }
+
+    public func updateSettings(
+        customPrompt: String?,
+        deleteAllChats: Bool = false
+    ) async throws -> SettingMainResponse {
+        try await request(
+            path: "/api/setting",
+            method: "PATCH",
+            body: SettingUpdateRequest(customPrompt: customPrompt, deleteAllChats: deleteAllChats),
+            requiresAuthentication: true
+        )
+    }
+
+    private func authenticatedGet<Response: Decodable>(path: String) async throws -> Response {
+        guard let url = URL(string: path, relativeTo: baseURL) else {
+            throw HopesAPIError.invalidResponse
+        }
+        return try await request(url: url, method: "GET", body: nil, requiresAuthentication: true)
+    }
+
     private func request<Response: Decodable, Body: Encodable>(
         path: String,
         method: String,

@@ -10,9 +10,13 @@ public struct PersonalSettingsView: View {
     private let onSavePrompt: (String) -> Void
     private let onDeleteAllConversations: () -> Void
     private let onSelectTab: (HopesTab) -> Void
+    private let isSaving: Bool
+    private let errorMessage: String?
 
     public init(
         systemPrompt: String = "",
+        isSaving: Bool = false,
+        errorMessage: String? = nil,
         onBack: @escaping () -> Void = {},
         onDone: @escaping () -> Void = {},
         onBackToChat: @escaping () -> Void = {},
@@ -21,6 +25,8 @@ public struct PersonalSettingsView: View {
         onSelectTab: @escaping (HopesTab) -> Void = { _ in }
     ) {
         _systemPrompt = State(initialValue: systemPrompt)
+        self.isSaving = isSaving
+        self.errorMessage = errorMessage
         self.onBack = onBack
         self.onDone = onDone
         self.onBackToChat = onBackToChat
@@ -94,14 +100,22 @@ public struct PersonalSettingsView: View {
                     .padding(.top, 16)
 
                 HopesButton(
-                    "프롬프트 저장",
+                    isSaving ? "저장 중" : "프롬프트 저장",
                     size: .regular,
                     width: .fixed(100)
                 ) {
                     onSavePrompt(systemPrompt)
                 }
+                .disabled(isSaving)
                 .frame(maxWidth: .infinity, alignment: .trailing)
                 .padding(.top, 19)
+
+                if let errorMessage {
+                    Text(errorMessage)
+                        .font(.footnote)
+                        .foregroundStyle(Color.hopesDanger)
+                        .padding(.top, 10)
+                }
             }
         }
         .frame(height: 408)
