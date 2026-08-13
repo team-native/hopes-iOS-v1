@@ -100,6 +100,37 @@ public struct ChatResponse: Decodable, Sendable, Equatable {
     public let hasMoreMessages: Bool
 }
 
+public struct UserResponse: Decodable, Sendable, Equatable {
+    public let username: String
+    public let email: String
+    public let nickname: String
+    public let profileInfo: String
+    public let profileImage: String?
+    public let gender: String?
+    public let major: String?
+    public let cohort: Int?
+}
+
+public struct MyPageUpdateRequest: Encodable, Sendable {
+    public let username: String?
+    public let nickname: String?
+    public let profileInfo: String?
+    public let profileImage: String?
+}
+
+public struct SettingUpdateRequest: Encodable, Sendable {
+    public let customPrompt: String?
+    public let deleteAllChats: Bool
+}
+
+public struct SettingMainResponse: Decodable, Sendable, Equatable {
+    public let accountSetting: UserResponse
+    public let theme: String
+    public let customPrompt: String
+    public let logout: Bool
+    public let inquiry: Bool
+}
+
 public enum HopesAPIError: LocalizedError, Sendable, Equatable {
     case invalidResponse
     case unauthorized(String)
