@@ -15,6 +15,14 @@ func serverErrorsExposeUserFacingMessages() {
     let error = HopesAPIError.unauthorized("등록된 회원을 찾을 수 없습니다.")
 
     #expect(error.errorDescription == "등록된 회원을 찾을 수 없습니다.")
+    #expect(
+        HopesAPIError.transport("offline").errorDescription
+            == "서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요."
+    )
+    #expect(
+        HopesAPIError.credentialStorage("Keychain status: -34018").errorDescription
+            == "로그인 정보를 안전하게 저장하지 못했습니다. 앱을 다시 실행한 후 시도해주세요."
+    )
 }
 
 @Test

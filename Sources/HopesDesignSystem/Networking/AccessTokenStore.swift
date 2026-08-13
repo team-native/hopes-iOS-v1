@@ -23,7 +23,7 @@ public actor AccessTokenStore {
 
         let status = SecItemAdd(attributes as CFDictionary, nil)
         guard status == errSecSuccess else {
-            throw HopesAPIError.transport("Keychain status: \(status)")
+            throw HopesAPIError.credentialStorage("Keychain save status: \(status)")
         }
     }
 
@@ -43,7 +43,7 @@ public actor AccessTokenStore {
               let data = result as? Data,
               let token = String(data: data, encoding: .utf8)
         else {
-            throw HopesAPIError.transport("Keychain status: \(status)")
+            throw HopesAPIError.credentialStorage("Keychain read status: \(status)")
         }
         return token
     }
@@ -56,7 +56,7 @@ public actor AccessTokenStore {
         ]
         let status = SecItemDelete(query as CFDictionary)
         guard status == errSecSuccess || status == errSecItemNotFound else {
-            throw HopesAPIError.transport("Keychain status: \(status)")
+            throw HopesAPIError.credentialStorage("Keychain delete status: \(status)")
         }
     }
 }
