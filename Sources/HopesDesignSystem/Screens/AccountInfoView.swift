@@ -9,8 +9,6 @@ public struct AccountInfoView: View {
     private let isSchoolVerified: Bool
     private let onBack: () -> Void
     private let onDone: () -> Void
-    private let onExportData: () -> Void
-    private let onDeleteAccount: () -> Void
     private let onSelectTab: (HopesTab) -> Void
 
     public init(
@@ -20,8 +18,6 @@ public struct AccountInfoView: View {
         isSchoolVerified: Bool = true,
         onBack: @escaping () -> Void = {},
         onDone: @escaping () -> Void = {},
-        onExportData: @escaping () -> Void = {},
-        onDeleteAccount: @escaping () -> Void = {},
         onSelectTab: @escaping (HopesTab) -> Void = { _ in }
     ) {
         self.email = email
@@ -30,8 +26,6 @@ public struct AccountInfoView: View {
         self.isSchoolVerified = isSchoolVerified
         self.onBack = onBack
         self.onDone = onDone
-        self.onExportData = onExportData
-        self.onDeleteAccount = onDeleteAccount
         self.onSelectTab = onSelectTab
     }
 
@@ -46,10 +40,6 @@ public struct AccountInfoView: View {
             accountCard
                 .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
                 .padding(.top, 156)
-
-            actionButtons
-                .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
-                .padding(.top, 500)
 
             HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
                 .frame(maxHeight: .infinity, alignment: .bottom)
@@ -122,25 +112,6 @@ public struct AccountInfoView: View {
         .frame(height: 284)
     }
 
-    private var actionButtons: some View {
-        HStack(spacing: 14) {
-            HopesButton(
-                "데이터 내보내기",
-                variant: .secondary,
-                size: .regular,
-                width: .fixed(170),
-                action: onExportData
-            )
-
-            HopesButton(
-                "계정 삭제",
-                variant: .danger,
-                size: .regular,
-                width: .fixed(170),
-                action: onDeleteAccount
-            )
-        }
-    }
 }
 
 #Preview("계정 정보") {
