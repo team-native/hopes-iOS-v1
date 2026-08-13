@@ -39,6 +39,7 @@ public struct LoginFlowView: View {
     @State private var profileIntroduction = ""
     @State private var profileEmail = ""
     @State private var profileMajor = ""
+    @State private var profileCohort = ""
     @State private var isLoadingProfile = false
     @State private var isSavingProfile = false
     @State private var profileErrorMessage: String?
@@ -351,6 +352,9 @@ public struct LoginFlowView: View {
 
             case .accountInfo:
                 AccountInfoView(
+                    email: profileEmail,
+                    major: profileMajor,
+                    cohort: profileCohort,
                     onBack: {
                         transition(to: .myPage)
                     },
@@ -560,6 +564,7 @@ public struct LoginFlowView: View {
         profileIntroduction = profile.profileInfo
         profileEmail = profile.email
         profileMajor = profile.major ?? "미설정"
+        profileCohort = profile.cohort.map { "\($0)기" } ?? "미설정"
     }
 
     private func submitInquiry(content: String) {
