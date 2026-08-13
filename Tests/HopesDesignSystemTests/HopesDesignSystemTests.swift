@@ -246,23 +246,6 @@ func conversationHistoryViewCanBeConstructed() {
 
 @Test
 @MainActor
-func notificationsViewCanBeConstructed() {
-    _ = NotificationsView()
-    _ = NotificationsView(
-        notifications: [
-            .init(
-                title: "새 답변 도착",
-                subtitle: "선배 답변이 도착했어요.",
-                actionTitle: "보기"
-            ),
-        ],
-        onOpenNotification: { _ in }
-    )
-    _ = LoginFlowView(isNotificationsInitiallyOpen: true)
-}
-
-@Test
-@MainActor
 func myPageViewCanBeConstructed() {
     _ = MyPageView(
         name: .constant("임서하"),

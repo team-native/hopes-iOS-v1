@@ -10,7 +10,6 @@ public struct LoginFlowView: View {
         case chatDetail
         case answerEvidence
         case conversationHistory
-        case notifications
         case myPage
         case settings
         case generalSettings
@@ -43,7 +42,6 @@ public struct LoginFlowView: View {
         isChatDetailInitiallyOpen: Bool = false,
         isAnswerEvidenceInitiallyOpen: Bool = false,
         isConversationHistoryInitiallyOpen: Bool = false,
-        isNotificationsInitiallyOpen: Bool = false,
         isMyPageInitiallyOpen: Bool = false,
         isSettingsInitiallyOpen: Bool = false,
         isGeneralSettingsInitiallyOpen: Bool = false,
@@ -66,8 +64,6 @@ public struct LoginFlowView: View {
             .settings
         } else if isMyPageInitiallyOpen {
             .myPage
-        } else if isNotificationsInitiallyOpen {
-            .notifications
         } else if isConversationHistoryInitiallyOpen {
             .conversationHistory
         } else if isAnswerEvidenceInitiallyOpen {
@@ -187,17 +183,6 @@ public struct LoginFlowView: View {
                 )
                     .transition(.move(edge: .trailing))
 
-            case .notifications:
-                NotificationsView(
-                    onOpenNotification: { notification in
-                        if notification.title == "새 답변 도착" {
-                            transition(to: .chatDetail)
-                        }
-                    },
-                    onSelectTab: navigateFromTab
-                )
-                    .transition(.move(edge: .trailing))
-
             case .myPage:
                 MyPageView(
                     name: $profileName,
@@ -302,7 +287,7 @@ public struct LoginFlowView: View {
     private func navigateFromTab(_ tab: HopesTab) {
         switch tab {
         case .home:
-            transition(to: .notifications)
+            transition(to: .chatHome)
         case .chat:
             transition(to: .chatHome)
         case .history:
