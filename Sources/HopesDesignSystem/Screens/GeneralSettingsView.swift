@@ -2,29 +2,21 @@ import SwiftUI
 
 public struct GeneralSettingsView: View {
     @State private var selectedTab: HopesTab = .settings
-    @State private var isDarkModeEnabled: Bool
-    @State private var savedDarkModeEnabled: Bool
 
     private let onBack: () -> Void
     private let onDone: () -> Void
     private let onBackToChat: () -> Void
-    private let onSave: (Bool) -> Void
     private let onSelectTab: (HopesTab) -> Void
 
     public init(
-        isDarkModeEnabled: Bool = false,
         onBack: @escaping () -> Void = {},
         onDone: @escaping () -> Void = {},
         onBackToChat: @escaping () -> Void = {},
-        onSave: @escaping (Bool) -> Void = { _ in },
         onSelectTab: @escaping (HopesTab) -> Void = { _ in }
     ) {
-        _isDarkModeEnabled = State(initialValue: isDarkModeEnabled)
-        _savedDarkModeEnabled = State(initialValue: isDarkModeEnabled)
         self.onBack = onBack
         self.onDone = onDone
         self.onBackToChat = onBackToChat
-        self.onSave = onSave
         self.onSelectTab = onSelectTab
     }
 
@@ -97,45 +89,12 @@ public struct GeneralSettingsView: View {
                     .padding(.leading, 24)
                     .padding(.top, 28)
 
-                darkModeRow
-                    .padding(.horizontal, 10)
-                    .padding(.top, 28)
-
                 backToChatRow
                     .padding(.horizontal, 10)
-                    .padding(.top, 16)
+                    .padding(.top, 28)
             }
         }
-        .frame(height: 270)
-    }
-
-    private var darkModeRow: some View {
-        HStack(spacing: 16) {
-            VStack(alignment: .leading, spacing: 5) {
-                Text("다크 모드")
-                    .font(.body.weight(.semibold))
-                    .foregroundStyle(Color.hopesTextPrimary)
-
-                Text("시스템 설정에 맞춰 전환")
-                    .font(.caption)
-                    .foregroundStyle(Color.hopesTextSecondary)
-            }
-
-            Spacer()
-
-            Toggle("다크 모드", isOn: $isDarkModeEnabled)
-                .labelsHidden()
-                .tint(.hopesBrandPrimary)
-        }
-        .padding(.horizontal, 20)
-        .frame(height: 78)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 18))
-        .overlay {
-            RoundedRectangle(cornerRadius: 18)
-                .stroke(Color.hopesBorder, lineWidth: 1)
-        }
-        .shadow(color: Color.black.opacity(0.045), radius: 7, y: 4)
+        .frame(height: 180)
     }
 
     private var backToChatRow: some View {
@@ -174,35 +133,23 @@ public struct GeneralSettingsView: View {
     private var actionButtons: some View {
         HStack(spacing: 14) {
             HopesButton(
-                "저장",
+                "완료",
                 size: .regular,
                 width: .fixed(170),
-                action: save
+                action: onDone
             )
 
             HopesButton(
-                "초기화",
+                "뒤로",
                 variant: .secondary,
                 size: .regular,
                 width: .fixed(170),
-                action: reset
+                action: onBack
             )
         }
     }
 
-    private func save() {
-        savedDarkModeEnabled = isDarkModeEnabled
-        onSave(isDarkModeEnabled)
-    }
-
-    private func reset() {
-        isDarkModeEnabled = false
-    }
-
     private func complete() {
-        if savedDarkModeEnabled != isDarkModeEnabled {
-            save()
-        }
         onDone()
     }
 }

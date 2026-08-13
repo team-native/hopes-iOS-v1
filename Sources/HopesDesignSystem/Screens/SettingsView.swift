@@ -2,7 +2,6 @@ import SwiftUI
 
 public struct SettingsView: View {
     @State private var selectedTab: HopesTab = .settings
-    @State private var isDarkModeEnabled = false
 
     private let contactEmail: String
     private let onBackToChat: () -> Void
@@ -58,12 +57,6 @@ public struct SettingsView: View {
             .padding(.leading, 37)
             .padding(.top, 217)
 
-            darkModeRow
-                .frame(width: 314)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.leading, 39)
-                .padding(.top, 307)
-
             HopesButton(
                 "로그아웃",
                 variant: .danger,
@@ -72,7 +65,7 @@ public struct SettingsView: View {
             )
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.leading, 29)
-            .padding(.top, 397)
+            .padding(.top, 307)
 
             HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
                 .frame(maxHeight: .infinity, alignment: .bottom)
@@ -93,40 +86,6 @@ public struct SettingsView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    private var darkModeRow: some View {
-        HStack(spacing: 12) {
-            Button(action: onOpenGeneral) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("다크 모드")
-                        .font(.callout.weight(.semibold))
-                        .foregroundStyle(Color.hopesTextPrimary)
-
-                    Text("시스템 설정에 맞춰 전환")
-                        .font(.caption)
-                        .foregroundStyle(Color.hopesTextSecondary)
-                }
-                .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-            .accessibilityHint("일반 설정 화면을 엽니다")
-
-            Spacer(minLength: 8)
-
-            Toggle("다크 모드", isOn: $isDarkModeEnabled)
-                .labelsHidden()
-                .frame(width: 44)
-                .scaleEffect(0.78)
-        }
-        .padding(.horizontal, 20)
-        .frame(height: 64)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: HopesMetrics.cardCornerRadius))
-        .overlay {
-            RoundedRectangle(cornerRadius: HopesMetrics.cardCornerRadius)
-                .stroke(Color.hopesBorder, lineWidth: 1)
-        }
-        .shadow(color: Color.black.opacity(0.045), radius: 7, y: 4)
-    }
 }
 
 #Preview("설정") {
