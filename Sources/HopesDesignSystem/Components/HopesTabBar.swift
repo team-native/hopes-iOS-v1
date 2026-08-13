@@ -15,7 +15,7 @@ public enum HopesTab: String, CaseIterable, Sendable {
         case .history:
             "기록"
         case .settings:
-            "설정"
+            "마이페이지"
         }
     }
 
@@ -28,7 +28,7 @@ public enum HopesTab: String, CaseIterable, Sendable {
         case .history:
             "clock.arrow.circlepath"
         case .settings:
-            "gearshape"
+            "person"
         }
     }
 
@@ -41,7 +41,7 @@ public enum HopesTab: String, CaseIterable, Sendable {
         case .history:
             "clock.arrow.circlepath"
         case .settings:
-            "gearshape.fill"
+            "person.fill"
         }
     }
 }
