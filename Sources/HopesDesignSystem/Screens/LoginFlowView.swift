@@ -31,6 +31,10 @@ public struct LoginFlowView: View {
     @State private var chatReply = ""
     @State private var profileName = "임서하"
     @State private var profileIntroduction = ""
+    @State private var conversations: [ConversationHistoryView.Conversation] = []
+    @State private var isLoadingConversations = false
+    @State private var conversationErrorMessage: String?
+    @State private var selectedConversationID: Int64?
 
     private let onLogin: () -> Void
     private let onSignUp: (SignUpFormData) -> Void
@@ -175,12 +179,19 @@ public struct LoginFlowView: View {
 
             case .conversationHistory:
                 ConversationHistoryView(
+                    conversations: conversations,
+                    isLoading: isLoadingConversations,
+                    errorMessage: conversationErrorMessage,
                     onNewConversation: {
                         chatMessage = ""
                         transition(to: .chatHome)
                     },
-                    onSelectConversation: { _ in
+                    onSelectConversation: { conversation in
+                        selectedConversationID = conversation.id
                         transition(to: .chatDetail)
+                    },
+                    onSearch: { searchKeyword in
+                        loadConversations(searchKeyword: searchKeyword)
                     },
                     onSelectTab: navigateFromTab
                 )
@@ -279,12 +290,56 @@ public struct LoginFlowView: View {
                     .transition(.move(edge: .trailing))
             }
         }
+        .task {
+            if screen == .chatHome || screen == .conversationHistory {
+                loadConversations()
+            }
+        }
     }
 
     private func transition(to screen: Screen) {
         withAnimation(.spring(response: 0.42, dampingFraction: 0.88)) {
             self.screen = screen
         }
+        if screen == .chatHome || screen == .conversationHistory {
+            loadConversations()
+        }
+    }
+
+    private func loadConversations(searchKeyword: String? = nil) {
+        guard !isLoadingConversations else { return }
+        isLoadingConversations = true
+        conversationErrorMessage = nil
+        Task {
+            do {
+                let response = try await HopesAPIClient.shared.main(searchKeyword: searchKeyword)
+                let mappedConversations = response.chatList.map { summary in
+                    ConversationHistoryView.Conversation(
+                        id: summary.id,
+                        title: summary.title,
+                        period: conversationPeriod(for: summary.updatedAt)
+                    )
+                }
+                await MainActor.run {
+                    conversations = mappedConversations
+                    isLoadingConversations = false
+                }
+            } catch {
+                await MainActor.run {
+                    isLoadingConversations = false
+                    conversationErrorMessage = error.localizedDescription
+                }
+            }
+        }
+    }
+
+    private func conversationPeriod(for updatedAt: String) -> ConversationHistoryView.Conversation.Period {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        let date = formatter.date(from: updatedAt)
+            ?? ISO8601DateFormatter().date(from: updatedAt)
+        guard let date else { return .older }
+        return date >= Date().addingTimeInterval(-7 * 24 * 60 * 60) ? .recent : .older
     }
 
     private func login() {
