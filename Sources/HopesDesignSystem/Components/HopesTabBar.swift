@@ -18,6 +18,32 @@ public enum HopesTab: String, CaseIterable, Sendable {
             "설정"
         }
     }
+
+    fileprivate var iconName: String {
+        switch self {
+        case .home:
+            "house"
+        case .chat:
+            "message"
+        case .history:
+            "clock.arrow.circlepath"
+        case .settings:
+            "gearshape"
+        }
+    }
+
+    fileprivate var selectedIconName: String {
+        switch self {
+        case .home:
+            "house.fill"
+        case .chat:
+            "message.fill"
+        case .history:
+            "clock.arrow.circlepath"
+        case .settings:
+            "gearshape.fill"
+        }
+    }
 }
 
 public struct HopesTabBar: View {
@@ -40,21 +66,21 @@ public struct HopesTabBar: View {
                     onSelect(tab)
                 } label: {
                     VStack(spacing: -1) {
-                        Text(selection == tab ? "●" : "○")
-                            .font(.system(size: 12, weight: .semibold))
+                        Image(systemName: selection == tab ? tab.selectedIconName : tab.iconName)
+                            .font(.system(size: 14, weight: .semibold))
                             .foregroundStyle(
                                 selection == tab
-                                    ? Color.hopesBrandPrimary
+                                    ? Color(red: 13 / 255, green: 138 / 255, blue: 229 / 255)
                                     : Color.hopesTextPlaceholder
                             )
-                            .frame(width: 34, height: 14)
+                            .frame(width: 34, height: 18)
                             .modifier(TabIconContainerModifier(isSelected: selection == tab))
 
                         Text(tab.title)
                             .font(.system(size: 10, weight: .semibold))
                             .foregroundStyle(
                                 selection == tab
-                                    ? Color.hopesBrandPrimary
+                                    ? Color(red: 13 / 255, green: 138 / 255, blue: 229 / 255)
                                     : Color.hopesTextSecondary
                             )
                             .frame(width: 46, height: 12, alignment: .center)
