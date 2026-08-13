@@ -4,6 +4,7 @@ public struct LoginFlowView: View {
     private enum Screen {
         case guide
         case login
+        case passwordReset
         case signUp
         case onboarding
         case chatHome
@@ -23,6 +24,11 @@ public struct LoginFlowView: View {
     @State private var password = ""
     @State private var isLoggingIn = false
     @State private var loginErrorMessage: String?
+    @State private var passwordResetCode = ""
+    @State private var passwordResetNewPassword = ""
+    @State private var isPasswordResetCodeRequested = false
+    @State private var isResettingPassword = false
+    @State private var passwordResetErrorMessage: String?
     @State private var signUpEmail = ""
     @State private var name = ""
     @State private var major = ""
@@ -129,9 +135,26 @@ public struct LoginFlowView: View {
                     },
                     onSignUp: {
                         transition(to: .signUp)
+                    },
+                    onForgotPassword: {
+                        transition(to: .passwordReset)
                     }
                 )
                 .transition(.move(edge: .bottom))
+
+            case .passwordReset:
+                PasswordResetView(
+                    email: $email,
+                    code: $passwordResetCode,
+                    newPassword: $passwordResetNewPassword,
+                    codeRequested: isPasswordResetCodeRequested,
+                    isLoading: isResettingPassword,
+                    errorMessage: passwordResetErrorMessage,
+                    onBack: { transition(to: .login) },
+                    onRequestCode: requestPasswordResetCode,
+                    onReset: resetPassword
+                )
+                .transition(.move(edge: .trailing))
 
             case .signUp:
                 SignUpView(
@@ -357,6 +380,54 @@ public struct LoginFlowView: View {
         }
     }
 
+    private func requestPasswordResetCode() {
+        guard !isResettingPassword else { return }
+        isResettingPassword = true
+        passwordResetErrorMessage = nil
+        Task {
+            do {
+                try await HopesAPIClient.shared.requestPasswordReset(email: email.trimmingCharacters(in: .whitespacesAndNewlines))
+                await MainActor.run {
+                    isResettingPassword = false
+                    isPasswordResetCodeRequested = true
+                }
+            } catch {
+                await MainActor.run {
+                    isResettingPassword = false
+                    passwordResetErrorMessage = error.localizedDescription
+                }
+            }
+        }
+    }
+
+    private func resetPassword() {
+        guard !isResettingPassword else { return }
+        isResettingPassword = true
+        passwordResetErrorMessage = nil
+        Task {
+            do {
+                try await HopesAPIClient.shared.resetPassword(
+                    email: email.trimmingCharacters(in: .whitespacesAndNewlines),
+                    code: passwordResetCode,
+                    newPassword: passwordResetNewPassword
+                )
+                await MainActor.run {
+                    isResettingPassword = false
+                    isPasswordResetCodeRequested = false
+                    passwordResetCode = ""
+                    passwordResetNewPassword = ""
+                    password = ""
+                    transition(to: .login)
+                }
+            } catch {
+                await MainActor.run {
+                    isResettingPassword = false
+                    passwordResetErrorMessage = error.localizedDescription
+                }
+            }
+        }
+    }
+
     private func loadProfile() {
         guard !isLoadingProfile else { return }
         isLoadingProfile = true
@@ -449,7 +520,7 @@ public struct LoginFlowView: View {
         inquiryErrorMessage = nil
         Task {
             do {
-                try await HopesAPIClient.shared.submitInquiry(content: content)
+                _ = try await HopesAPIClient.shared.submitInquiry(content: content)
                 await MainActor.run {
                     isSendingInquiry = false
                     transition(to: .settings)
@@ -469,7 +540,7 @@ public struct LoginFlowView: View {
         settingsErrorMessage = nil
         Task {
             do {
-                try await HopesAPIClient.shared.logout()
+                _ = try await HopesAPIClient.shared.logout()
                 await MainActor.run {
                     isLoggingOut = false
                     activeChat = nil

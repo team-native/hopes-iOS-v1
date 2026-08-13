@@ -6,6 +6,7 @@ public struct LoginView: View {
 
     private let onLogin: () -> Void
     private let onSignUp: () -> Void
+    private let onForgotPassword: () -> Void
     private let isLoading: Bool
     private let errorMessage: String?
 
@@ -15,7 +16,8 @@ public struct LoginView: View {
         isLoading: Bool = false,
         errorMessage: String? = nil,
         onLogin: @escaping () -> Void = {},
-        onSignUp: @escaping () -> Void = {}
+        onSignUp: @escaping () -> Void = {},
+        onForgotPassword: @escaping () -> Void = {}
     ) {
         _email = email
         _password = password
@@ -23,6 +25,7 @@ public struct LoginView: View {
         self.errorMessage = errorMessage
         self.onLogin = onLogin
         self.onSignUp = onSignUp
+        self.onForgotPassword = onForgotPassword
     }
 
     public var body: some View {
@@ -130,6 +133,13 @@ public struct LoginView: View {
                     }
                     .padding(.top, 9)
                     .accessibilityLabel("비밀번호")
+
+                Button("비밀번호를 잊으셨나요?", action: onForgotPassword)
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(Color.hopesBrandPrimary)
+                    .buttonStyle(.plain)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+                    .padding(.top, 8)
             }
             .padding(.horizontal, 32)
             .padding(.top, 68)
