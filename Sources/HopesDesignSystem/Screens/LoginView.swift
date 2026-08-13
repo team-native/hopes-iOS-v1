@@ -21,33 +21,31 @@ public struct LoginView: View {
 
     public var body: some View {
         ZStack {
-            Color.hopesHeroGradient
-                .ignoresSafeArea()
+            ZStack {
+                Color.hopesHeroGradient
+                    .ignoresSafeArea()
 
-            VStack(spacing: 0) {
-                HopesLogo(placement: .onBrand)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.top, 14)
-                    .padding(.horizontal, 32)
+                VStack(spacing: 0) {
+                    HopesLogo(placement: .onBrand)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.top, 14)
+                        .padding(.horizontal, 32)
 
-                Text("선배에게 묻는\n가장 솔직한\n학교 이야기")
-                    .font(.system(size: 31, weight: .bold))
-                    .foregroundStyle(.white)
-                    .lineSpacing(2)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 32)
-                    .padding(.top, 168)
+                    Text("선배에게 묻는\n가장 솔직한\n학교 이야기")
+                        .font(.system(size: 31, weight: .bold))
+                        .foregroundStyle(.white)
+                        .lineSpacing(2)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 32)
+                        .padding(.top, 168)
 
-                Spacer(minLength: 0)
+                    Spacer(minLength: 0)
+                }
             }
+            .blur(radius: 8)
 
             VStack(spacing: 0) {
-                Rectangle()
-                    .fill(.ultraThinMaterial)
-                    .opacity(0.55)
-                    .overlay {
-                        Color.black.opacity(0.06)
-                    }
+                Color.black.opacity(0.1)
                     .frame(height: 397)
 
                 Spacer(minLength: 0)
