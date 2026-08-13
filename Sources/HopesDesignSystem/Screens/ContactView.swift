@@ -10,11 +10,15 @@ public struct ContactView: View {
     private let onDone: () -> Void
     private let onSend: (String, String) -> Void
     private let onSelectTab: (HopesTab) -> Void
+    private let isSending: Bool
+    private let errorMessage: String?
 
     public init(
         email: String = "",
         message: String = "",
         contactEmail: String = "gsm-chatbot@gsm.hs.kr",
+        isSending: Bool = false,
+        errorMessage: String? = nil,
         onBack: @escaping () -> Void = {},
         onDone: @escaping () -> Void = {},
         onSend: @escaping (String, String) -> Void = { _, _ in },
@@ -23,6 +27,8 @@ public struct ContactView: View {
         _email = State(initialValue: email)
         _message = State(initialValue: message)
         self.contactEmail = contactEmail
+        self.isSending = isSending
+        self.errorMessage = errorMessage
         self.onBack = onBack
         self.onDone = onDone
         self.onSend = onSend
@@ -100,10 +106,21 @@ public struct ContactView: View {
                 messageEditor
                     .padding(.top, 16)
 
-                HopesButton("문의 보내기", size: .large) {
+                HopesButton(
+                    isSending ? "전송 중..." : "문의 보내기",
+                    size: .large,
+                    isEnabled: !message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !isSending
+                ) {
                     onSend(email, message)
                 }
                 .padding(.top, 30)
+
+                if let errorMessage {
+                    Text(errorMessage)
+                        .font(.footnote)
+                        .foregroundStyle(Color.hopesDanger)
+                        .padding(.top, 10)
+                }
             }
             .padding(.top, 16)
         }
