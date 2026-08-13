@@ -6,15 +6,21 @@ public struct LoginView: View {
 
     private let onLogin: () -> Void
     private let onSignUp: () -> Void
+    private let isLoading: Bool
+    private let errorMessage: String?
 
     public init(
         email: Binding<String>,
         password: Binding<String>,
+        isLoading: Bool = false,
+        errorMessage: String? = nil,
         onLogin: @escaping () -> Void = {},
         onSignUp: @escaping () -> Void = {}
     ) {
         _email = email
         _password = password
+        self.isLoading = isLoading
+        self.errorMessage = errorMessage
         self.onLogin = onLogin
         self.onSignUp = onSignUp
     }
@@ -128,9 +134,22 @@ public struct LoginView: View {
             .padding(.horizontal, 32)
             .padding(.top, 68)
 
-            HopesButton("로그인", action: onLogin)
+            HopesButton(
+                isLoading ? "로그인 중..." : "로그인",
+                isEnabled: !isLoading && !email.isEmpty && !password.isEmpty,
+                action: onLogin
+            )
                 .padding(.horizontal, 32)
                 .padding(.top, 355)
+
+            if let errorMessage {
+                Text(errorMessage)
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(Color.hopesDanger)
+                    .frame(maxWidth: .infinity)
+                    .padding(.horizontal, 32)
+                    .padding(.top, 407)
+            }
 
             Button(action: onSignUp) {
                 Text("계정이 없으신가요?  회원가입")
@@ -140,7 +159,7 @@ public struct LoginView: View {
             }
             .buttonStyle(.plain)
             .padding(.horizontal, 32)
-            .padding(.top, 422)
+            .padding(.top, errorMessage == nil ? 422 : 450)
         }
         .frame(height: 502, alignment: .top)
         .frame(maxWidth: .infinity)

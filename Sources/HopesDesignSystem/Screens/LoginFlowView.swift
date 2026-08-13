@@ -21,6 +21,8 @@ public struct LoginFlowView: View {
     @State private var screen: Screen
     @State private var email = ""
     @State private var password = ""
+    @State private var isLoggingIn = false
+    @State private var loginErrorMessage: String?
     @State private var signUpEmail = ""
     @State private var name = ""
     @State private var major = ""
@@ -101,9 +103,10 @@ public struct LoginFlowView: View {
                 LoginView(
                     email: $email,
                     password: $password,
+                    isLoading: isLoggingIn,
+                    errorMessage: loginErrorMessage,
                     onLogin: {
-                        onLogin()
-                        transition(to: .chatHome)
+                        login()
                     },
                     onSignUp: {
                         transition(to: .signUp)
@@ -281,6 +284,33 @@ public struct LoginFlowView: View {
     private func transition(to screen: Screen) {
         withAnimation(.spring(response: 0.42, dampingFraction: 0.88)) {
             self.screen = screen
+        }
+    }
+
+    private func login() {
+        guard !isLoggingIn else { return }
+        isLoggingIn = true
+        loginErrorMessage = nil
+
+        Task {
+            do {
+                try await HopesAPIClient.shared.login(
+                    username: email.trimmingCharacters(in: .whitespacesAndNewlines),
+                    password: password
+                )
+                await MainActor.run {
+                    isLoggingIn = false
+                    password = ""
+                    onLogin()
+                    transition(to: .chatHome)
+                }
+            } catch {
+                await MainActor.run {
+                    isLoggingIn = false
+                    loginErrorMessage = (error as? LocalizedError)?.errorDescription
+                        ?? "로그인에 실패했습니다."
+                }
+            }
         }
     }
 
