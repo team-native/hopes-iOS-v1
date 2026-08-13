@@ -143,7 +143,7 @@ public struct LoginFlowView: View {
                         transition(to: .passwordReset)
                     }
                 )
-                .transition(.move(edge: .bottom))
+                .transition(.opacity)
 
             case .passwordReset:
                 PasswordResetView(
@@ -157,7 +157,7 @@ public struct LoginFlowView: View {
                     onRequestCode: requestPasswordResetCode,
                     onReset: resetPassword
                 )
-                .transition(.move(edge: .trailing))
+                .transition(.opacity)
 
             case .signUp:
                 SignUpView(
@@ -173,14 +173,14 @@ public struct LoginFlowView: View {
                         transition(to: .login)
                     }
                 )
-                .transition(.move(edge: .trailing))
+                .transition(.opacity)
 
             case .onboarding:
                 OnboardingView {
                     onStartChat()
                     transition(to: .chatHome)
                 }
-                    .transition(.move(edge: .trailing))
+                    .transition(.opacity)
 
             case .chatHome:
                 ChatHomeView(
@@ -193,7 +193,7 @@ public struct LoginFlowView: View {
                     },
                     onSelectTab: navigateFromTab
                 )
-                    .transition(.move(edge: .trailing))
+                    .transition(.opacity)
 
             case .chatDetail:
                 ChatDetailView(
@@ -214,7 +214,7 @@ public struct LoginFlowView: View {
                     },
                     onSelectTab: navigateFromTab
                 )
-                    .transition(.move(edge: .trailing))
+                    .transition(.opacity)
 
             case .answerEvidence:
                 AnswerEvidenceView(
@@ -227,7 +227,7 @@ public struct LoginFlowView: View {
                     },
                     onSelectTab: navigateFromTab
                 )
-                    .transition(.move(edge: .trailing))
+                    .transition(.opacity)
 
             case .conversationHistory:
                 ConversationHistoryView(
@@ -248,7 +248,7 @@ public struct LoginFlowView: View {
                     },
                     onSelectTab: navigateFromTab
                 )
-                    .transition(.move(edge: .trailing))
+                    .transition(.opacity)
 
             case .myPage:
                 MyPageView(
@@ -270,7 +270,7 @@ public struct LoginFlowView: View {
                     },
                     onSelectTab: navigateFromTab
                 )
-                    .transition(.move(edge: .trailing))
+                    .transition(.opacity)
 
             case .settings:
                 SettingsView(
@@ -293,7 +293,7 @@ public struct LoginFlowView: View {
                     },
                     onSelectTab: navigateFromTab
                 )
-                    .transition(.move(edge: .trailing))
+                    .transition(.opacity)
 
             case .generalSettings:
                 GeneralSettingsView(
@@ -308,7 +308,7 @@ public struct LoginFlowView: View {
                     },
                     onSelectTab: navigateFromTab
                 )
-                    .transition(.move(edge: .trailing))
+                    .transition(.opacity)
 
             case .personalSettings:
                 PersonalSettingsView(
@@ -331,7 +331,7 @@ public struct LoginFlowView: View {
                     onSelectTab: navigateFromTab
                 )
                     .id(customPrompt)
-                    .transition(.move(edge: .trailing))
+                    .transition(.opacity)
 
             case .contact:
                 ContactView(
@@ -349,7 +349,7 @@ public struct LoginFlowView: View {
                     },
                     onSelectTab: navigateFromTab
                 )
-                    .transition(.move(edge: .trailing))
+                    .transition(.opacity)
 
             case .accountInfo:
                 AccountInfoView(
@@ -364,7 +364,7 @@ public struct LoginFlowView: View {
                     },
                     onSelectTab: navigateFromTab
                 )
-                    .transition(.move(edge: .trailing))
+                    .transition(.opacity)
             }
         }
         .task {
@@ -377,7 +377,7 @@ public struct LoginFlowView: View {
     }
 
     private func transition(to screen: Screen) {
-        withAnimation(.spring(response: 0.42, dampingFraction: 0.88)) {
+        withAnimation(.easeOut(duration: 0.16)) {
             self.screen = screen
         }
         if screen == .chatHome || screen == .conversationHistory {
@@ -403,7 +403,7 @@ public struct LoginFlowView: View {
                 }
                 await MainActor.run {
                     conversations = mappedConversations
-                    withAnimation(.spring(response: 0.42, dampingFraction: 0.88)) {
+                    withAnimation(.easeOut(duration: 0.16)) {
                         screen = .chatHome
                     }
                 }
