@@ -60,6 +60,7 @@ public struct LoginFlowView: View {
     private let onLogin: () -> Void
     private let onSignUp: (SignUpFormData) -> Void
     private let onStartChat: () -> Void
+    private let restoresSessionOnLaunch: Bool
 
     public init(
         isLoginInitiallyOpen: Bool = false,
@@ -110,6 +111,7 @@ public struct LoginFlowView: View {
         }
 
         _screen = State(initialValue: initialScreen)
+        restoresSessionOnLaunch = initialScreen == .guide
         self.onLogin = onLogin
         self.onSignUp = onSignUp
         self.onStartChat = onStartChat
@@ -361,7 +363,9 @@ public struct LoginFlowView: View {
             }
         }
         .task {
-            if screen == .chatHome || screen == .conversationHistory {
+            if restoresSessionOnLaunch && screen == .guide {
+                restoreSession()
+            } else if screen == .chatHome || screen == .conversationHistory {
                 loadConversations()
             }
         }
@@ -378,6 +382,44 @@ public struct LoginFlowView: View {
         } else if screen == .settings || screen == .personalSettings {
             loadSettings()
         }
+    }
+
+    private func restoreSession() {
+        Task {
+            do {
+                guard try await HopesAPIClient.shared.hasStoredAccessToken() else { return }
+                let response = try await HopesAPIClient.shared.main()
+                let mappedConversations = response.chatList.map { summary in
+                    ConversationHistoryView.Conversation(
+                        id: summary.id,
+                        title: summary.title,
+                        period: conversationPeriod(for: summary.updatedAt)
+                    )
+                }
+                await MainActor.run {
+                    conversations = mappedConversations
+                    withAnimation(.spring(response: 0.42, dampingFraction: 0.88)) {
+                        screen = .chatHome
+                    }
+                }
+            } catch {
+                await MainActor.run {
+                    handleAuthenticationFailure(error)
+                }
+            }
+        }
+    }
+
+    private func handleAuthenticationFailure(_ error: Error) {
+        guard let apiError = error as? HopesAPIError,
+              case .unauthorized = apiError
+        else { return }
+        activeChat = nil
+        selectedConversationID = nil
+        conversations = []
+        password = ""
+        loginErrorMessage = "로그인이 만료되었습니다. 다시 로그인해주세요."
+        transition(to: .login)
     }
 
     private func requestPasswordResetCode() {
@@ -441,6 +483,7 @@ public struct LoginFlowView: View {
                 }
             } catch {
                 await MainActor.run {
+                    handleAuthenticationFailure(error)
                     isLoadingProfile = false
                     profileErrorMessage = error.localizedDescription
                 }
@@ -465,6 +508,7 @@ public struct LoginFlowView: View {
                 }
             } catch {
                 await MainActor.run {
+                    handleAuthenticationFailure(error)
                     isSavingProfile = false
                     profileErrorMessage = error.localizedDescription
                 }
@@ -482,7 +526,10 @@ public struct LoginFlowView: View {
                     settingsErrorMessage = nil
                 }
             } catch {
-                await MainActor.run { settingsErrorMessage = error.localizedDescription }
+                await MainActor.run {
+                    handleAuthenticationFailure(error)
+                    settingsErrorMessage = error.localizedDescription
+                }
             }
         }
     }
@@ -500,6 +547,7 @@ public struct LoginFlowView: View {
                 }
             } catch {
                 await MainActor.run {
+                    handleAuthenticationFailure(error)
                     isSavingSettings = false
                     settingsErrorMessage = error.localizedDescription
                 }
@@ -527,6 +575,7 @@ public struct LoginFlowView: View {
                 }
             } catch {
                 await MainActor.run {
+                    handleAuthenticationFailure(error)
                     isSendingInquiry = false
                     inquiryErrorMessage = error.localizedDescription
                 }
@@ -549,6 +598,7 @@ public struct LoginFlowView: View {
                 }
             } catch {
                 await MainActor.run {
+                    handleAuthenticationFailure(error)
                     isLoggingOut = false
                     settingsErrorMessage = error.localizedDescription
                 }
@@ -576,6 +626,7 @@ public struct LoginFlowView: View {
                 }
             } catch {
                 await MainActor.run {
+                    handleAuthenticationFailure(error)
                     isLoadingConversations = false
                     conversationErrorMessage = error.localizedDescription
                 }
@@ -603,6 +654,7 @@ public struct LoginFlowView: View {
                 }
             } catch {
                 await MainActor.run {
+                    handleAuthenticationFailure(error)
                     isLoadingChat = false
                     chatErrorMessage = error.localizedDescription
                 }
@@ -624,6 +676,7 @@ public struct LoginFlowView: View {
                 }
             } catch {
                 await MainActor.run {
+                    handleAuthenticationFailure(error)
                     isLoadingChat = false
                     chatErrorMessage = error.localizedDescription
                 }
@@ -651,6 +704,7 @@ public struct LoginFlowView: View {
                 }
             } catch {
                 await MainActor.run {
+                    handleAuthenticationFailure(error)
                     isSendingMessage = false
                     chatErrorMessage = error.localizedDescription
                 }
