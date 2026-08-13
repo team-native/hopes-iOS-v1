@@ -327,6 +327,7 @@ public struct LoginFlowView: View {
                     onSavePrompt: { prompt in
                         saveSettings(prompt: prompt)
                     },
+                    onDeleteAllConversations: deleteAllConversations,
                     onSelectTab: navigateFromTab
                 )
                     .id(customPrompt)
@@ -547,6 +548,33 @@ public struct LoginFlowView: View {
                 let settings = try await HopesAPIClient.shared.updateSettings(customPrompt: prompt)
                 await MainActor.run {
                     customPrompt = settings.customPrompt
+                    isSavingSettings = false
+                }
+            } catch {
+                await MainActor.run {
+                    handleAuthenticationFailure(error)
+                    isSavingSettings = false
+                    settingsErrorMessage = error.localizedDescription
+                }
+            }
+        }
+    }
+
+    private func deleteAllConversations() {
+        guard !isSavingSettings else { return }
+        isSavingSettings = true
+        settingsErrorMessage = nil
+        Task {
+            do {
+                let settings = try await HopesAPIClient.shared.updateSettings(
+                    customPrompt: nil,
+                    deleteAllChats: true
+                )
+                await MainActor.run {
+                    customPrompt = settings.customPrompt
+                    conversations = []
+                    activeChat = nil
+                    selectedConversationID = nil
                     isSavingSettings = false
                 }
             } catch {
