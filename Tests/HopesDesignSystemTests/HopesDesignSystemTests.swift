@@ -27,6 +27,16 @@ func passwordPolicyMatchesServerRegex() {
 }
 
 @Test
+func mainResponseMatchesServerPayload() throws {
+    let payload = Data(#"{"chatList":[{"id":42,"title":"기숙사 생활","updatedAt":"2026-08-13T14:00:00Z"}],"newChat":false,"searchKeyword":null,"page":0,"size":50,"hasNext":false}"#.utf8)
+    let response = try JSONDecoder().decode(MainResponse.self, from: payload)
+
+    #expect(response.chatList.first?.id == 42)
+    #expect(response.chatList.first?.title == "기숙사 생활")
+    #expect(!response.hasNext)
+}
+
+@Test
 func logoMetricsMatchFigma() {
     #expect(HopesMetrics.smallCornerRadius == 12)
 }

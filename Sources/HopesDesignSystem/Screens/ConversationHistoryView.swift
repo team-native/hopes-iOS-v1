@@ -7,12 +7,12 @@ public struct ConversationHistoryView: View {
             case older
         }
 
-        public let id: String
+        public let id: Int64
         public let title: String
         public let period: Period
 
-        public init(title: String, period: Period) {
-            id = title
+        public init(id: Int64 = 0, title: String, period: Period) {
+            self.id = id
             self.title = title
             self.period = period
         }
@@ -23,19 +23,28 @@ public struct ConversationHistoryView: View {
     @FocusState private var isSearchFocused: Bool
 
     private let conversations: [Conversation]
+    private let isLoading: Bool
+    private let errorMessage: String?
     private let onNewConversation: () -> Void
     private let onSelectConversation: (Conversation) -> Void
+    private let onSearch: (String?) -> Void
     private let onSelectTab: (HopesTab) -> Void
 
     public init(
-        conversations: [Conversation] = Self.sampleConversations,
+        conversations: [Conversation] = [],
+        isLoading: Bool = false,
+        errorMessage: String? = nil,
         onNewConversation: @escaping () -> Void = {},
         onSelectConversation: @escaping (Conversation) -> Void = { _ in },
+        onSearch: @escaping (String?) -> Void = { _ in },
         onSelectTab: @escaping (HopesTab) -> Void = { _ in }
     ) {
         self.conversations = conversations
+        self.isLoading = isLoading
+        self.errorMessage = errorMessage
         self.onNewConversation = onNewConversation
         self.onSelectConversation = onSelectConversation
+        self.onSearch = onSearch
         self.onSelectTab = onSelectTab
     }
 
@@ -92,10 +101,9 @@ public struct ConversationHistoryView: View {
                 .frame(height: 41)
                 .focused($isSearchFocused)
                 .submitLabel(.search)
+                .onSubmit(performSearch)
 
-            Button {
-                isSearchFocused = true
-            } label: {
+            Button(action: performSearch) {
                 Text("⌕")
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(Color.hopesTextPrimary)
@@ -116,6 +124,24 @@ public struct ConversationHistoryView: View {
     private var conversationList: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 0) {
+                if isLoading {
+                    ProgressView("대화 목록을 불러오는 중...")
+                        .frame(maxWidth: .infinity)
+                        .padding(.top, 32)
+                } else if let errorMessage {
+                    Text(errorMessage)
+                        .font(.footnote)
+                        .foregroundStyle(Color.hopesDanger)
+                        .frame(maxWidth: .infinity)
+                        .padding(.top, 32)
+                } else if conversations.isEmpty {
+                    Text("아직 저장된 대화가 없어요.")
+                        .font(.footnote)
+                        .foregroundStyle(Color.hopesTextPlaceholder)
+                        .frame(maxWidth: .infinity)
+                        .padding(.top, 32)
+                }
+
                 conversationSection(
                     title: "지난 7일",
                     conversations: filteredConversations(for: .recent)
@@ -149,9 +175,7 @@ public struct ConversationHistoryView: View {
                     Text(conversation.title)
                         .font(.footnote.weight(.medium))
                         .foregroundStyle(
-                            conversation.title == Self.sampleConversations.first?.title
-                                ? Color.hopesTextPrimary
-                                : Color.hopesTextSecondary
+                            Color.hopesTextPrimary
                         )
                         .lineLimit(1)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -186,18 +210,19 @@ public struct ConversationHistoryView: View {
         query.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    public static let sampleConversations: [Conversation] = [
-        Conversation(title: "기숙사 하루 일과가 어떻게 돼?", period: .recent),
-        Conversation(title: "전공 선택은 어떻게 하는 게 좋...", period: .recent),
-        Conversation(title: "여기랑 대덕중에 누가 더 좋음", period: .recent),
-        Conversation(title: "입학하려면 뭘 준비해야 해?", period: .older),
-        Conversation(title: "과랑 전공이랑 뭐가 다름", period: .older),
-        Conversation(title: "후배한테 해주고 싶은 조언 있어?", period: .older),
-        Conversation(title: "가장 예쁜 사람 누구?", period: .older),
-    ]
+    private func performSearch() {
+        isSearchFocused = false
+        onSearch(trimmedQuery.isEmpty ? nil : trimmedQuery)
+    }
+
 }
 
 #Preview("지난 대화") {
-    ConversationHistoryView()
+    ConversationHistoryView(
+        conversations: [
+            .init(id: 1, title: "기숙사 하루 일과가 어떻게 돼?", period: .recent),
+            .init(id: 2, title: "입학하려면 뭘 준비해야 해?", period: .older),
+        ]
+    )
         .frame(width: 402, height: 874)
 }

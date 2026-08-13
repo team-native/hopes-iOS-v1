@@ -76,6 +76,31 @@ public actor HopesAPIClient {
         return response
     }
 
+    public func main(
+        searchKeyword: String? = nil,
+        page: Int = 0,
+        size: Int = 50
+    ) async throws -> MainResponse {
+        guard var components = URLComponents(
+            url: baseURL.appending(path: "/api/main"),
+            resolvingAgainstBaseURL: false
+        ) else {
+            throw HopesAPIError.invalidResponse
+        }
+        var queryItems = [
+            URLQueryItem(name: "page", value: String(page)),
+            URLQueryItem(name: "size", value: String(size)),
+        ]
+        if let searchKeyword, !searchKeyword.isEmpty {
+            queryItems.append(URLQueryItem(name: "searchKeyword", value: searchKeyword))
+        }
+        components.queryItems = queryItems
+        guard let url = components.url else {
+            throw HopesAPIError.invalidResponse
+        }
+        return try await request(url: url, method: "GET", body: nil, requiresAuthentication: true)
+    }
+
     private func request<Response: Decodable, Body: Encodable>(
         path: String,
         method: String,
@@ -86,14 +111,31 @@ public actor HopesAPIClient {
             throw HopesAPIError.invalidResponse
         }
 
+        return try await request(
+            url: url,
+            method: method,
+            body: try encoder.encode(body),
+            requiresAuthentication: requiresAuthentication
+        )
+    }
+
+    private func request<Response: Decodable>(
+        url: URL,
+        method: String,
+        body: Data?,
+        requiresAuthentication: Bool
+    ) async throws -> Response {
         var request = URLRequest(url: url)
         request.httpMethod = method
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         request.timeoutInterval = 20
-        request.httpBody = try encoder.encode(body)
+        request.httpBody = body
 
-        if requiresAuthentication, let token = try await tokenStore.token() {
+        if requiresAuthentication {
+            guard let token = try await tokenStore.token() else {
+                throw HopesAPIError.unauthorized("로그인이 필요합니다")
+            }
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
 

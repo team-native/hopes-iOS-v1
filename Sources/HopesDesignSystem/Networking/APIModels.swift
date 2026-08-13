@@ -52,6 +52,21 @@ public struct SignupRequest: Encodable, Sendable {
     public let cohort: Int?
 }
 
+public struct ChatSummary: Decodable, Sendable, Equatable, Identifiable {
+    public let id: Int64
+    public let title: String
+    public let updatedAt: String
+}
+
+public struct MainResponse: Decodable, Sendable, Equatable {
+    public let chatList: [ChatSummary]
+    public let newChat: Bool
+    public let searchKeyword: String?
+    public let page: Int
+    public let size: Int
+    public let hasNext: Bool
+}
+
 public enum HopesAPIError: LocalizedError, Sendable, Equatable {
     case invalidResponse
     case unauthorized(String)
