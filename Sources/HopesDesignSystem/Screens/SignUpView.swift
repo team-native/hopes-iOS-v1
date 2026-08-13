@@ -33,6 +33,8 @@ public struct SignUpView: View {
     @State private var verificationCode = ""
     @State private var password = ""
     @State private var passwordConfirm = ""
+    @State private var isPasswordVisible = false
+    @State private var isPasswordConfirmVisible = false
     @State private var isRequestingVerification = false
     @State private var isConfirmingVerification = false
     @State private var isSigningUp = false
@@ -113,8 +115,20 @@ public struct SignUpView: View {
             signUpField("학교 이메일", text: $email, placeholder: "s26055@gsm.hs.kr", kind: .email)
             verificationField
             signUpField("이름", text: $name, placeholder: "임서하")
-            signUpField("비밀번호", text: $password, placeholder: "영문·숫자 포함 8~15자", kind: .password)
-            signUpField("비밀번호 확인", text: $passwordConfirm, placeholder: "비밀번호 재입력", kind: .password)
+            signUpField(
+                "비밀번호",
+                text: $password,
+                placeholder: "영문·숫자 포함 8~15자",
+                kind: .password,
+                isPasswordVisible: $isPasswordVisible
+            )
+            signUpField(
+                "비밀번호 확인",
+                text: $passwordConfirm,
+                placeholder: "비밀번호 재입력",
+                kind: .password,
+                isPasswordVisible: $isPasswordConfirmVisible
+            )
             signUpField("과", text: $major, placeholder: "AI", kind: .major)
             signUpField("기수", text: $cohort, placeholder: "10기", kind: .cohort)
         }
@@ -165,7 +179,8 @@ public struct SignUpView: View {
         _ title: String,
         text: Binding<String>,
         placeholder: String,
-        kind: SignUpFieldKind = .plain
+        kind: SignUpFieldKind = .plain,
+        isPasswordVisible: Binding<Bool>? = nil
     ) -> some View {
         VStack(alignment: .leading, spacing: 7) {
             Text(title)
@@ -188,8 +203,27 @@ public struct SignUpView: View {
                                 .foregroundStyle(Color.hopesTextPrimary)
                         }
                     }
-                } else if kind == .password {
-                    SecureField(placeholder, text: text)
+                } else if kind == .password, let isPasswordVisible {
+                    Group {
+                        if isPasswordVisible.wrappedValue {
+                            TextField(placeholder, text: text)
+                        } else {
+                            SecureField(placeholder, text: text)
+                        }
+                    }
+                    .padding(.trailing, 30)
+                    .overlay(alignment: .trailing) {
+                        Button {
+                            isPasswordVisible.wrappedValue.toggle()
+                        } label: {
+                            Image(systemName: isPasswordVisible.wrappedValue ? "eye" : "eye.slash")
+                                .font(.system(size: 14))
+                                .foregroundStyle(Color.hopesTextSecondary)
+                                .frame(width: 30, height: 40)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel(isPasswordVisible.wrappedValue ? "비밀번호 숨기기" : "비밀번호 보기")
+                    }
                 } else {
                     TextField("", text: text, prompt: Text(placeholder).foregroundStyle(Color.hopesTextSecondary))
                         .signUpInputTraits(kind)
