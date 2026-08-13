@@ -32,6 +32,10 @@ public actor HopesAPIClient {
         self.tokenStore = tokenStore
     }
 
+    public func hasStoredAccessToken() async throws -> Bool {
+        try await tokenStore.token() != nil
+    }
+
     @discardableResult
     public func login(username: String, password: String) async throws -> TokenResponse {
         let response: TokenResponse = try await request(
@@ -284,6 +288,9 @@ public actor HopesAPIClient {
             let message = (try? decoder.decode(MessageEnvelope.self, from: data).message)
                 ?? "요청을 처리하지 못했습니다."
             if httpResponse.statusCode == 401 {
+                if requiresAuthentication {
+                    try? await tokenStore.clear()
+                }
                 throw HopesAPIError.unauthorized(message)
             }
             throw HopesAPIError.server(statusCode: httpResponse.statusCode, message: message)
