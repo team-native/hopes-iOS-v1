@@ -41,6 +41,16 @@ public struct EmailVerificationConfirmRequest: Encodable, Sendable {
     public let code: String
 }
 
+public struct PasswordResetRequest: Encodable, Sendable {
+    public let email: String
+}
+
+public struct PasswordResetConfirmRequest: Encodable, Sendable {
+    public let email: String
+    public let code: String
+    public let newPassword: String
+}
+
 public struct SignupRequest: Encodable, Sendable {
     public let email: String
     public let username: String

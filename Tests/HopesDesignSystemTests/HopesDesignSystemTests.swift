@@ -226,6 +226,12 @@ func loginViewsCanBeConstructed() {
     _ = LoginFlowView(isLoginInitiallyOpen: true)
     _ = LoginFlowView(isSignUpInitiallyOpen: true)
     _ = LoginFlowView(isOnboardingInitiallyOpen: true)
+    _ = PasswordResetView(
+        email: .constant("s26055@gsm.hs.kr"),
+        code: .constant("123456"),
+        newPassword: .constant("password1"),
+        codeRequested: true
+    )
 }
 
 @Test

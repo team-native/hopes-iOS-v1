@@ -65,6 +65,26 @@ public actor HopesAPIClient {
     }
 
     @discardableResult
+    public func requestPasswordReset(email: String) async throws -> MessageEnvelope {
+        try await request(
+            path: "/api/password/request",
+            method: "POST",
+            body: PasswordResetRequest(email: email),
+            requiresAuthentication: false
+        )
+    }
+
+    @discardableResult
+    public func resetPassword(email: String, code: String, newPassword: String) async throws -> MessageEnvelope {
+        try await request(
+            path: "/api/password/reset",
+            method: "POST",
+            body: PasswordResetConfirmRequest(email: email, code: code, newPassword: newPassword),
+            requiresAuthentication: false
+        )
+    }
+
+    @discardableResult
     public func signUp(_ signupRequest: SignupRequest) async throws -> TokenResponse {
         let response: TokenResponse = try await request(
             path: "/api/signup",
