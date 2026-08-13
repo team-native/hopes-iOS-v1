@@ -71,15 +71,10 @@ public struct SignUpView: View {
             Color.hopesBackground.ignoresSafeArea()
             header
 
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 20) {
-                    formCard
-                    signUpButton
-                    loginLink
-                }
+            signUpCard
+                .padding(.horizontal, 24)
                 .padding(.top, 217)
-                .padding(.bottom, 112)
-            }
+                .padding(.bottom, 92)
 
             HopesTabBar(selection: $selectedTab)
                 .frame(maxHeight: .infinity, alignment: .bottom)
@@ -110,31 +105,40 @@ public struct SignUpView: View {
         .ignoresSafeArea(edges: .top)
     }
 
-    private var formCard: some View {
-        VStack(spacing: 0) {
-            signUpField("학교 이메일", text: $email, placeholder: "s26055@gsm.hs.kr", kind: .email)
-            verificationField
-            signUpField("이름", text: $name, placeholder: "임서하")
-            signUpField(
-                "비밀번호",
-                text: $password,
-                placeholder: "영문·숫자 포함 8~15자",
-                kind: .password,
-                isPasswordVisible: $isPasswordVisible
-            )
-            signUpField(
-                "비밀번호 확인",
-                text: $passwordConfirm,
-                placeholder: "비밀번호 재입력",
-                kind: .password,
-                isPasswordVisible: $isPasswordConfirmVisible
-            )
-            signUpField("과", text: $major, placeholder: "AI", kind: .major)
-            signUpField("기수", text: $cohort, placeholder: "10기", kind: .cohort)
+    private var signUpCard: some View {
+        ScrollView(showsIndicators: true) {
+            VStack(spacing: 20) {
+                VStack(spacing: 0) {
+                    signUpField("학교 이메일", text: $email, placeholder: "s26055@gsm.hs.kr", kind: .email)
+                    verificationField
+                    signUpField("이름", text: $name, placeholder: "임서하")
+                    signUpField(
+                        "비밀번호",
+                        text: $password,
+                        placeholder: "영문·숫자 포함 8~15자",
+                        kind: .password,
+                        isPasswordVisible: $isPasswordVisible
+                    )
+                    signUpField(
+                        "비밀번호 확인",
+                        text: $passwordConfirm,
+                        placeholder: "비밀번호 재입력",
+                        kind: .password,
+                        isPasswordVisible: $isPasswordConfirmVisible
+                    )
+                    signUpField("과", text: $major, placeholder: "AI", kind: .major)
+                    signUpField("기수", text: $cohort, placeholder: "10기", kind: .cohort)
+                }
+
+                signUpButton
+                loginLink
+            }
+            .padding(.horizontal, 17)
+            .padding(.top, 30)
+            .padding(.bottom, 28)
         }
-        .padding(.horizontal, 17)
-        .padding(.vertical, 30)
-        .frame(width: 354)
+        .scrollBounceBehavior(.basedOnSize)
+        .frame(maxWidth: 354, maxHeight: .infinity)
         .background(.white)
         .clipShape(RoundedRectangle(cornerRadius: HopesMetrics.cardCornerRadius))
         .overlay {
@@ -249,7 +253,8 @@ public struct SignUpView: View {
             Text(isSigningUp ? "가입 중..." : "회원가입")
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundStyle(.white)
-                .frame(width: 354, height: 46)
+                .frame(maxWidth: .infinity)
+                .frame(height: 46)
                 .background(Color.hopesBrandPrimary)
                 .clipShape(RoundedRectangle(cornerRadius: HopesMetrics.controlCornerRadius))
         }
@@ -271,7 +276,8 @@ public struct SignUpView: View {
             (Text("계정이 있으신가요?  ").foregroundStyle(Color.hopesTextSecondary)
                 + Text("로그인").foregroundStyle(Color.hopesBrandPrimary).underline())
                 .font(.footnote)
-                .frame(width: 338, height: 18)
+                .frame(maxWidth: .infinity)
+                .frame(height: 18)
         }
         .buttonStyle(.plain)
     }
