@@ -72,7 +72,7 @@ public struct SignUpView: View {
             header
 
             signUpPanel
-                .padding(.horizontal, 24)
+                .padding(.horizontal, 20)
                 .padding(.top, 217)
 
             HopesTabBar(selection: $selectedTab)
@@ -119,6 +119,8 @@ public struct SignUpView: View {
                 signUpField("학교 이메일", text: $email, placeholder: "s26055@gsm.hs.kr", kind: .email)
                 verificationField
                 signUpField("이름", text: $name, placeholder: "임서하")
+                signUpField("과", text: $major, placeholder: "학과 선택", kind: .major)
+                signUpField("기수", text: $cohort, placeholder: "기수 선택", kind: .cohort)
                 signUpField(
                     "비밀번호",
                     text: $password,
@@ -133,15 +135,13 @@ public struct SignUpView: View {
                     kind: .password,
                     isPasswordVisible: $isPasswordConfirmVisible
                 )
-                signUpField("과", text: $major, placeholder: "AI", kind: .major)
-                signUpField("기수", text: $cohort, placeholder: "10기", kind: .cohort)
             }
-            .padding(.horizontal, 17)
-            .padding(.top, 30)
-            .padding(.bottom, 28)
+            .padding(.horizontal, 16)
+            .padding(.top, 24)
+            .padding(.bottom, 24)
         }
         .scrollBounceBehavior(.basedOnSize)
-        .frame(maxWidth: 354)
+        .frame(maxWidth: 362)
         .frame(height: 450)
         .background(.white)
         .clipShape(RoundedRectangle(cornerRadius: HopesMetrics.cardCornerRadius))
@@ -180,7 +180,7 @@ public struct SignUpView: View {
                     .disabled(isEmailVerified || isRequestingVerification || isConfirmingVerification)
             }
         }
-        .frame(height: 89, alignment: .top)
+        .frame(height: 76, alignment: .top)
     }
 
     private func signUpField(
@@ -196,9 +196,9 @@ public struct SignUpView: View {
                 .foregroundStyle(Color.hopesTextPrimary)
 
             Group {
-                if kind == .major {
+                if kind == .major || kind == .cohort {
                     Menu {
-                        ForEach(["AI", "SW", "IoT"], id: \.self) { option in
+                        ForEach(kind == .major ? ["AI", "SW", "IoT"] : ["7기", "8기", "9기", "10기"], id: \.self) { option in
                             Button(option) { text.wrappedValue = option }
                         }
                     } label: {
@@ -249,7 +249,7 @@ public struct SignUpView: View {
                     .stroke(Color.hopesBorder, lineWidth: 1)
             }
         }
-        .frame(height: 89, alignment: .top)
+        .frame(height: 76, alignment: .top)
     }
 
     private var signUpButton: some View {
