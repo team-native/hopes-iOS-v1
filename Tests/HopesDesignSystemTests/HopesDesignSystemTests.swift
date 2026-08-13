@@ -18,6 +18,15 @@ func serverErrorsExposeUserFacingMessages() {
 }
 
 @Test
+func passwordPolicyMatchesServerRegex() {
+    #expect(PasswordPolicy.isValid("hopes123"))
+    #expect(!PasswordPolicy.isValid("password"))
+    #expect(!PasswordPolicy.isValid("12345678"))
+    #expect(!PasswordPolicy.isValid("a1short"))
+    #expect(!PasswordPolicy.isValid("hopes12345678901"))
+}
+
+@Test
 func logoMetricsMatchFigma() {
     #expect(HopesMetrics.smallCornerRadius == 12)
 }

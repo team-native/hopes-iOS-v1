@@ -4,7 +4,16 @@ import FoundationNetworking
 #endif
 
 public actor HopesAPIClient {
-    public static let productionBaseURL = URL(string: "http://service.gsmsv.site:22116")!
+    public static let productionBaseURL: URL = {
+        var components = URLComponents()
+        components.scheme = "http"
+        components.host = "service.gsmsv.site"
+        components.port = 22116
+        guard let url = components.url else {
+            preconditionFailure("Invalid production API URL components")
+        }
+        return url
+    }()
     public static let shared = HopesAPIClient()
 
     private let baseURL: URL
@@ -29,6 +38,38 @@ public actor HopesAPIClient {
             path: "/api/login",
             method: "POST",
             body: LoginRequest(username: username, password: password),
+            requiresAuthentication: false
+        )
+        try await tokenStore.save(response.accessToken)
+        return response
+    }
+
+    @discardableResult
+    public func requestEmailVerification(email: String) async throws -> MessageEnvelope {
+        try await request(
+            path: "/api/signup/email-verifications",
+            method: "POST",
+            body: EmailVerificationRequest(email: email),
+            requiresAuthentication: false
+        )
+    }
+
+    @discardableResult
+    public func confirmEmailVerification(email: String, code: String) async throws -> MessageEnvelope {
+        try await request(
+            path: "/api/signup/email-verifications/confirm",
+            method: "POST",
+            body: EmailVerificationConfirmRequest(email: email, code: code),
+            requiresAuthentication: false
+        )
+    }
+
+    @discardableResult
+    public func signUp(_ signupRequest: SignupRequest) async throws -> TokenResponse {
+        let response: TokenResponse = try await request(
+            path: "/api/signup",
+            method: "POST",
+            body: signupRequest,
             requiresAuthentication: false
         )
         try await tokenStore.save(response.accessToken)
@@ -69,7 +110,7 @@ public actor HopesAPIClient {
         }
 
         guard 200..<300 ~= httpResponse.statusCode else {
-            let message = (try? decoder.decode(ServerMessage.self, from: data).message)
+            let message = (try? decoder.decode(MessageEnvelope.self, from: data).message)
                 ?? "요청을 처리하지 못했습니다."
             if httpResponse.statusCode == 401 {
                 throw HopesAPIError.unauthorized(message)

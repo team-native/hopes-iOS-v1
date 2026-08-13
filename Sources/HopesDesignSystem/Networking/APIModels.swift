@@ -1,5 +1,13 @@
 import Foundation
 
+public enum PasswordPolicy {
+    public static let pattern = #"^(?=.*[A-Za-z])(?=.*\d).{8,15}$"#
+
+    public static func isValid(_ password: String) -> Bool {
+        password.range(of: pattern, options: .regularExpression) != nil
+    }
+}
+
 public struct LoginRequest: Encodable, Sendable {
     public let username: String
     public let password: String
@@ -13,10 +21,35 @@ public struct LoginRequest: Encodable, Sendable {
 public struct TokenResponse: Decodable, Sendable, Equatable {
     public let accessToken: String
     public let tokenType: String
+
+    public init(accessToken: String, tokenType: String) {
+        self.accessToken = accessToken
+        self.tokenType = tokenType
+    }
 }
 
-struct ServerMessage: Decodable {
-    let message: String
+public struct MessageEnvelope: Decodable, Sendable, Equatable {
+    public let message: String
+}
+
+public struct EmailVerificationRequest: Encodable, Sendable {
+    public let email: String
+}
+
+public struct EmailVerificationConfirmRequest: Encodable, Sendable {
+    public let email: String
+    public let code: String
+}
+
+public struct SignupRequest: Encodable, Sendable {
+    public let email: String
+    public let username: String
+    public let password: String
+    public let passwordConfirm: String
+    public let verificationCode: String
+    public let gender: String?
+    public let major: String?
+    public let cohort: Int?
 }
 
 public enum HopesAPIError: LocalizedError, Sendable, Equatable {
