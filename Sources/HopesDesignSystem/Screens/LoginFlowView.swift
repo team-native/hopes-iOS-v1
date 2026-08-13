@@ -35,6 +35,10 @@ public struct LoginFlowView: View {
     @State private var isLoadingConversations = false
     @State private var conversationErrorMessage: String?
     @State private var selectedConversationID: Int64?
+    @State private var activeChat: ChatResponse?
+    @State private var isLoadingChat = false
+    @State private var isSendingMessage = false
+    @State private var chatErrorMessage: String?
 
     private let onLogin: () -> Void
     private let onSignUp: (SignUpFormData) -> Void
@@ -144,8 +148,11 @@ public struct LoginFlowView: View {
             case .chatHome:
                 ChatHomeView(
                     message: $chatMessage,
-                    onSend: { _ in
-                        transition(to: .chatDetail)
+                    onNewChat: {
+                        startNewChat()
+                    },
+                    onSend: { message in
+                        startNewChat(with: message)
                     },
                     onSelectTab: navigateFromTab
                 )
@@ -154,11 +161,19 @@ public struct LoginFlowView: View {
             case .chatDetail:
                 ChatDetailView(
                     reply: $chatReply,
+                    title: activeChat?.title ?? "새 대화",
+                    messages: activeChat?.messages ?? [],
+                    isLoading: isLoadingChat,
+                    isSending: isSendingMessage,
+                    errorMessage: chatErrorMessage,
                     onBack: {
                         transition(to: .chatHome)
                     },
                     onShowSources: {
                         transition(to: .answerEvidence)
+                    },
+                    onSend: { message in
+                        sendMessage(message)
                     },
                     onSelectTab: navigateFromTab
                 )
@@ -184,11 +199,12 @@ public struct LoginFlowView: View {
                     errorMessage: conversationErrorMessage,
                     onNewConversation: {
                         chatMessage = ""
-                        transition(to: .chatHome)
+                        startNewChat()
                     },
                     onSelectConversation: { conversation in
                         selectedConversationID = conversation.id
                         transition(to: .chatDetail)
+                        loadChat(id: conversation.id)
                     },
                     onSearch: { searchKeyword in
                         loadConversations(searchKeyword: searchKeyword)
@@ -328,6 +344,81 @@ public struct LoginFlowView: View {
                 await MainActor.run {
                     isLoadingConversations = false
                     conversationErrorMessage = error.localizedDescription
+                }
+            }
+        }
+    }
+
+    private func startNewChat(with initialMessage: String? = nil) {
+        guard !isLoadingChat else { return }
+        isLoadingChat = true
+        chatErrorMessage = nil
+        activeChat = nil
+        transition(to: .chatDetail)
+        Task {
+            do {
+                let createdChat = try await HopesAPIClient.shared.createChat(title: nil)
+                await MainActor.run {
+                    activeChat = createdChat
+                    selectedConversationID = createdChat.id
+                    isLoadingChat = false
+                }
+                if let initialMessage, !initialMessage.isEmpty {
+                    await MainActor.run { chatMessage = "" }
+                    sendMessage(initialMessage)
+                }
+            } catch {
+                await MainActor.run {
+                    isLoadingChat = false
+                    chatErrorMessage = error.localizedDescription
+                }
+            }
+        }
+    }
+
+    private func loadChat(id: Int64) {
+        guard !isLoadingChat else { return }
+        isLoadingChat = true
+        chatErrorMessage = nil
+        activeChat = nil
+        Task {
+            do {
+                let chat = try await HopesAPIClient.shared.chat(id: id)
+                await MainActor.run {
+                    activeChat = chat
+                    isLoadingChat = false
+                }
+            } catch {
+                await MainActor.run {
+                    isLoadingChat = false
+                    chatErrorMessage = error.localizedDescription
+                }
+            }
+        }
+    }
+
+    private func sendMessage(_ content: String) {
+        guard let chatID = activeChat?.id ?? selectedConversationID,
+              !isSendingMessage
+        else { return }
+        isSendingMessage = true
+        chatErrorMessage = nil
+        Task {
+            do {
+                let updatedChat = try await HopesAPIClient.shared.sendMessage(
+                    chatID: chatID,
+                    content: content
+                )
+                await MainActor.run {
+                    activeChat = updatedChat
+                    selectedConversationID = updatedChat.id
+                    isSendingMessage = false
+                    loadConversations()
+                }
+            } catch {
+                await MainActor.run {
+                    isSendingMessage = false
+                    chatErrorMessage = error.localizedDescription
                 }
             }
         }

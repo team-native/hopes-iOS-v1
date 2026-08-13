@@ -37,6 +37,22 @@ func mainResponseMatchesServerPayload() throws {
 }
 
 @Test
+func chatResponseMatchesServerPayload() throws {
+    let payload = Data(#"{"id":7,"title":"기숙사 생활","messages":[{"id":10,"role":"USER","content":"점호가 몇 시야?","createdAt":"2026-08-13T14:00:00Z"},{"id":11,"role":"ASSISTANT","content":"점호 시간은 생활관 공지를 확인해 주세요.","createdAt":"2026-08-13T14:00:01Z"}],"messagePage":0,"messageSize":50,"hasMoreMessages":false}"#.utf8)
+    let response = try JSONDecoder().decode(ChatResponse.self, from: payload)
+
+    #expect(response.id == 7)
+    #expect(response.messages.map(\.role) == [.user, .assistant])
+    #expect(response.messages.last?.content == "점호 시간은 생활관 공지를 확인해 주세요.")
+}
+
+@Test
+func chatMessageRolesMatchBackendEnum() {
+    #expect(MessageResponse.Role.user.rawValue == "USER")
+    #expect(MessageResponse.Role.assistant.rawValue == "ASSISTANT")
+}
+
+@Test
 func logoMetricsMatchFigma() {
     #expect(HopesMetrics.smallCornerRadius == 12)
 }

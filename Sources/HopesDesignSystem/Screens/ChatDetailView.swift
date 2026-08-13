@@ -2,18 +2,24 @@ import SwiftUI
 
 public struct ChatDetailView: View {
     @State private var selectedTab: HopesTab = .chat
-    @State private var isSaved = false
-    @State private var isLiked = false
     @Binding private var reply: String
 
+    private let title: String
+    private let messages: [MessageResponse]
+    private let isLoading: Bool
+    private let isSending: Bool
+    private let errorMessage: String?
     private let onBack: () -> Void
-    private let onShowSources: () -> Void
     private let onSend: (String) -> Void
-    private let onShare: () -> Void
     private let onSelectTab: (HopesTab) -> Void
 
     public init(
         reply: Binding<String>,
+        title: String = "새 대화",
+        messages: [MessageResponse] = [],
+        isLoading: Bool = false,
+        isSending: Bool = false,
+        errorMessage: String? = nil,
         onBack: @escaping () -> Void = {},
         onShowSources: @escaping () -> Void = {},
         onSend: @escaping (String) -> Void = { _ in },
@@ -21,10 +27,13 @@ public struct ChatDetailView: View {
         onSelectTab: @escaping (HopesTab) -> Void = { _ in }
     ) {
         _reply = reply
+        self.title = title
+        self.messages = messages
+        self.isLoading = isLoading
+        self.isSending = isSending
+        self.errorMessage = errorMessage
         self.onBack = onBack
-        self.onShowSources = onShowSources
         self.onSend = onSend
-        self.onShare = onShare
         self.onSelectTab = onSelectTab
     }
 
@@ -36,24 +45,13 @@ public struct ChatDetailView: View {
                 .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
                 .padding(.top, 72)
 
-            userBubble
-                .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
-                .padding(.top, 150)
-
-            answerBubble
-                .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
-                .padding(.top, 232)
-
-            responseActions
-                .padding(.leading, 44)
-                .padding(.top, 364)
-
-            sourceCard
-                .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
-                .padding(.top, 430)
+            messageList
+                .padding(.top, 132)
+                .padding(.bottom, 158)
 
             composer
-                .padding(.top, 716)
+                .frame(maxHeight: .infinity, alignment: .bottom)
+                .padding(.bottom, 84)
 
             HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
                 .frame(maxHeight: .infinity, alignment: .bottom)
@@ -62,7 +60,7 @@ public struct ChatDetailView: View {
     }
 
     private var header: some View {
-        HStack(alignment: .top, spacing: 12) {
+        HStack(spacing: 12) {
             Button(action: onBack) {
                 Image(systemName: "chevron.left")
                     .font(.title3.weight(.semibold))
@@ -71,130 +69,93 @@ public struct ChatDetailView: View {
                     .background(.white)
                     .clipShape(RoundedRectangle(cornerRadius: 13))
                     .overlay {
-                        RoundedRectangle(cornerRadius: 13)
-                            .stroke(Color.hopesBorder, lineWidth: 1)
+                        RoundedRectangle(cornerRadius: 13).stroke(Color.hopesBorder, lineWidth: 1)
                     }
             }
             .buttonStyle(.plain)
             .accessibilityLabel("뒤로")
 
             VStack(alignment: .leading, spacing: 1) {
-                Text("기숙사 생활")
-                    .font(.system(size: 27, weight: .bold))
+                Text(title)
+                    .font(.system(size: 24, weight: .bold))
                     .foregroundStyle(Color.hopesTextPrimary)
-
-                Text("선배 답변 · 실제 경험 기반")
+                    .lineLimit(1)
+                Text("홉스 AI 답변")
                     .font(.footnote)
                     .foregroundStyle(Color.hopesTextSecondary)
             }
+            Spacer()
+        }
+    }
 
-            Spacer(minLength: 8)
+    private var messageList: some View {
+        ScrollViewReader { proxy in
+            ScrollView {
+                LazyVStack(spacing: 12) {
+                    if isLoading {
+                        ProgressView("대화를 불러오는 중...")
+                            .padding(.top, 32)
+                    } else if messages.isEmpty {
+                        Text("질문을 보내면 AI 답변이 여기에 표시돼요.")
+                            .font(.footnote)
+                            .foregroundStyle(Color.hopesTextPlaceholder)
+                            .padding(.top, 32)
+                    }
 
-            HopesButton(
-                isSaved ? "저장됨" : "저장",
-                variant: .secondary,
-                size: .small,
-                width: .fixed(isSaved ? 64 : 54)
-            ) {
-                isSaved.toggle()
+                    ForEach(messages) { message in
+                        messageBubble(message)
+                            .id(message.id)
+                    }
+
+                    if isSending {
+                        HStack(spacing: 8) {
+                            ProgressView()
+                            Text("AI가 답변을 만들고 있어요.")
+                                .font(.footnote)
+                                .foregroundStyle(Color.hopesTextSecondary)
+                            Spacer()
+                        }
+                        .padding(16)
+                        .background(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: HopesMetrics.cardCornerRadius))
+                    }
+
+                    if let errorMessage {
+                        Text(errorMessage)
+                            .font(.footnote)
+                            .foregroundStyle(Color.hopesDanger)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                }
+                .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
+            }
+            .scrollIndicators(.hidden)
+            .onChange(of: messages.count) {
+                if let lastID = messages.last?.id {
+                    withAnimation { proxy.scrollTo(lastID, anchor: .bottom) }
+                }
             }
         }
     }
 
-    private var userBubble: some View {
+    private func messageBubble(_ message: MessageResponse) -> some View {
         HStack {
-            Spacer(minLength: 70)
-
-            Text("기숙사 하루 일과가 어떻게 돼?")
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(.white)
-                .padding(.horizontal, 20)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .frame(height: 58)
-                .background(Color.hopesBrandPrimary)
+            if message.role == .user { Spacer(minLength: 64) }
+            Text(message.content)
+                .font(.subheadline)
+                .foregroundStyle(message.role == .user ? .white : Color.hopesTextPrimary)
+                .lineSpacing(2)
+                .padding(.horizontal, 18)
+                .padding(.vertical, 14)
+                .background(message.role == .user ? Color.hopesBrandPrimary : .white)
                 .clipShape(RoundedRectangle(cornerRadius: HopesMetrics.cardCornerRadius))
-        }
-    }
-
-    private var answerBubble: some View {
-        Text(
-            "평일은 저녁 식사 후 자습, 점호 순서로 흘러가요. "
-                + "처음엔 빠듯하지만 일주일 정도 지나면 개인 루틴이 잡혀요."
-        )
-        .font(.subheadline)
-        .foregroundStyle(Color.hopesTextPrimary)
-        .lineSpacing(2)
-        .padding(.horizontal, 20)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .frame(height: 110)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: HopesMetrics.cardCornerRadius))
-        .overlay {
-            RoundedRectangle(cornerRadius: HopesMetrics.cardCornerRadius)
-                .stroke(Color.hopesBorder, lineWidth: 1)
-        }
-    }
-
-    private var responseActions: some View {
-        HStack(spacing: 12) {
-            HopesButton(
-                isLiked ? "좋아요!" : "좋아요",
-                variant: .secondary,
-                size: .small,
-                width: .fixed(isLiked ? 84 : 76)
-            ) {
-                isLiked.toggle()
-            }
-
-            HopesButton(
-                "더 물어보기",
-                size: .small,
-                width: .fixed(104)
-            ) {
-                reply = "기숙사 생활에 대해 더 알려줘."
-            }
-
-            HopesButton(
-                "공유",
-                variant: .secondary,
-                size: .small,
-                width: .fixed(76),
-                action: onShare
-            )
-        }
-    }
-
-    private var sourceCard: some View {
-        HStack(spacing: 12) {
-            VStack(alignment: .leading, spacing: 10) {
-                Text("답변 근거")
-                    .font(.callout.weight(.bold))
-                    .foregroundStyle(Color.hopesTextPrimary)
-
-                Text("점호 시간, 자습실 분위기, 빨래 루틴을 선배 답변에서 정리했어요.")
-                    .font(.footnote)
-                    .foregroundStyle(Color.hopesTextSecondary)
-                    .lineSpacing(2)
-            }
-
-            Spacer(minLength: 0)
-
-            HopesButton(
-                "보기",
-                variant: .secondary,
-                size: .compact,
-                width: .fixed(54),
-                action: onShowSources
-            )
-        }
-        .padding(.horizontal, 20)
-        .frame(maxWidth: .infinity)
-        .frame(height: 106)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: HopesMetrics.cardCornerRadius))
-        .overlay {
-            RoundedRectangle(cornerRadius: HopesMetrics.cardCornerRadius)
-                .stroke(Color.hopesBorder, lineWidth: 1)
+                .overlay {
+                    if message.role == .assistant {
+                        RoundedRectangle(cornerRadius: HopesMetrics.cardCornerRadius)
+                            .stroke(Color.hopesBorder, lineWidth: 1)
+                    }
+                }
+            if message.role == .assistant { Spacer(minLength: 40) }
         }
     }
 
@@ -202,38 +163,27 @@ public struct ChatDetailView: View {
         HStack(spacing: 14) {
             TextField("추가 질문 입력", text: $reply)
                 .font(.footnote)
-                .foregroundStyle(Color.hopesTextPrimary)
                 .padding(.horizontal, 20)
                 .frame(height: 44)
                 .background(Color.hopesInputBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 16))
-                .overlay {
-                    RoundedRectangle(cornerRadius: 16)
-                        .stroke(Color.hopesBorder, lineWidth: 1)
-                }
+                .overlay { RoundedRectangle(cornerRadius: 16).stroke(Color.hopesBorder, lineWidth: 1) }
                 .onSubmit(sendReply)
+                .disabled(isSending)
 
-            Button("전송", action: sendReply)
+            Button(isSending ? "전송 중" : "전송", action: sendReply)
                 .font(.footnote.weight(.semibold))
                 .foregroundStyle(.white)
-                .frame(width: 58, height: 44)
+                .frame(width: 64, height: 44)
                 .background(Color.hopesBrandPrimary)
-                .clipShape(
-                    RoundedRectangle(
-                        cornerRadius: HopesMetrics.controlCornerRadius
-                    )
-                )
-                .disabled(trimmedReply.isEmpty)
-                .opacity(trimmedReply.isEmpty ? 0.45 : 1)
+                .clipShape(RoundedRectangle(cornerRadius: HopesMetrics.controlCornerRadius))
+                .disabled(trimmedReply.isEmpty || isSending)
+                .opacity(trimmedReply.isEmpty || isSending ? 0.45 : 1)
         }
         .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
         .frame(height: 74)
         .background(.white)
-        .overlay(alignment: .top) {
-            Rectangle()
-                .fill(Color.hopesBorder)
-                .frame(height: 1)
-        }
+        .overlay(alignment: .top) { Rectangle().fill(Color.hopesBorder).frame(height: 1) }
     }
 
     private var trimmedReply: String {
@@ -241,18 +191,15 @@ public struct ChatDetailView: View {
     }
 
     private func sendReply() {
-        guard !trimmedReply.isEmpty else {
-            return
-        }
-
-        onSend(trimmedReply)
+        guard !trimmedReply.isEmpty, trimmedReply.count <= 12_000, !isSending else { return }
+        let content = trimmedReply
         reply = ""
+        onSend(content)
     }
 }
 
 #Preview("채팅 상세") {
     @Previewable @State var reply = ""
-
     ChatDetailView(reply: $reply)
         .frame(width: 402, height: 874)
 }

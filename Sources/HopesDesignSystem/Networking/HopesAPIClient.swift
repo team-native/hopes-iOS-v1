@@ -101,6 +101,48 @@ public actor HopesAPIClient {
         return try await request(url: url, method: "GET", body: nil, requiresAuthentication: true)
     }
 
+    public func createChat(title: String? = nil) async throws -> ChatResponse {
+        try await request(
+            path: "/api/chats",
+            method: "POST",
+            body: CreateChatRequest(title: title),
+            requiresAuthentication: true
+        )
+    }
+
+    public func sendMessage(chatID: Int64, content: String) async throws -> ChatResponse {
+        guard content.count <= 12_000 else {
+            throw HopesAPIError.server(statusCode: 400, message: "질문은 12,000자 이하여야 합니다")
+        }
+        guard let url = URL(string: "/api/chats/\(chatID)/messages", relativeTo: baseURL) else {
+            throw HopesAPIError.invalidResponse
+        }
+        return try await request(
+            url: url,
+            method: "POST",
+            body: try encoder.encode(SendMessageRequest(content: content)),
+            requiresAuthentication: true,
+            timeoutInterval: 70
+        )
+    }
+
+    public func chat(id: Int64, messagePage: Int = 0, messageSize: Int = 50) async throws -> ChatResponse {
+        guard var components = URLComponents(
+            url: baseURL.appending(path: "/api/chats/\(id)"),
+            resolvingAgainstBaseURL: false
+        ) else {
+            throw HopesAPIError.invalidResponse
+        }
+        components.queryItems = [
+            URLQueryItem(name: "messagePage", value: String(messagePage)),
+            URLQueryItem(name: "messageSize", value: String(messageSize)),
+        ]
+        guard let url = components.url else {
+            throw HopesAPIError.invalidResponse
+        }
+        return try await request(url: url, method: "GET", body: nil, requiresAuthentication: true)
+    }
+
     private func request<Response: Decodable, Body: Encodable>(
         path: String,
         method: String,
@@ -123,13 +165,14 @@ public actor HopesAPIClient {
         url: URL,
         method: String,
         body: Data?,
-        requiresAuthentication: Bool
+        requiresAuthentication: Bool,
+        timeoutInterval: TimeInterval = 20
     ) async throws -> Response {
         var request = URLRequest(url: url)
         request.httpMethod = method
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
-        request.timeoutInterval = 20
+        request.timeoutInterval = timeoutInterval
         request.httpBody = body
 
         if requiresAuthentication {
