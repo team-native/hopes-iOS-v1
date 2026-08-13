@@ -1,0 +1,86 @@
+import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
+
+public actor HopesAPIClient {
+    public static let productionBaseURL = URL(string: "http://service.gsmsv.site:22116")!
+    public static let shared = HopesAPIClient()
+
+    private let baseURL: URL
+    private let session: URLSession
+    private let tokenStore: AccessTokenStore
+    private let encoder = JSONEncoder()
+    private let decoder = JSONDecoder()
+
+    public init(
+        baseURL: URL = HopesAPIClient.productionBaseURL,
+        session: URLSession = .shared,
+        tokenStore: AccessTokenStore = AccessTokenStore()
+    ) {
+        self.baseURL = baseURL
+        self.session = session
+        self.tokenStore = tokenStore
+    }
+
+    @discardableResult
+    public func login(username: String, password: String) async throws -> TokenResponse {
+        let response: TokenResponse = try await request(
+            path: "/api/login",
+            method: "POST",
+            body: LoginRequest(username: username, password: password),
+            requiresAuthentication: false
+        )
+        try await tokenStore.save(response.accessToken)
+        return response
+    }
+
+    private func request<Response: Decodable, Body: Encodable>(
+        path: String,
+        method: String,
+        body: Body,
+        requiresAuthentication: Bool
+    ) async throws -> Response {
+        guard let url = URL(string: path, relativeTo: baseURL) else {
+            throw HopesAPIError.invalidResponse
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = method
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        request.timeoutInterval = 20
+        request.httpBody = try encoder.encode(body)
+
+        if requiresAuthentication, let token = try await tokenStore.token() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+
+        let data: Data
+        let response: URLResponse
+        do {
+            (data, response) = try await session.data(for: request)
+        } catch {
+            throw HopesAPIError.transport(error.localizedDescription)
+        }
+
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw HopesAPIError.invalidResponse
+        }
+
+        guard 200..<300 ~= httpResponse.statusCode else {
+            let message = (try? decoder.decode(ServerMessage.self, from: data).message)
+                ?? "요청을 처리하지 못했습니다."
+            if httpResponse.statusCode == 401 {
+                throw HopesAPIError.unauthorized(message)
+            }
+            throw HopesAPIError.server(statusCode: httpResponse.statusCode, message: message)
+        }
+
+        do {
+            return try decoder.decode(Response.self, from: data)
+        } catch {
+            throw HopesAPIError.decoding
+        }
+    }
+}

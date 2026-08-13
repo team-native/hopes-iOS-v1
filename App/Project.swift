@@ -16,6 +16,14 @@ let project = Project(
                 with: [
                     "UILaunchScreen": [:],
                     "UIUserInterfaceStyle": "Light",
+                    "NSAppTransportSecurity": [
+                        "NSExceptionDomains": [
+                            "service.gsmsv.site": [
+                                "NSExceptionAllowsInsecureHTTPLoads": true,
+                                "NSIncludesSubdomains": true,
+                            ],
+                        ],
+                    ],
                 ]
             ),
             sources: ["Sources/**"],

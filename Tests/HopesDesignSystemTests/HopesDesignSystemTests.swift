@@ -3,6 +3,21 @@ import Testing
 @testable import HopesDesignSystem
 
 @Test
+func tokenResponseMatchesServerPayload() throws {
+    let payload = Data(#"{"accessToken":"server-token","tokenType":"Bearer"}"#.utf8)
+    let response = try JSONDecoder().decode(TokenResponse.self, from: payload)
+
+    #expect(response == TokenResponse(accessToken: "server-token", tokenType: "Bearer"))
+}
+
+@Test
+func serverErrorsExposeUserFacingMessages() {
+    let error = HopesAPIError.unauthorized("등록된 회원을 찾을 수 없습니다.")
+
+    #expect(error.errorDescription == "등록된 회원을 찾을 수 없습니다.")
+}
+
+@Test
 func logoMetricsMatchFigma() {
     #expect(HopesMetrics.smallCornerRadius == 12)
 }
