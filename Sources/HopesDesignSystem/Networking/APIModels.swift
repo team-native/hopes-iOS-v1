@@ -150,6 +150,7 @@ public enum HopesAPIError: LocalizedError, Sendable, Equatable {
     case unauthorized(String)
     case server(statusCode: Int, message: String)
     case transport(String)
+    case credentialStorage(String)
     case decoding
 
     public var errorDescription: String? {
@@ -160,6 +161,8 @@ public enum HopesAPIError: LocalizedError, Sendable, Equatable {
             message
         case .transport:
             "서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요."
+        case .credentialStorage:
+            "로그인 정보를 안전하게 저장하지 못했습니다. 앱을 다시 실행한 후 시도해주세요."
         case .decoding:
             "서버 응답을 처리하지 못했습니다."
         }
