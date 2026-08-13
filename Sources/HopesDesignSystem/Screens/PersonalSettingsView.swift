@@ -3,6 +3,7 @@ import SwiftUI
 public struct PersonalSettingsView: View {
     @State private var selectedTab: HopesTab = .settings
     @State private var systemPrompt: String
+    @State private var showsDeleteConfirmation = false
 
     private let onBack: () -> Void
     private let onDone: () -> Void
@@ -47,10 +48,30 @@ public struct PersonalSettingsView: View {
                 .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
                 .padding(.top, 158)
 
+            HopesButton(
+                "전체 대화 삭제",
+                variant: .danger,
+                isEnabled: !isSaving
+            ) {
+                showsDeleteConfirmation = true
+            }
+            .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
+            .padding(.top, 590)
+
             HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
                 .frame(maxHeight: .infinity, alignment: .bottom)
         }
         .ignoresSafeArea()
+        .confirmationDialog(
+            "모든 대화를 삭제할까요?",
+            isPresented: $showsDeleteConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("전체 대화 삭제", role: .destructive, action: onDeleteAllConversations)
+            Button("취소", role: .cancel) {}
+        } message: {
+            Text("서버에 저장된 모든 대화가 삭제되며 되돌릴 수 없습니다.")
+        }
     }
 
     private var header: some View {
