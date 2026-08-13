@@ -42,6 +42,19 @@ public struct LoginView: View {
             }
 
             VStack(spacing: 0) {
+                Rectangle()
+                    .fill(.ultraThinMaterial)
+                    .overlay {
+                        Color.black.opacity(0.1)
+                    }
+                    .frame(height: 397)
+
+                Spacer(minLength: 0)
+            }
+            .ignoresSafeArea()
+            .allowsHitTesting(false)
+
+            VStack(spacing: 0) {
                 Spacer(minLength: 0)
                 loginSheet
             }
