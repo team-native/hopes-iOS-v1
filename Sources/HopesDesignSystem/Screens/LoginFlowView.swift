@@ -280,7 +280,7 @@ public struct LoginFlowView: View {
                     isLoggingOut: isLoggingOut,
                     errorMessage: settingsErrorMessage,
                     onBackToChat: {
-                        transition(to: .chatHome)
+                        transition(to: .myPage)
                     },
                     onOpenGeneral: {
                         transition(to: .generalSettings)

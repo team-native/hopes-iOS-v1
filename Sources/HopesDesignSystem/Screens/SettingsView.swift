@@ -2,6 +2,7 @@ import SwiftUI
 
 public struct SettingsView: View {
     @State private var selectedTab: HopesTab = .settings
+    @State private var isDarkMode = false
 
     private let contactEmail: String
     private let onBackToChat: () -> Void
@@ -63,6 +64,12 @@ public struct SettingsView: View {
             .padding(.leading, 37)
             .padding(.top, 217)
 
+            darkModeRow
+                .frame(width: 314)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.leading, 39)
+                .padding(.top, 307)
+
             HopesButton(
                 isLoggingOut ? "로그아웃 중..." : "로그아웃",
                 variant: .danger,
@@ -72,14 +79,14 @@ public struct SettingsView: View {
             )
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.leading, 29)
-            .padding(.top, 307)
+            .padding(.top, 397)
 
             if let errorMessage {
                 Text(errorMessage)
                     .font(.footnote)
                     .foregroundStyle(Color.hopesDanger)
                     .padding(.horizontal, 30)
-                    .padding(.top, 365)
+                    .padding(.top, 455)
             }
 
             HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
@@ -89,18 +96,62 @@ public struct SettingsView: View {
     }
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text("설정")
-                .font(.title.weight(.bold))
-                .foregroundStyle(Color.hopesTextPrimary)
+        HStack(alignment: .top, spacing: 12) {
+            Button(action: onBackToChat) {
+                Image(systemName: "chevron.left")
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(Color.hopesBrandPrimary)
+                    .frame(width: 38, height: 38)
+                    .background(.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 13))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 13)
+                            .stroke(Color.hopesBorder, lineWidth: 1)
+                    }
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("마이페이지로 돌아가기")
 
-            Text("앱 설정과 도움말을 관리해요.")
-                .font(.footnote)
-                .foregroundStyle(Color.hopesTextSecondary)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("설정")
+                    .font(.title.weight(.bold))
+                    .foregroundStyle(Color.hopesTextPrimary)
+
+                Text("앱 설정과 도움말을 관리해요.")
+                    .font(.footnote)
+                    .foregroundStyle(Color.hopesTextSecondary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
+    private var darkModeRow: some View {
+        HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("다크 모드")
+                    .font(.body.weight(.semibold))
+                    .foregroundStyle(Color.hopesTextPrimary)
+
+                Text("시스템 설정에 맞춰 전환")
+                    .font(.footnote)
+                    .foregroundStyle(Color.hopesTextSecondary)
+            }
+
+            Spacer()
+
+            Toggle("다크 모드", isOn: $isDarkMode)
+                .labelsHidden()
+                .tint(Color.hopesBrandPrimary)
+        }
+        .padding(.horizontal, 20)
+        .frame(height: 64)
+        .background(.white)
+        .clipShape(RoundedRectangle(cornerRadius: HopesMetrics.cardCornerRadius))
+        .overlay {
+            RoundedRectangle(cornerRadius: HopesMetrics.cardCornerRadius)
+                .stroke(Color.hopesBorder, lineWidth: 1)
+        }
+    }
 }
 
 #Preview("설정") {
