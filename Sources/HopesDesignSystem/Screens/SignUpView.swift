@@ -114,10 +114,9 @@ public struct SignUpView: View {
     }
 
     private var signUpCard: some View {
-        ScrollView(showsIndicators: true) {
+        ScrollView(showsIndicators: false) {
             VStack(spacing: 0) {
                 signUpField("학교 이메일", text: $email, placeholder: "s26055@gsm.hs.kr", kind: .email)
-                verificationField
                 signUpField("이름", text: $name, placeholder: "임서하")
                 signUpField("과", text: $major, placeholder: "학과 선택", kind: .major)
                 signUpField("기수", text: $cohort, placeholder: "기수 선택", kind: .cohort)
@@ -135,6 +134,7 @@ public struct SignUpView: View {
                     kind: .password,
                     isPasswordVisible: $isPasswordConfirmVisible
                 )
+                verificationField
             }
             .padding(.horizontal, 16)
             .padding(.top, 24)
