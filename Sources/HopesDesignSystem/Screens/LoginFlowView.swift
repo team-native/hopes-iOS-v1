@@ -259,7 +259,10 @@ public struct LoginFlowView: View {
                     isLoading: isLoadingProfile,
                     isSaving: isSavingProfile,
                     errorMessage: profileErrorMessage,
-                    onBackToChat: {
+                    onBack: {
+                        transition(to: .chatHome)
+                    },
+                    onOpenSettings: {
                         transition(to: .settings)
                     },
                     onSave: { profile in

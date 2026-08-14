@@ -22,7 +22,8 @@ public struct MyPageView: View {
     private let isLoading: Bool
     private let isSaving: Bool
     private let errorMessage: String?
-    private let onBackToChat: () -> Void
+    private let onBack: () -> Void
+    private let onOpenSettings: () -> Void
     private let onSave: (Profile) -> Void
     private let onOpenAccountInfo: () -> Void
     private let onSelectTab: (HopesTab) -> Void
@@ -35,7 +36,8 @@ public struct MyPageView: View {
         isLoading: Bool = false,
         isSaving: Bool = false,
         errorMessage: String? = nil,
-        onBackToChat: @escaping () -> Void = {},
+        onBack: @escaping () -> Void = {},
+        onOpenSettings: @escaping () -> Void = {},
         onSave: @escaping (Profile) -> Void = { _ in },
         onOpenAccountInfo: @escaping () -> Void = {},
         onSelectTab: @escaping (HopesTab) -> Void = { _ in }
@@ -53,7 +55,8 @@ public struct MyPageView: View {
         self.isLoading = isLoading
         self.isSaving = isSaving
         self.errorMessage = errorMessage
-        self.onBackToChat = onBackToChat
+        self.onBack = onBack
+        self.onOpenSettings = onOpenSettings
         self.onSave = onSave
         self.onOpenAccountInfo = onOpenAccountInfo
         self.onSelectTab = onSelectTab
@@ -116,7 +119,20 @@ public struct MyPageView: View {
 
     private var header: some View {
         HStack {
-            HopesLogo()
+            Button(action: onBack) {
+                Image(systemName: "chevron.left")
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(Color.hopesBrandPrimary)
+                    .frame(width: 38, height: 38)
+                    .background(.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 13))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 13)
+                            .stroke(Color.hopesBorder, lineWidth: 1)
+                    }
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("이전 화면으로 돌아가기")
 
             Spacer()
 
@@ -125,7 +141,7 @@ public struct MyPageView: View {
                 variant: .secondary,
                 size: .small,
                 width: .fixed(54),
-                action: onBackToChat
+                action: onOpenSettings
             )
         }
     }
