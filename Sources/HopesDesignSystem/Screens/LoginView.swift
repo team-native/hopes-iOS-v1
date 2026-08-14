@@ -1,6 +1,7 @@
 import SwiftUI
 
 public struct LoginView: View {
+    @State private var isPasswordVisible = false
     @Binding private var email: String
     @Binding private var password: String
 
@@ -112,7 +113,13 @@ public struct LoginView: View {
                     .foregroundStyle(Color.hopesTextPrimary)
                     .padding(.top, 15)
 
-                SecureField("비밀번호", text: $password)
+                Group {
+                    if isPasswordVisible {
+                        TextField("비밀번호", text: $password)
+                    } else {
+                        SecureField("비밀번호", text: $password)
+                    }
+                }
                     .hopesPasswordInputTraits()
                     .font(.system(size: 15))
                     .foregroundStyle(Color.hopesTextPrimary)
@@ -126,10 +133,17 @@ public struct LoginView: View {
                             .stroke(Color(red: 217 / 255, green: 217 / 255, blue: 217 / 255), lineWidth: 1)
                     }
                     .overlay(alignment: .trailing) {
-                        Image(systemName: "eye.slash")
-                            .font(.system(size: 14))
-                            .foregroundStyle(Color.hopesTextSecondary)
-                            .padding(.trailing, 10)
+                        Button {
+                            isPasswordVisible.toggle()
+                        } label: {
+                            Image(systemName: isPasswordVisible ? "eye" : "eye.slash")
+                                .font(.system(size: 14))
+                                .foregroundStyle(Color.hopesTextSecondary)
+                                .frame(width: 42, height: 40)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel(isPasswordVisible ? "비밀번호 숨기기" : "비밀번호 보기")
                     }
                     .padding(.top, 9)
                     .accessibilityLabel("비밀번호")
