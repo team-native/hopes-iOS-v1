@@ -72,8 +72,8 @@ public struct SignUpView: View {
             header
 
             signUpPanel
-                .padding(.horizontal, 20)
-                .padding(.top, 217)
+                .padding(.horizontal, 24)
+                .padding(.top, 276)
 
             HopesTabBar(selection: $selectedTab)
                 .frame(maxHeight: .infinity, alignment: .bottom)
@@ -88,10 +88,12 @@ public struct SignUpView: View {
     }
 
     private var signUpPanel: some View {
-        VStack(spacing: 14) {
+        VStack(spacing: 0) {
             signUpCard
             signUpButton
+                .padding(.top, 42)
             loginLink
+                .padding(.top, 10)
         }
         .padding(.bottom, 96)
     }
@@ -141,8 +143,8 @@ public struct SignUpView: View {
             .padding(.bottom, 24)
         }
         .scrollBounceBehavior(.basedOnSize)
-        .frame(maxWidth: 362)
-        .frame(height: 450)
+        .frame(maxWidth: 354)
+        .frame(height: 386)
         .background(.white)
         .clipShape(RoundedRectangle(cornerRadius: HopesMetrics.cardCornerRadius))
         .overlay {
