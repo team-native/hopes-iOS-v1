@@ -327,7 +327,8 @@ func myPageViewCanBeConstructed() {
     _ = MyPageView(
         name: .constant("임서하"),
         introduction: .constant("프론트엔드에 관심이 많아요."),
-        onBackToChat: {},
+        onBack: {},
+        onOpenSettings: {},
         onSave: { _ in }
     )
     _ = LoginFlowView(isMyPageInitiallyOpen: true)
