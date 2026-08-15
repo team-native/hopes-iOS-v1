@@ -3,6 +3,7 @@ import SwiftUI
 public struct ChatDetailView: View {
     @State private var selectedTab: HopesTab = .chat
     @Binding private var reply: String
+    @FocusState private var isReplyFocused: Bool
 
     private let title: String
     private let messages: [MessageResponse]
@@ -40,23 +41,29 @@ public struct ChatDetailView: View {
     public var body: some View {
         ZStack(alignment: .top) {
             Color.hopesBackground
+                .contentShape(Rectangle())
+                .onTapGesture { isReplyFocused = false }
 
             header
                 .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
                 .padding(.top, 72)
+                .simultaneousGesture(
+                    TapGesture().onEnded { isReplyFocused = false }
+                )
 
             messageList
                 .padding(.top, 132)
-                .padding(.bottom, 158)
-
-            composer
-                .frame(maxHeight: .infinity, alignment: .bottom)
-                .padding(.bottom, 84)
-
-            HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
-                .frame(maxHeight: .infinity, alignment: .bottom)
         }
-        .ignoresSafeArea()
+        .background(Color.hopesBackground.ignoresSafeArea())
+        .ignoresSafeArea(.container, edges: .top)
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            composer
+        }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            if !isReplyFocused {
+                HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
+            }
+        }
     }
 
     private var header: some View {
@@ -130,10 +137,16 @@ public struct ChatDetailView: View {
                 .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
             }
             .scrollIndicators(.hidden)
+            .scrollDismissesKeyboard(.interactively)
+            .onTapGesture { isReplyFocused = false }
             .onChange(of: messages.count) {
                 if let lastID = messages.last?.id {
                     withAnimation { proxy.scrollTo(lastID, anchor: .bottom) }
                 }
+            }
+            .onChange(of: isReplyFocused) { _, isFocused in
+                guard isFocused, let lastID = messages.last?.id else { return }
+                withAnimation { proxy.scrollTo(lastID, anchor: .bottom) }
             }
         }
     }
@@ -163,6 +176,7 @@ public struct ChatDetailView: View {
         HStack(spacing: 14) {
             TextField("추가 질문 입력", text: $reply)
                 .font(.footnote)
+                .focused($isReplyFocused)
                 .padding(.horizontal, 20)
                 .frame(height: 44)
                 .background(Color.hopesInputBackground)
