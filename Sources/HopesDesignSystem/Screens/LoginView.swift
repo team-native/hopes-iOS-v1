@@ -1,9 +1,15 @@
 import SwiftUI
 
 public struct LoginView: View {
+    private enum LoginField: Hashable {
+        case email
+        case password
+    }
+
     @State private var isPasswordVisible = false
     @Binding private var email: String
     @Binding private var password: String
+    @FocusState private var focusedField: LoginField?
 
     private let onLogin: () -> Void
     private let onSignUp: () -> Void
@@ -53,6 +59,8 @@ public struct LoginView: View {
                 }
             }
             .blur(radius: 8)
+            .contentShape(Rectangle())
+            .onTapGesture { focusedField = nil }
 
             VStack(spacing: 0) {
                 Color.black.opacity(0.1)
@@ -66,13 +74,26 @@ public struct LoginView: View {
             VStack(spacing: 0) {
                 Spacer(minLength: 0)
                 loginSheet
+                    .background {
+                        UnevenRoundedRectangle(
+                            topLeadingRadius: 28,
+                            topTrailingRadius: 28
+                        )
+                        .fill(.white)
+                        .ignoresSafeArea(.container, edges: .bottom)
+                    }
             }
-            .ignoresSafeArea(edges: .bottom)
+            .ignoresSafeArea(.container, edges: focusedField == nil ? [.top, .bottom] : [])
         }
+        .ignoresSafeArea(.container, edges: focusedField == nil ? [.top, .bottom] : [])
     }
 
     private var loginSheet: some View {
         ZStack(alignment: .top) {
+            Color.clear
+                .contentShape(Rectangle())
+                .onTapGesture { focusedField = nil }
+
             Capsule()
                 .fill(Color("HopesSheetHandle", bundle: .module))
                 .frame(width: 86, height: 5)
@@ -95,6 +116,7 @@ public struct LoginView: View {
 
                 TextField("이메일", text: $email)
                     .hopesEmailInputTraits()
+                    .focused($focusedField, equals: .email)
                     .font(.system(size: 15))
                     .foregroundStyle(Color.hopesTextPrimary)
                     .padding(.horizontal, 16)
@@ -116,8 +138,10 @@ public struct LoginView: View {
                 Group {
                     if isPasswordVisible {
                         TextField("비밀번호", text: $password)
+                            .focused($focusedField, equals: .password)
                     } else {
                         SecureField("비밀번호", text: $password)
+                            .focused($focusedField, equals: .password)
                     }
                 }
                     .hopesPasswordInputTraits()

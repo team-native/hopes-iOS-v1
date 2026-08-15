@@ -163,6 +163,12 @@ public struct ChatDetailView: View {
                     guard isReplyFocused else { return }
                     scrollToBottom(proxy, animated: false)
                 }
+                .onChange(of: geometry.safeAreaInsets.bottom) { _, _ in
+                    // Some devices report the keyboard change through the safe
+                    // area without changing the container's measured height.
+                    guard isReplyFocused else { return }
+                    scrollToBottom(proxy, animated: false)
+                }
             }
         }
     }
