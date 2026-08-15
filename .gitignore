@@ -6,3 +6,8 @@ xcuserdata/
 App/Derived/
 App/*.xcodeproj/
 App/*.xcworkspace/
+
+# Tuist generated
+Derived/
+*.xcodeproj/
+*.xcworkspace/
