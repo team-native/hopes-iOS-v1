@@ -1,6 +1,11 @@
 import SwiftUI
 
 public struct ChatHomeView: View {
+    private enum ScrollTarget {
+        static let top = "chat-home-top"
+        static let bottom = "chat-home-bottom"
+    }
+
     @State private var selectedTab: HopesTab = .chat
     @Binding private var message: String
     @FocusState private var isInputFocused: Bool
@@ -29,60 +34,89 @@ public struct ChatHomeView: View {
     }
 
     public var body: some View {
-        ZStack(alignment: .top) {
-            Color.hopesBackground
-                .contentShape(Rectangle())
-                .onTapGesture { isInputFocused = false }
+        GeometryReader { geometry in
+            VStack(spacing: 0) {
+                ScrollViewReader { proxy in
+                    ScrollView(showsIndicators: false) {
+                        VStack(spacing: 0) {
+                            Color.clear
+                                .frame(height: 1)
+                                .id(ScrollTarget.top)
 
-            header
-                .padding(.horizontal, 24)
-                .padding(.top, 72)
-                .simultaneousGesture(
-                    TapGesture().onEnded { isInputFocused = false }
-                )
+                            ZStack(alignment: .top) {
+                                Color.hopesBackground
 
-            HopesLogo(size: .large)
-                .padding(.top, 184)
+                                header
+                                    .padding(.horizontal, 24)
+                                    .padding(.top, 72)
 
-            VStack(spacing: 7) {
-                Text("무엇이 궁금한가요?")
-                    .font(.title.weight(.bold))
-                    .foregroundStyle(Color.hopesTextPrimary)
+                                HopesLogo(size: .large)
+                                    .padding(.top, 184)
 
-                Text("광주소프트웨어마이스터고 선배에게 편하게 물어보세요.")
-                    .font(.footnote)
-                    .foregroundStyle(Color.hopesTextSecondary)
-                    .multilineTextAlignment(.center)
-                    .frame(width: 318)
-            }
-            .padding(.top, 283)
+                                VStack(spacing: 7) {
+                                    Text("무엇이 궁금한가요?")
+                                        .font(.title.weight(.bold))
+                                        .foregroundStyle(Color.hopesTextPrimary)
 
-            VStack(spacing: 6) {
-                ForEach(suggestions, id: \.1) { icon, title in
-                    HopesQuestionCard(title: title) {
-                        message = title
-                    } icon: {
-                        Text(icon)
+                                    Text("광주소프트웨어마이스터고 선배에게 편하게 물어보세요.")
+                                        .font(.footnote)
+                                        .foregroundStyle(Color.hopesTextSecondary)
+                                        .multilineTextAlignment(.center)
+                                    .frame(width: 318)
+                                }
+                                .padding(.top, 283)
+
+                                VStack(spacing: 6) {
+                                    ForEach(suggestions, id: \.1) { icon, title in
+                                        HopesQuestionCard(title: title) {
+                                            message = title
+                                        } icon: {
+                                            Text(icon)
+                                        }
+                                    }
+                                }
+                                .padding(.horizontal, 24)
+                                .padding(.top, 396)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .frame(minHeight: geometry.size.height, alignment: .top)
+
+                            Color.clear
+                                .frame(height: 1)
+                                .id(ScrollTarget.bottom)
+                        }
+                    }
+                    .frame(maxHeight: .infinity)
+                    .scrollIndicators(.hidden)
+                    .scrollDismissesKeyboard(.interactively)
+                    .onChange(of: isInputFocused) { _, isFocused in
+                        scrollTo(isFocused ? ScrollTarget.bottom : ScrollTarget.top, proxy: proxy)
                     }
                 }
-            }
-            .padding(.horizontal, 24)
-            .padding(.top, 396)
-            .simultaneousGesture(
-                TapGesture().onEnded { isInputFocused = false }
-            )
 
+                if isInputFocused {
+                    composer
+                        .padding(.horizontal, 24)
+                } else {
+                    composer
+                        .padding(.horizontal, 24)
+                        .padding(.vertical, 10)
+                }
+
+                if !isInputFocused {
+                    HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
+                }
+            }
         }
         .background(Color.hopesBackground.ignoresSafeArea())
         .ignoresSafeArea(.container, edges: .top)
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            composer
-                .padding(.horizontal, 24)
-                .padding(.bottom, isInputFocused ? 0 : 10)
-        }
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            if !isInputFocused {
-                HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
+    }
+
+    private func scrollTo(_ target: String, proxy: ScrollViewProxy) {
+        Task { @MainActor in
+            await Task.yield()
+            withAnimation {
+                proxy.scrollTo(target, anchor: target == ScrollTarget.bottom ? .bottom : .top)
             }
         }
     }

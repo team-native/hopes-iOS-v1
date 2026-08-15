@@ -1,6 +1,10 @@
 import SwiftUI
 
 public struct ChatDetailView: View {
+    private enum ScrollTarget {
+        static let bottom = "chat-message-bottom"
+    }
+
     @State private var selectedTab: HopesTab = .chat
     @Binding private var reply: String
     @FocusState private var isReplyFocused: Bool
@@ -41,8 +45,6 @@ public struct ChatDetailView: View {
     public var body: some View {
         ZStack(alignment: .top) {
             Color.hopesBackground
-                .contentShape(Rectangle())
-                .onTapGesture { isReplyFocused = false }
 
             header
                 .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
@@ -96,57 +98,90 @@ public struct ChatDetailView: View {
     }
 
     private var messageList: some View {
-        ScrollViewReader { proxy in
-            ScrollView {
-                LazyVStack(spacing: 12) {
-                    if isLoading {
-                        ProgressView("대화를 불러오는 중...")
-                            .padding(.top, 32)
-                    } else if messages.isEmpty {
-                        Text("질문을 보내면 AI 답변이 여기에 표시돼요.")
-                            .font(.footnote)
-                            .foregroundStyle(Color.hopesTextPlaceholder)
-                            .padding(.top, 32)
-                    }
-
-                    ForEach(messages) { message in
-                        messageBubble(message)
-                            .id(message.id)
-                    }
-
-                    if isSending {
-                        HStack(spacing: 8) {
-                            ProgressView()
-                            Text("AI가 답변을 만들고 있어요.")
+        GeometryReader { geometry in
+            ScrollViewReader { proxy in
+                ScrollView {
+                    LazyVStack(spacing: 12) {
+                        if isLoading {
+                            ProgressView("대화를 불러오는 중...")
+                                .padding(.top, 32)
+                        } else if messages.isEmpty {
+                            Text("질문을 보내면 AI 답변이 여기에 표시돼요.")
                                 .font(.footnote)
-                                .foregroundStyle(Color.hopesTextSecondary)
-                            Spacer()
+                                .foregroundStyle(Color.hopesTextPlaceholder)
+                                .padding(.top, 32)
                         }
-                        .padding(16)
-                        .background(.white)
-                        .clipShape(RoundedRectangle(cornerRadius: HopesMetrics.cardCornerRadius))
-                    }
 
-                    if let errorMessage {
-                        Text(errorMessage)
-                            .font(.footnote)
-                            .foregroundStyle(Color.hopesDanger)
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                        ForEach(messages) { message in
+                            messageBubble(message)
+                                .id(message.id)
+                        }
+
+                        if isSending {
+                            HStack(spacing: 8) {
+                                ProgressView()
+                                Text("AI가 답변을 만들고 있어요.")
+                                    .font(.footnote)
+                                    .foregroundStyle(Color.hopesTextSecondary)
+                                Spacer()
+                            }
+                            .padding(16)
+                            .background(.white)
+                            .clipShape(RoundedRectangle(cornerRadius: HopesMetrics.cardCornerRadius))
+                        }
+
+                        if let errorMessage {
+                            Text(errorMessage)
+                                .font(.footnote)
+                                .foregroundStyle(Color.hopesDanger)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+
+                        Color.clear
+                            .frame(height: 1)
+                            .id(ScrollTarget.bottom)
                     }
+                    .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
                 }
-                .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
-            }
-            .scrollIndicators(.hidden)
-            .scrollDismissesKeyboard(.interactively)
-            .onTapGesture { isReplyFocused = false }
-            .onChange(of: messages.count) {
-                if let lastID = messages.last?.id {
-                    withAnimation { proxy.scrollTo(lastID, anchor: .bottom) }
+                .scrollIndicators(.hidden)
+                .scrollDismissesKeyboard(.interactively)
+                .onTapGesture { isReplyFocused = false }
+                .onAppear {
+                    scrollToBottom(proxy, animated: false)
+                }
+                .onChange(of: messages.count) {
+                    scrollToBottom(proxy)
+                }
+                .onChange(of: isReplyFocused) { _, isFocused in
+                    guard isFocused else { return }
+                    scrollToBottom(proxy)
+                }
+                .onChange(of: geometry.size.height) { _, _ in
+                    // The keyboard changes the available container height after
+                    // focus changes. Resolve the anchor again after that layout
+                    // pass so the answer's last content stays above the composer.
+                    guard isReplyFocused else { return }
+                    scrollToBottom(proxy, animated: false)
                 }
             }
-            .onChange(of: isReplyFocused) { _, isFocused in
-                guard isFocused, let lastID = messages.last?.id else { return }
-                withAnimation { proxy.scrollTo(lastID, anchor: .bottom) }
+        }
+    }
+
+    private func scrollToBottom(
+        _ proxy: ScrollViewProxy,
+        animated: Bool = true
+    ) {
+        Task { @MainActor in
+            // Wait for the Safe Area resize to be reflected in the ScrollView
+            // before resolving the bottom anchor.
+            await Task.yield()
+
+            if animated {
+                withAnimation {
+                    proxy.scrollTo(ScrollTarget.bottom, anchor: .bottom)
+                }
+            } else {
+                proxy.scrollTo(ScrollTarget.bottom, anchor: .bottom)
             }
         }
     }
