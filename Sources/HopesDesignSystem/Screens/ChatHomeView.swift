@@ -3,6 +3,7 @@ import SwiftUI
 public struct ChatHomeView: View {
     @State private var selectedTab: HopesTab = .chat
     @Binding private var message: String
+    @FocusState private var isInputFocused: Bool
 
     private let onNewChat: () -> Void
     private let onSend: (String) -> Void
@@ -30,10 +31,15 @@ public struct ChatHomeView: View {
     public var body: some View {
         ZStack(alignment: .top) {
             Color.hopesBackground
+                .contentShape(Rectangle())
+                .onTapGesture { isInputFocused = false }
 
             header
                 .padding(.horizontal, 24)
                 .padding(.top, 72)
+                .simultaneousGesture(
+                    TapGesture().onEnded { isInputFocused = false }
+                )
 
             HopesLogo(size: .large)
                 .padding(.top, 184)
@@ -62,15 +68,23 @@ public struct ChatHomeView: View {
             }
             .padding(.horizontal, 24)
             .padding(.top, 396)
+            .simultaneousGesture(
+                TapGesture().onEnded { isInputFocused = false }
+            )
 
+        }
+        .background(Color.hopesBackground.ignoresSafeArea())
+        .ignoresSafeArea(.container, edges: .top)
+        .safeAreaInset(edge: .bottom, spacing: 0) {
             composer
                 .padding(.horizontal, 24)
-                .padding(.top, 728)
-
-            HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
-                .frame(maxHeight: .infinity, alignment: .bottom)
+                .padding(.bottom, isInputFocused ? 0 : 10)
         }
-        .ignoresSafeArea()
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            if !isInputFocused {
+                HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
+            }
+        }
     }
 
     private var header: some View {
@@ -85,6 +99,7 @@ public struct ChatHomeView: View {
                 size: .medium,
                 width: .fixed(70)
             ) {
+                isInputFocused = false
                 message = ""
                 onNewChat()
             }
@@ -96,6 +111,7 @@ public struct ChatHomeView: View {
             TextField("선배에게 메시지 보내기", text: $message)
                 .font(.footnote)
                 .foregroundStyle(Color.hopesTextPrimary)
+                .focused($isInputFocused)
                 .onSubmit(sendMessage)
 
             Button(action: sendMessage) {
