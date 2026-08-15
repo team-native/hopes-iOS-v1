@@ -27,9 +27,17 @@ let project = Project(
                 ]
             ),
             sources: ["Sources/**"],
+            resources: [
+                "../Resources/**",
+            ],
             dependencies: [
                 .package(product: "HopesDesignSystem"),
-            ]
+            ],
+            settings: .settings(
+                base: [
+                    "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
+                ]
+            )
         ),
     ]
 )
