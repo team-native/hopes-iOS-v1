@@ -1,9 +1,16 @@
 import SwiftUI
 
 public struct PasswordResetView: View {
+    private enum ResetField: Hashable {
+        case email
+        case code
+        case newPassword
+    }
+
     @Binding private var email: String
     @Binding private var code: String
     @Binding private var newPassword: String
+    @FocusState private var focusedField: ResetField?
     private let codeRequested: Bool
     private let isLoading: Bool
     private let errorMessage: String?
@@ -34,58 +41,76 @@ public struct PasswordResetView: View {
     }
 
     public var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Button(action: onBack) {
-                Image(systemName: "chevron.left")
-                    .font(.system(size: 18, weight: .semibold))
+        ZStack(alignment: .topLeading) {
+            Color.hopesBackground
+                .ignoresSafeArea()
+                .contentShape(Rectangle())
+                .onTapGesture { focusedField = nil }
+
+            VStack(alignment: .leading, spacing: 0) {
+                Button {
+                    focusedField = nil
+                    onBack()
+                } label: {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundStyle(Color.hopesTextPrimary)
+                }
+                .buttonStyle(.plain)
+
+                Text("비밀번호 재설정")
+                    .font(.system(size: 28, weight: .bold))
                     .foregroundStyle(Color.hopesTextPrimary)
-            }
-            .buttonStyle(.plain)
+                    .padding(.top, 34)
 
-            Text("비밀번호 재설정")
-                .font(.system(size: 28, weight: .bold))
-                .foregroundStyle(Color.hopesTextPrimary)
-                .padding(.top, 34)
+                Text("학교 이메일로 받은 인증번호를 입력해주세요.")
+                    .font(.system(size: 14))
+                    .foregroundStyle(Color.hopesTextSecondary)
+                    .padding(.top, 6)
 
-            Text("학교 이메일로 받은 인증번호를 입력해주세요.")
-                .font(.system(size: 14))
-                .foregroundStyle(Color.hopesTextSecondary)
-                .padding(.top, 6)
-
-            fieldTitle("이메일", top: 36)
-            TextField("학교 이메일", text: $email)
-                .textFieldStyle(HopesResetFieldStyle())
-                .disabled(codeRequested)
-
-            if codeRequested {
-                fieldTitle("인증번호", top: 18)
-                TextField("숫자 6자리", text: $code)
+                fieldTitle("이메일", top: 36)
+                TextField("학교 이메일", text: $email)
                     .textFieldStyle(HopesResetFieldStyle())
+                    .focused($focusedField, equals: .email)
+                    .disabled(codeRequested)
 
-                fieldTitle("새 비밀번호", top: 18)
-                SecureField("영문+숫자 8~15자", text: $newPassword)
-                    .textFieldStyle(HopesResetFieldStyle())
+                if codeRequested {
+                    fieldTitle("인증번호", top: 18)
+                    TextField("숫자 6자리", text: $code)
+                        .textFieldStyle(HopesResetFieldStyle())
+                        .focused($focusedField, equals: .code)
+
+                    fieldTitle("새 비밀번호", top: 18)
+                    SecureField("영문+숫자 8~15자", text: $newPassword)
+                        .textFieldStyle(HopesResetFieldStyle())
+                        .focused($focusedField, equals: .newPassword)
+                }
+
+                if let errorMessage {
+                    Text(errorMessage)
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(Color.hopesDanger)
+                        .padding(.top, 12)
+                }
+
+                Spacer()
+
+                HopesButton(
+                    isLoading ? "처리 중..." : codeRequested ? "비밀번호 변경" : "인증번호 받기",
+                    isEnabled: canSubmit
+                ) {
+                    focusedField = nil
+                    if codeRequested {
+                        onReset()
+                    } else {
+                        onRequestCode()
+                    }
+                }
             }
-
-            if let errorMessage {
-                Text(errorMessage)
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundStyle(Color.hopesDanger)
-                    .padding(.top, 12)
-            }
-
-            Spacer()
-
-            HopesButton(
-                isLoading ? "처리 중..." : codeRequested ? "비밀번호 변경" : "인증번호 받기",
-                isEnabled: canSubmit,
-                action: codeRequested ? onReset : onRequestCode
-            )
+            .padding(.horizontal, 28)
+            .padding(.top, 24)
+            .padding(.bottom, 34)
         }
-        .padding(.horizontal, 28)
-        .padding(.top, 24)
-        .padding(.bottom, 34)
-        .background(Color.hopesBackground.ignoresSafeArea())
     }
 
     private var canSubmit: Bool {

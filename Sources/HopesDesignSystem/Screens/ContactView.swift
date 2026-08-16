@@ -1,9 +1,15 @@
 import SwiftUI
 
 public struct ContactView: View {
+    private enum ContactField: Hashable {
+        case email
+        case message
+    }
+
     @State private var selectedTab: HopesTab = .settings
     @State private var email: String
     @State private var message: String
+    @FocusState private var focusedField: ContactField?
 
     private let contactEmail: String
     private let onBack: () -> Void
@@ -38,6 +44,8 @@ public struct ContactView: View {
     public var body: some View {
         ZStack(alignment: .top) {
             Color.hopesBackground
+                .contentShape(Rectangle())
+                .onTapGesture { focusedField = nil }
 
             header
                 .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
@@ -51,7 +59,10 @@ public struct ContactView: View {
                 .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
                 .padding(.top, 624)
 
-            HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
+            HopesTabBar(selection: $selectedTab) { tab in
+                focusedField = nil
+                onSelectTab(tab)
+            }
                 .frame(maxHeight: .infinity, alignment: .bottom)
         }
         .ignoresSafeArea()
@@ -59,7 +70,10 @@ public struct ContactView: View {
 
     private var header: some View {
         HStack(alignment: .top, spacing: 12) {
-            Button(action: onBack) {
+            Button {
+                focusedField = nil
+                onBack()
+            } label: {
                 Image(systemName: "chevron.left")
                     .font(.system(size: 15, weight: .semibold))
                     .foregroundStyle(Color.hopesBrandPrimary)
@@ -86,6 +100,9 @@ public struct ContactView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
 
         }
+        .simultaneousGesture(
+            TapGesture().onEnded { focusedField = nil }
+        )
     }
 
     private var contactCard: some View {
@@ -94,6 +111,9 @@ public struct ContactView: View {
                 Text("이메일")
                     .font(.footnote.weight(.semibold))
                     .foregroundStyle(Color.hopesTextPrimary)
+                    .simultaneousGesture(
+                        TapGesture().onEnded { focusedField = nil }
+                    )
 
                 emailField
                     .padding(.top, 8)
@@ -102,6 +122,9 @@ public struct ContactView: View {
                     .font(.footnote.weight(.semibold))
                     .foregroundStyle(Color.hopesTextPrimary)
                     .padding(.top, 20)
+                    .simultaneousGesture(
+                        TapGesture().onEnded { focusedField = nil }
+                    )
 
                 messageEditor
                     .padding(.top, 16)
@@ -111,6 +134,7 @@ public struct ContactView: View {
                     size: .large,
                     isEnabled: !message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !isSending
                 ) {
+                    focusedField = nil
                     onSend(email, message)
                 }
                 .padding(.top, 30)
@@ -134,6 +158,7 @@ public struct ContactView: View {
             .foregroundStyle(Color.hopesTextPrimary)
             .padding(.horizontal, 16)
             .frame(height: 40)
+            .focused($focusedField, equals: .email)
             .background(.white)
             .clipShape(RoundedRectangle(cornerRadius: HopesMetrics.controlCornerRadius))
             .overlay {
@@ -150,6 +175,7 @@ public struct ContactView: View {
                 .scrollContentBackground(.hidden)
                 .padding(.horizontal, 11)
                 .padding(.vertical, 13)
+                .focused($focusedField, equals: .message)
 
             if message.isEmpty {
                 Text("예: 답변이 너무 짧게 나와요.")

@@ -1,9 +1,14 @@
 import SwiftUI
 
 public struct PersonalSettingsView: View {
+    private enum SettingsField: Hashable {
+        case systemPrompt
+    }
+
     @State private var selectedTab: HopesTab = .settings
     @State private var systemPrompt: String
     @State private var showsDeleteConfirmation = false
+    @FocusState private var focusedField: SettingsField?
 
     private let onBack: () -> Void
     private let onDone: () -> Void
@@ -39,6 +44,8 @@ public struct PersonalSettingsView: View {
     public var body: some View {
         ZStack(alignment: .top) {
             Color.hopesBackground
+                .contentShape(Rectangle())
+                .onTapGesture { focusedField = nil }
 
             header
                 .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
@@ -53,12 +60,16 @@ public struct PersonalSettingsView: View {
                 variant: .danger,
                 isEnabled: !isSaving
             ) {
+                focusedField = nil
                 showsDeleteConfirmation = true
             }
             .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
             .padding(.top, 590)
 
-            HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
+            HopesTabBar(selection: $selectedTab) { tab in
+                focusedField = nil
+                onSelectTab(tab)
+            }
                 .frame(maxHeight: .infinity, alignment: .bottom)
         }
         .ignoresSafeArea()
@@ -76,7 +87,10 @@ public struct PersonalSettingsView: View {
 
     private var header: some View {
         HStack(alignment: .top, spacing: 12) {
-            Button(action: onBack) {
+            Button {
+                focusedField = nil
+                onBack()
+            } label: {
                 Image(systemName: "chevron.left")
                     .font(.system(size: 15, weight: .semibold))
                     .foregroundStyle(Color.hopesBrandPrimary)
@@ -103,6 +117,9 @@ public struct PersonalSettingsView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
 
         }
+        .simultaneousGesture(
+            TapGesture().onEnded { focusedField = nil }
+        )
     }
 
     private var promptCard: some View {
@@ -111,11 +128,17 @@ public struct PersonalSettingsView: View {
                 Text("개인 설정")
                     .font(.headline.weight(.bold))
                     .foregroundStyle(Color.hopesTextPrimary)
+                    .simultaneousGesture(
+                        TapGesture().onEnded { focusedField = nil }
+                    )
 
                 Text("시스템 프롬프트 (AI 응답 생성 시 반영됩니다)")
                     .font(.footnote.weight(.semibold))
                     .foregroundStyle(Color.hopesTextPrimary)
                     .padding(.top, 27)
+                    .simultaneousGesture(
+                        TapGesture().onEnded { focusedField = nil }
+                    )
 
                 promptEditor
                     .padding(.top, 16)
@@ -125,6 +148,7 @@ public struct PersonalSettingsView: View {
                     size: .regular,
                     width: .fixed(100)
                 ) {
+                    focusedField = nil
                     onSavePrompt(systemPrompt)
                 }
                 .disabled(isSaving)
@@ -150,6 +174,7 @@ public struct PersonalSettingsView: View {
                 .scrollContentBackground(.hidden)
                 .padding(.horizontal, 11)
                 .padding(.vertical, 13)
+                .focused($focusedField, equals: .systemPrompt)
 
             if systemPrompt.isEmpty {
                 Text("예: 답변은 항상 3문장 이내로 짧게 해줘.")

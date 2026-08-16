@@ -1,12 +1,9 @@
 import SwiftUI
 
 public struct ChatHomeView: View {
-    private enum ScrollTarget {
-        static let top = "chat-home-top"
-        static let bottom = "chat-home-bottom"
-    }
-
     @State private var selectedTab: HopesTab = .chat
+    @State private var keyboardOffset: CGFloat = 0
+    @State private var inputBottom: CGFloat = 0
     @Binding private var message: String
     @FocusState private var isInputFocused: Bool
 
@@ -35,90 +32,98 @@ public struct ChatHomeView: View {
 
     public var body: some View {
         GeometryReader { geometry in
-            VStack(spacing: 0) {
-                ScrollViewReader { proxy in
-                    ScrollView(showsIndicators: false) {
-                        VStack(spacing: 0) {
-                            Color.clear
-                                .frame(height: 1)
-                                .id(ScrollTarget.top)
-
-                            ZStack(alignment: .top) {
-                                Color.hopesBackground
-
-                                header
-                                    .padding(.horizontal, 24)
-                                    .padding(.top, 72)
-
-                                HopesLogo(size: .large)
-                                    .padding(.top, 184)
-
-                                VStack(spacing: 7) {
-                                    Text("무엇이 궁금한가요?")
-                                        .font(.title.weight(.bold))
-                                        .foregroundStyle(Color.hopesTextPrimary)
-
-                                    Text("광주소프트웨어마이스터고 선배에게 편하게 물어보세요.")
-                                        .font(.footnote)
-                                        .foregroundStyle(Color.hopesTextSecondary)
-                                        .multilineTextAlignment(.center)
-                                    .frame(width: 318)
-                                }
-                                .padding(.top, 283)
-
-                                VStack(spacing: 6) {
-                                    ForEach(suggestions, id: \.1) { icon, title in
-                                        HopesQuestionCard(title: title) {
-                                            message = title
-                                        } icon: {
-                                            Text(icon)
-                                        }
-                                    }
-                                }
-                                .padding(.horizontal, 24)
-                                .padding(.top, 396)
-                            }
-                            .frame(maxWidth: .infinity)
-                            .frame(minHeight: geometry.size.height, alignment: .top)
-
-                            Color.clear
-                                .frame(height: 1)
-                                .id(ScrollTarget.bottom)
-                        }
-                    }
-                    .frame(maxHeight: .infinity)
-                    .scrollIndicators(.hidden)
-                    .scrollDismissesKeyboard(.interactively)
-                    .onChange(of: isInputFocused) { _, isFocused in
-                        scrollTo(isFocused ? ScrollTarget.bottom : ScrollTarget.top, proxy: proxy)
-                    }
-                }
-
-                if isInputFocused {
-                    composer
-                        .padding(.horizontal, 24)
+            ZStack(alignment: .top) {
+                fixedDesign
+                    .coordinateSpace(name: ChatHomeCoordinateSpace.name)
+                    .offset(y: keyboardOffset)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            .onPreferenceChange(ChatHomeInputBottomPreferenceKey.self) { bottom in
+                inputBottom = bottom
+                updateKeyboardOffset(in: geometry)
+            }
+            .onChange(of: isInputFocused) { _, isFocused in
+                if !isFocused {
+                    keyboardOffset = 0
                 } else {
-                    composer
-                        .padding(.horizontal, 24)
-                        .padding(.vertical, 10)
+                    updateKeyboardOffset(in: geometry)
                 }
-
-                if !isInputFocused {
-                    HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
-                }
+            }
+            .onChange(of: geometry.safeAreaInsets.bottom) { _, _ in
+                updateKeyboardOffset(in: geometry)
             }
         }
         .background(Color.hopesBackground.ignoresSafeArea())
         .ignoresSafeArea(.container, edges: .top)
     }
 
-    private func scrollTo(_ target: String, proxy: ScrollViewProxy) {
-        Task { @MainActor in
-            await Task.yield()
-            withAnimation {
-                proxy.scrollTo(target, anchor: target == ScrollTarget.bottom ? .bottom : .top)
+    private var fixedDesign: some View {
+        ZStack(alignment: .top) {
+            Color.hopesBackground
+                .contentShape(Rectangle())
+                .onTapGesture { isInputFocused = false }
+
+            header
+                .padding(.horizontal, 24)
+                .padding(.top, 72)
+                .simultaneousGesture(
+                    TapGesture().onEnded { isInputFocused = false }
+                )
+
+            HopesLogo(size: .large)
+                .padding(.top, 184)
+
+            VStack(spacing: 7) {
+                Text("무엇이 궁금한가요?")
+                    .font(.title.weight(.bold))
+                    .foregroundStyle(Color.hopesTextPrimary)
+
+                Text("광주소프트웨어마이스터고 선배에게 편하게 물어보세요.")
+                    .font(.footnote)
+                    .foregroundStyle(Color.hopesTextSecondary)
+                    .multilineTextAlignment(.center)
+                    .frame(width: 318)
+            }
+            .padding(.top, 283)
+            .simultaneousGesture(
+                TapGesture().onEnded { isInputFocused = false }
+            )
+
+            VStack(spacing: 6) {
+                ForEach(suggestions, id: \.1) { icon, title in
+                    HopesQuestionCard(title: title) {
+                        message = title
+                    } icon: {
+                        Text(icon)
+                    }
+                }
+            }
+            .padding(.horizontal, 24)
+            .padding(.top, 396)
+            .simultaneousGesture(
+                TapGesture().onEnded { isInputFocused = false }
+            )
+
+            composer
+                .padding(.horizontal, 24)
+                .padding(.top, 728)
+
+            if !isInputFocused {
+                HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
+                    .frame(maxHeight: .infinity, alignment: .bottom)
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+    }
+
+    private func updateKeyboardOffset(in geometry: GeometryProxy) {
+        guard isInputFocused, inputBottom > 0 else {
+            keyboardOffset = 0
+            return
+        }
+
+        let availableBottom = geometry.frame(in: .global).maxY - geometry.safeAreaInsets.bottom
+        keyboardOffset = min(0, availableBottom - inputBottom)
     }
 
     private var header: some View {
@@ -172,6 +177,15 @@ public struct ChatHomeView: View {
             RoundedRectangle(cornerRadius: HopesMetrics.cardCornerRadius)
                 .stroke(Color.hopesBorder, lineWidth: 1)
         }
+        .background {
+            GeometryReader { geometry in
+                Color.clear
+                    .preference(
+                        key: ChatHomeInputBottomPreferenceKey.self,
+                        value: geometry.frame(in: .named(ChatHomeCoordinateSpace.name)).maxY
+                    )
+            }
+        }
         .shadow(
             color: Color(red: 13 / 255, green: 26 / 255, blue: 46 / 255)
                 .opacity(0.07),
@@ -190,6 +204,18 @@ public struct ChatHomeView: View {
         }
 
         onSend(trimmedMessage)
+    }
+}
+
+private enum ChatHomeCoordinateSpace {
+    static let name = "chat-home-fixed-design"
+}
+
+private struct ChatHomeInputBottomPreferenceKey: PreferenceKey {
+    static let defaultValue: CGFloat = 0
+
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
     }
 }
 

@@ -89,9 +89,51 @@ public struct LoginView: View {
     }
 
     private var loginSheet: some View {
+        GeometryReader { geometry in
+            ScrollViewReader { proxy in
+                ScrollView(.vertical, showsIndicators: false) {
+                    loginSheetContent
+                        .frame(
+                            minHeight: 502 + (focusedField == nil ? 0 : geometry.safeAreaInsets.bottom),
+                            alignment: .top
+                        )
+                }
+                .scrollIndicators(.hidden)
+                .onChange(of: focusedField) { _, field in
+                    Task { @MainActor in
+                        await Task.yield()
+
+                        if let field {
+                            withAnimation {
+                                proxy.scrollTo(field, anchor: .center)
+                            }
+                        } else {
+                            proxy.scrollTo(LoginScrollTarget.top, anchor: .top)
+                        }
+                    }
+                }
+            }
+        }
+        .frame(height: 502)
+        .background(.white)
+        .clipShape(
+            UnevenRoundedRectangle(
+                topLeadingRadius: 28,
+                topTrailingRadius: 28
+            )
+        )
+        .shadow(
+            color: Color(red: 13 / 255, green: 26 / 255, blue: 46 / 255).opacity(0.12),
+            radius: 16,
+            y: 7
+        )
+    }
+
+    private var loginSheetContent: some View {
         ZStack(alignment: .top) {
             Color.clear
                 .contentShape(Rectangle())
+                .id(LoginScrollTarget.top)
                 .onTapGesture { focusedField = nil }
 
             Capsule()
@@ -129,6 +171,7 @@ public struct LoginView: View {
                     }
                     .padding(.top, 7)
                     .accessibilityLabel("이메일")
+                    .id(LoginField.email)
 
                 Text("비밀번호")
                     .font(.system(size: 12, weight: .semibold))
@@ -171,8 +214,14 @@ public struct LoginView: View {
                     }
                     .padding(.top, 9)
                     .accessibilityLabel("비밀번호")
+                    .id(LoginField.password)
 
-                Button("비밀번호를 잊으셨나요?", action: onForgotPassword)
+                Button {
+                    focusedField = nil
+                    onForgotPassword()
+                } label: {
+                    Text("비밀번호를 잊으셨나요?")
+                }
                     .font(.system(size: 12, weight: .medium))
                     .foregroundStyle(Color.hopesBrandPrimary)
                     .buttonStyle(.plain)
@@ -185,7 +234,10 @@ public struct LoginView: View {
             HopesButton(
                 isLoading ? "로그인 중..." : "로그인",
                 isEnabled: !isLoading && !email.isEmpty && !password.isEmpty,
-                action: onLogin
+                action: {
+                    focusedField = nil
+                    onLogin()
+                }
             )
                 .padding(.horizontal, 32)
                 .padding(.top, 355)
@@ -199,7 +251,10 @@ public struct LoginView: View {
                     .padding(.top, 407)
             }
 
-            Button(action: onSignUp) {
+            Button {
+                focusedField = nil
+                onSignUp()
+            } label: {
                 Text("계정이 없으신가요?  회원가입")
                     .font(.system(size: 13, weight: .medium))
                     .foregroundStyle(Color.hopesTextSecondary)
@@ -211,19 +266,11 @@ public struct LoginView: View {
         }
         .frame(height: 502, alignment: .top)
         .frame(maxWidth: .infinity)
-        .background(.white)
-        .clipShape(
-            UnevenRoundedRectangle(
-                topLeadingRadius: 28,
-                topTrailingRadius: 28
-            )
-        )
-        .shadow(
-            color: Color(red: 13 / 255, green: 26 / 255, blue: 46 / 255).opacity(0.12),
-            radius: 16,
-            y: 7
-        )
     }
+}
+
+private enum LoginScrollTarget {
+    static let top = "login-sheet-top"
 }
 
 private extension View {

@@ -29,6 +29,14 @@ public struct SignUpFormData: Equatable, Sendable {
 }
 
 public struct SignUpView: View {
+    private enum SignUpField: Hashable {
+        case email
+        case verificationCode
+        case name
+        case password
+        case passwordConfirm
+    }
+
     @State private var selectedTab: HopesTab = .home
     @State private var verificationCode = ""
     @State private var password = ""
@@ -41,6 +49,7 @@ public struct SignUpView: View {
     @State private var isEmailVerified = false
     @State private var statusMessage: String?
     @State private var errorMessage: String?
+    @FocusState private var focusedField: SignUpField?
 
     @Binding private var email: String
     @Binding private var name: String
@@ -68,14 +77,19 @@ public struct SignUpView: View {
 
     public var body: some View {
         ZStack(alignment: .top) {
-            Color.hopesBackground.ignoresSafeArea()
+            Color.hopesBackground
+                .ignoresSafeArea()
+                .contentShape(Rectangle())
+                .onTapGesture { focusedField = nil }
             header
 
             signUpPanel
                 .padding(.horizontal, 24)
                 .padding(.top, 276)
 
-            HopesTabBar(selection: $selectedTab)
+            HopesTabBar(selection: $selectedTab) { _ in
+                focusedField = nil
+            }
                 .frame(maxHeight: .infinity, alignment: .bottom)
                 .ignoresSafeArea(edges: .bottom)
         }
@@ -118,9 +132,15 @@ public struct SignUpView: View {
     private var signUpCard: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 0) {
-                signUpField("학교 이메일", text: $email, placeholder: "s26055@gsm.hs.kr", kind: .email)
+                signUpField(
+                    "학교 이메일",
+                    text: $email,
+                    placeholder: "s26055@gsm.hs.kr",
+                    kind: .email,
+                    focus: .email
+                )
                 verificationField
-                signUpField("이름", text: $name, placeholder: "임서하")
+                signUpField("이름", text: $name, placeholder: "임서하", focus: .name)
                 signUpField("과", text: $major, placeholder: "학과 선택", kind: .major)
                 signUpField("기수", text: $cohort, placeholder: "기수 선택", kind: .cohort)
                 signUpField(
@@ -128,14 +148,16 @@ public struct SignUpView: View {
                     text: $password,
                     placeholder: "영문·숫자 포함 8~15자",
                     kind: .password,
-                    isPasswordVisible: $isPasswordVisible
+                    isPasswordVisible: $isPasswordVisible,
+                    focus: .password
                 )
                 signUpField(
                     "비밀번호 확인",
                     text: $passwordConfirm,
                     placeholder: "비밀번호 재입력",
                     kind: .password,
-                    isPasswordVisible: $isPasswordConfirmVisible
+                    isPasswordVisible: $isPasswordConfirmVisible,
+                    focus: .passwordConfirm
                 )
             }
             .padding(.horizontal, 16)
@@ -143,6 +165,7 @@ public struct SignUpView: View {
             .padding(.bottom, 24)
         }
         .scrollBounceBehavior(.basedOnSize)
+        .scrollDismissesKeyboard(.interactively)
         .frame(maxWidth: 354)
         .frame(height: 386)
         .background(.white)
@@ -159,11 +182,15 @@ public struct SignUpView: View {
             Text("인증번호")
                 .font(.system(size: 12, weight: .semibold))
                 .foregroundStyle(Color.hopesTextPrimary)
+                .simultaneousGesture(
+                    TapGesture().onEnded { focusedField = nil }
+                )
 
             HStack(spacing: 8) {
                 TextField("숫자 6자리", text: $verificationCode)
                     .signUpInputTraits(.verificationCode)
                     .textFieldStyle(.plain)
+                    .focused($focusedField, equals: .verificationCode)
                     .font(.system(size: 15))
                     .padding(.horizontal, 12)
                     .frame(height: 43)
@@ -190,18 +217,25 @@ public struct SignUpView: View {
         text: Binding<String>,
         placeholder: String,
         kind: SignUpFieldKind = .plain,
-        isPasswordVisible: Binding<Bool>? = nil
+        isPasswordVisible: Binding<Bool>? = nil,
+        focus: SignUpField? = nil
     ) -> some View {
         VStack(alignment: .leading, spacing: 7) {
             Text(title)
                 .font(.system(size: 12, weight: .semibold))
                 .foregroundStyle(Color.hopesTextPrimary)
+                .simultaneousGesture(
+                    TapGesture().onEnded { focusedField = nil }
+                )
 
             Group {
                 if kind == .major || kind == .cohort {
                     Menu {
                         ForEach(kind == .major ? ["AI", "SW", "IoT"] : ["7기", "8기", "9기", "10기"], id: \.self) { option in
-                            Button(option) { text.wrappedValue = option }
+                            Button(option) {
+                                focusedField = nil
+                                text.wrappedValue = option
+                            }
                         }
                     } label: {
                         HStack {
@@ -221,6 +255,7 @@ public struct SignUpView: View {
                             SecureField(placeholder, text: text)
                         }
                     }
+                    .focused($focusedField, equals: focus)
                     .padding(.trailing, 30)
                     .overlay(alignment: .trailing) {
                         Button {
@@ -237,6 +272,7 @@ public struct SignUpView: View {
                 } else {
                     TextField("", text: text, prompt: Text(placeholder).foregroundStyle(Color.hopesTextSecondary))
                         .signUpInputTraits(kind)
+                        .focused($focusedField, equals: focus)
                 }
             }
             .textFieldStyle(.plain)
@@ -255,7 +291,10 @@ public struct SignUpView: View {
     }
 
     private var signUpButton: some View {
-        Button(action: signUp) {
+        Button {
+            focusedField = nil
+            signUp()
+        } label: {
             Text(isSigningUp ? "가입 중..." : "회원가입")
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundStyle(.white)
@@ -278,7 +317,10 @@ public struct SignUpView: View {
     }
 
     private var loginLink: some View {
-        Button(action: onGoToLogin) {
+        Button {
+            focusedField = nil
+            onGoToLogin()
+        } label: {
             (Text("계정이 있으신가요?  ").foregroundStyle(Color.hopesTextSecondary)
                 + Text("로그인").foregroundStyle(Color.hopesBrandPrimary).underline())
                 .font(.footnote)
