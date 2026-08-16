@@ -72,6 +72,10 @@ public struct ChatHomeView: View {
 
             HopesLogo(size: .large)
                 .padding(.top, 184)
+                .contentShape(Rectangle())
+                .simultaneousGesture(
+                    TapGesture().onEnded { isInputFocused = false }
+                )
 
             VStack(spacing: 7) {
                 Text("무엇이 궁금한가요?")
@@ -92,6 +96,7 @@ public struct ChatHomeView: View {
             VStack(spacing: 6) {
                 ForEach(suggestions, id: \.1) { icon, title in
                     HopesQuestionCard(title: title) {
+                        isInputFocused = false
                         message = title
                     } icon: {
                         Text(icon)
@@ -114,6 +119,7 @@ public struct ChatHomeView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .ignoresSafeArea(.container, edges: .bottom)
     }
 
     private func updateKeyboardOffset(in geometry: GeometryProxy) {
