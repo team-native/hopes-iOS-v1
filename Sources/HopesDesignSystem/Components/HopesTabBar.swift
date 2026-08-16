@@ -95,7 +95,7 @@ public struct HopesTabBar: View {
             }
         }
         .padding(.horizontal, 25)
-        .padding(.top, 12)
+        .padding(.top, 24)
         .frame(maxWidth: .infinity)
         .frame(height: 84, alignment: .top)
         .frame(maxWidth: .infinity)
