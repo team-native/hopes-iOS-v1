@@ -50,9 +50,6 @@ public struct HopesTabBar: View {
     @Binding private var selection: HopesTab
     private let onSelect: (HopesTab) -> Void
 
-    private static let figmaTabCenters: [CGFloat] = [55, 143, 231, 319]
-    private static let figmaWidth: CGFloat = 402
-
     public init(
         selection: Binding<HopesTab>,
         onSelect: @escaping (HopesTab) -> Void = { _ in }
@@ -66,10 +63,13 @@ public struct HopesTabBar: View {
             ZStack(alignment: .top) {
                 Color.white
 
-                ForEach(Array(HopesTab.allCases.enumerated()), id: \.offset) { index, tab in
-                    tabButton(tab)
-                        .position(x: geometry.size.width * Self.figmaTabCenters[index] / Self.figmaWidth, y: 42)
+                HStack(spacing: 0) {
+                    ForEach(HopesTab.allCases, id: \.self) { tab in
+                        tabButton(tab)
+                            .frame(maxWidth: .infinity)
+                    }
                 }
+                .frame(width: geometry.size.width, height: 84, alignment: .top)
             }
             .frame(width: geometry.size.width, height: 84, alignment: .top)
             .overlay(alignment: .top) {
@@ -97,7 +97,7 @@ public struct HopesTabBar: View {
                 }
 
                 Image(systemName: selection == tab ? tab.selectedIconName : tab.iconName)
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.system(size: 18, weight: .semibold))
                     .foregroundStyle(
                         selection == tab
                             ? Color(red: 13 / 255, green: 138 / 255, blue: 229 / 255)

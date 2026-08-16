@@ -49,29 +49,36 @@ public struct ChatDetailView: View {
     }
 
     public var body: some View {
-        ZStack(alignment: .top) {
-            Color.hopesBackground
+        GeometryReader { geometry in
+            ZStack(alignment: .top) {
+                Color.hopesBackground
 
-            header
-                .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
-                .padding(.top, 72)
-                .simultaneousGesture(
-                    TapGesture().onEnded { isReplyFocused = false }
-                )
+                header
+                    .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
+                    .padding(.top, 72)
+                    .simultaneousGesture(
+                        TapGesture().onEnded { isReplyFocused = false }
+                    )
 
-            messageList
-                .padding(.top, 132)
-        }
-        .background(Color.hopesBackground.ignoresSafeArea())
-        .ignoresSafeArea(.container, edges: .top)
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            composer
-        }
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            if !isReplyFocused {
-                HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
+                messageList
+                    .padding(.top, 132)
+                    .padding(.bottom, isReplyFocused ? 74 : 158)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            .background(Color.hopesBackground.ignoresSafeArea())
+            .overlay(alignment: .bottom) {
+                VStack(spacing: 0) {
+                    composer
+
+                    if !isReplyFocused {
+                        HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                .offset(y: isReplyFocused ? 0 : geometry.safeAreaInsets.bottom)
             }
         }
+        .ignoresSafeArea(.container, edges: [.top, .bottom])
     }
 
     private var header: some View {

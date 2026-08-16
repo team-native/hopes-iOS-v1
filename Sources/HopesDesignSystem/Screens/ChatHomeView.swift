@@ -1,9 +1,12 @@
 import SwiftUI
+import UIKit
 
 public struct ChatHomeView: View {
     @State private var selectedTab: HopesTab = .chat
     @State private var keyboardOffset: CGFloat = 0
     @State private var inputBottom: CGFloat = 0
+    @State private var keyboardFrame: CGRect?
+    @State private var keyboardAnimationDuration: Double = 0.25
     @Binding private var message: String
     @FocusState private var isInputFocused: Bool
 
@@ -31,26 +34,45 @@ public struct ChatHomeView: View {
     }
 
     public var body: some View {
-        GeometryReader { geometry in
+        GeometryReader { _ in
             ZStack(alignment: .top) {
                 fixedDesign
-                    .coordinateSpace(name: ChatHomeCoordinateSpace.name)
                     .offset(y: keyboardOffset)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .onPreferenceChange(ChatHomeInputBottomPreferenceKey.self) { bottom in
                 inputBottom = bottom
-                updateKeyboardOffset(in: geometry)
+                updateKeyboardOffset()
             }
             .onChange(of: isInputFocused) { _, isFocused in
                 if !isFocused {
-                    keyboardOffset = 0
+                    resetKeyboardOffset()
                 } else {
-                    updateKeyboardOffset(in: geometry)
+                    updateKeyboardOffset()
                 }
             }
-            .onChange(of: geometry.safeAreaInsets.bottom) { _, _ in
-                updateKeyboardOffset(in: geometry)
+            .onReceive(
+                NotificationCenter.default.publisher(
+                    for: UIResponder.keyboardWillChangeFrameNotification
+                )
+            ) { notification in
+                updateKeyboardFrame(from: notification)
+            }
+            .onReceive(
+                NotificationCenter.default.publisher(
+                    for: UIResponder.keyboardWillShowNotification
+                )
+            ) { notification in
+                updateKeyboardFrame(from: notification)
+            }
+            .onReceive(
+                NotificationCenter.default.publisher(
+                    for: UIResponder.keyboardWillHideNotification
+                )
+            ) { notification in
+                keyboardFrame = nil
+                updateKeyboardAnimation(from: notification)
+                resetKeyboardOffset()
             }
         }
         .background(Color.hopesBackground.ignoresSafeArea())
@@ -122,14 +144,71 @@ public struct ChatHomeView: View {
         .ignoresSafeArea(.container, edges: .bottom)
     }
 
-    private func updateKeyboardOffset(in geometry: GeometryProxy) {
-        guard isInputFocused, inputBottom > 0 else {
-            keyboardOffset = 0
+    private func updateKeyboardFrame(from notification: Notification) {
+        guard
+            let frame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
+            frame.height > 0
+        else {
             return
         }
 
-        let availableBottom = geometry.frame(in: .global).maxY - geometry.safeAreaInsets.bottom
-        keyboardOffset = min(0, availableBottom - inputBottom)
+        keyboardFrame = globalKeyboardFrame(for: frame)
+        updateKeyboardAnimation(from: notification)
+        updateKeyboardOffset()
+    }
+
+    private func globalKeyboardFrame(for screenFrame: CGRect) -> CGRect {
+        guard
+            let windowScene = UIApplication.shared.connectedScenes
+                .compactMap({ $0 as? UIWindowScene })
+                .first(where: { $0.activationState == .foregroundActive }),
+            let window = windowScene.windows.first(where: \.isKeyWindow)
+        else {
+            return screenFrame
+        }
+
+        return window.screen.coordinateSpace.convert(
+            screenFrame,
+            to: window.coordinateSpace
+        )
+    }
+
+    private func updateKeyboardAnimation(from notification: Notification) {
+        if let duration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double {
+            keyboardAnimationDuration = duration
+        }
+    }
+
+    private func updateKeyboardOffset() {
+        guard isInputFocused, let keyboardFrame, inputBottom > 0 else {
+            resetKeyboardOffset()
+            return
+        }
+
+        // `inputBottom` includes the currently applied offset. Remove it first
+        // so repeated frame/preference updates always calculate from the
+        // original Figma layout position.
+        let unshiftedInputBottom = inputBottom - keyboardOffset
+        let overlap = max(0, unshiftedInputBottom - keyboardFrame.minY)
+        let targetOffset = -overlap
+
+        guard abs(targetOffset - keyboardOffset) > 0.5 else {
+            return
+        }
+
+        withAnimation(.easeOut(duration: keyboardAnimationDuration)) {
+            keyboardOffset = targetOffset
+        }
+    }
+
+    private func resetKeyboardOffset() {
+        guard keyboardOffset != 0 else {
+            return
+        }
+
+        withAnimation(.easeOut(duration: keyboardAnimationDuration)) {
+            keyboardOffset = 0
+        }
     }
 
     private var header: some View {
@@ -188,7 +267,7 @@ public struct ChatHomeView: View {
                 Color.clear
                     .preference(
                         key: ChatHomeInputBottomPreferenceKey.self,
-                        value: geometry.frame(in: .named(ChatHomeCoordinateSpace.name)).maxY
+                        value: geometry.frame(in: .global).maxY
                     )
             }
         }
@@ -211,10 +290,6 @@ public struct ChatHomeView: View {
 
         onSend(trimmedMessage)
     }
-}
-
-private enum ChatHomeCoordinateSpace {
-    static let name = "chat-home-fixed-design"
 }
 
 private struct ChatHomeInputBottomPreferenceKey: PreferenceKey {

@@ -1,18 +1,8 @@
 import HopesDesignSystem
 import SwiftUI
-import UIKit
 
 @main
 struct HopesApp: App {
-    init() {
-        // Keep the app's own color palette unchanged while ensuring every
-        // UIKit-backed SwiftUI input uses the standard iOS light keyboard.
-        UITextField.appearance().keyboardAppearance = .light
-        UITextView.appearance().keyboardAppearance = .light
-        UISearchBar.appearance().keyboardAppearance = .light
-        UISearchTextField.appearance().keyboardAppearance = .light
-    }
-
     var body: some Scene {
         WindowGroup {
             LoginFlowView(
