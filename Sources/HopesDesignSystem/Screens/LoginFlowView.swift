@@ -122,9 +122,22 @@ public struct LoginFlowView: View {
         ZStack {
             switch screen {
             case .guide:
-                LoginSwipeGuideView {
-                    transition(to: .login)
-                }
+                LoginView(
+                    email: $email,
+                    password: $password,
+                    isLoading: isLoggingIn,
+                    errorMessage: loginErrorMessage,
+                    isInitiallyExpanded: false,
+                    onLogin: {
+                        login()
+                    },
+                    onSignUp: {
+                        transition(to: .signUp)
+                    },
+                    onForgotPassword: {
+                        transition(to: .passwordReset)
+                    }
+                )
                 .transition(.opacity)
 
             case .login:
@@ -133,6 +146,7 @@ public struct LoginFlowView: View {
                     password: $password,
                     isLoading: isLoggingIn,
                     errorMessage: loginErrorMessage,
+                    isInitiallyExpanded: true,
                     onLogin: {
                         login()
                     },

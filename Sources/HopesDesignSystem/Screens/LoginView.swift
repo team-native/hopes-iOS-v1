@@ -7,6 +7,8 @@ public struct LoginView: View {
     }
 
     @State private var isPasswordVisible = false
+    @State private var sheetProgress: CGFloat
+    @State private var sheetDragStartProgress: CGFloat?
     @Binding private var email: String
     @Binding private var password: String
     @FocusState private var focusedField: LoginField?
@@ -22,10 +24,13 @@ public struct LoginView: View {
         password: Binding<String>,
         isLoading: Bool = false,
         errorMessage: String? = nil,
+        isInitiallyExpanded: Bool = false,
         onLogin: @escaping () -> Void = {},
         onSignUp: @escaping () -> Void = {},
         onForgotPassword: @escaping () -> Void = {}
     ) {
+        _sheetProgress = State(initialValue: isInitiallyExpanded ? 1 : 0)
+        _sheetDragStartProgress = State(initialValue: nil)
         _email = email
         _password = password
         self.isLoading = isLoading
@@ -36,8 +41,11 @@ public struct LoginView: View {
     }
 
     public var body: some View {
-        ZStack {
-            ZStack {
+        GeometryReader { geometry in
+            let collapsedOffset = max(0, 502 - min(190, geometry.size.height))
+            let sheetOffset = collapsedOffset * (1 - sheetProgress)
+
+            ZStack(alignment: .bottom) {
                 Color.hopesHeroGradient
                     .ignoresSafeArea()
 
@@ -47,45 +55,115 @@ public struct LoginView: View {
                         .padding(.top, 14)
                         .padding(.horizontal, 32)
 
-                    Text("선배에게 묻는\n가장 솔직한\n학교 이야기")
-                        .font(.system(size: 31, weight: .bold))
-                        .foregroundStyle(.white)
-                        .lineSpacing(2)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                    hero
                         .padding(.horizontal, 32)
-                        .padding(.top, 168)
+                        .padding(.top, max(72, geometry.size.height * 0.192))
+                        .offset(y: 14)
+
+                    Spacer(minLength: 20)
+                }
+                .contentShape(Rectangle())
+                .onTapGesture { focusedField = nil }
+
+                VStack(spacing: 0) {
+                    Color.black.opacity(0.1)
+                        .frame(height: 397)
 
                     Spacer(minLength: 0)
                 }
-            }
-            .blur(radius: 8)
-            .contentShape(Rectangle())
-            .onTapGesture { focusedField = nil }
+                .ignoresSafeArea()
+                .allowsHitTesting(false)
 
-            VStack(spacing: 0) {
-                Color.black.opacity(0.1)
-                    .frame(height: 397)
+                swipeCue
+                    .padding(.bottom, 190)
+                    .opacity(1 - sheetProgress)
+                    .allowsHitTesting(false)
 
-                Spacer(minLength: 0)
-            }
-            .ignoresSafeArea()
-            .allowsHitTesting(false)
-
-            VStack(spacing: 0) {
-                Spacer(minLength: 0)
                 loginSheet
-                    .background {
-                        UnevenRoundedRectangle(
-                            topLeadingRadius: 28,
-                            topTrailingRadius: 28
-                        )
-                        .fill(.white)
-                        .ignoresSafeArea(.container, edges: .bottom)
-                    }
+                    .offset(y: sheetOffset)
+                    .simultaneousGesture(sheetDragGesture(collapsedOffset: collapsedOffset))
             }
             .ignoresSafeArea(.container, edges: focusedField == nil ? [.top, .bottom] : [])
         }
-        .ignoresSafeArea(.container, edges: focusedField == nil ? [.top, .bottom] : [])
+    }
+
+    private var hero: some View {
+        VStack(alignment: .leading, spacing: 13) {
+            Text("선배에게 묻는\n가장 솔직한\n학교 이야기")
+                .font(.system(size: 31, weight: .bold))
+                .foregroundStyle(.white)
+                .lineSpacing(2)
+
+            Text("재학생, 신입생, 입학 희망자를 위한 AI 선배 챗봇.\n실제 선배들의 경험으로 답해드려요.")
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(Color("HopesHeroSecondary", bundle: .module))
+                .lineSpacing(5)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var swipeCue: some View {
+        VStack(spacing: 0) {
+            ZStack {
+                Image("SwipeChevronBack", bundle: .module)
+                    .resizable()
+                    .frame(width: 17, height: 34)
+                    .rotationEffect(.degrees(90))
+                    .offset(y: -9)
+
+                Image("SwipeChevronFront", bundle: .module)
+                    .resizable()
+                    .frame(width: 17, height: 34)
+                    .rotationEffect(.degrees(90))
+                    .offset(y: 9)
+            }
+            .frame(height: 42)
+
+            Text("위로 스와이프하기")
+                .font(.system(size: 18, weight: .bold))
+                .foregroundStyle(.white)
+                .padding(.top, 4)
+
+            Text("로그인 창을 올려 학교 이메일로 시작해요.")
+                .font(.system(size: 12))
+                .foregroundStyle(Color("HopesSwipeHint", bundle: .module))
+                .padding(.top, 6)
+        }
+        .frame(height: 118, alignment: .top)
+        .frame(maxWidth: .infinity)
+    }
+
+    private func sheetDragGesture(collapsedOffset: CGFloat) -> some Gesture {
+        DragGesture(minimumDistance: 8)
+            .onChanged { value in
+                guard focusedField == nil, collapsedOffset > 0 else { return }
+
+                if sheetDragStartProgress == nil {
+                    sheetDragStartProgress = sheetProgress
+                }
+
+                let start = sheetDragStartProgress ?? sheetProgress
+                let progressDelta = -value.translation.height / collapsedOffset
+                sheetProgress = min(1, max(0, start + progressDelta))
+            }
+            .onEnded { value in
+                guard focusedField == nil, collapsedOffset > 0 else {
+                    sheetDragStartProgress = nil
+                    return
+                }
+
+                let start = sheetDragStartProgress ?? sheetProgress
+                let projectedProgress = min(
+                    1,
+                    max(0, start - value.predictedEndTranslation.height / collapsedOffset)
+                )
+                let targetProgress = projectedProgress > 0.5 ? CGFloat(1) : CGFloat(0)
+
+                sheetDragStartProgress = nil
+                withAnimation(.spring(response: 0.48, dampingFraction: 0.9, blendDuration: 0.1)) {
+                    sheetProgress = targetProgress
+                }
+            }
     }
 
     private var loginSheet: some View {
