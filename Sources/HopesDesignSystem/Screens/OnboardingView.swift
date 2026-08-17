@@ -78,7 +78,7 @@ public struct OnboardingView: View {
                     .background(Color.hopesBrandTint)
                     .clipShape(Circle())
 
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 12) {
                     Text(caption)
                         .font(.system(size: 10, weight: .semibold))
                         .foregroundStyle(Color.hopesTextSecondary)
