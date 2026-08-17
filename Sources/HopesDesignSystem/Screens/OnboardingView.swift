@@ -16,7 +16,7 @@ public struct OnboardingView: View {
             HopesLogo(placement: .onBrand)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 32)
-                .padding(.top, 54)
+                .padding(.top, 76)
 
             Text("선배 답변을\n더 정확하게 받는 방법")
                 .font(.system(size: 34, weight: .bold))
@@ -24,29 +24,30 @@ public struct OnboardingView: View {
                 .lineSpacing(3)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 32)
-                .padding(.top, 150)
+                .padding(.top, 220)
 
-            Text("질문에 학년, 관심 전공, 상황을 같이 적으면 더\n현실적인 답변을 받을 수 있어요.")
+            Text("질문에 학년, 관심 전공, 상황을 같이 적으면 더 현실적인 답변을 받을 수 있어요.")
                 .font(.system(size: 16, weight: .medium))
                 .foregroundStyle(Color("HopesBlueSecondaryText", bundle: .module))
                 .lineSpacing(5)
+                .frame(width: 306, alignment: .leading)
+                .padding(.leading, 32)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 32)
-                .padding(.top, 310)
+                .padding(.top, 330)
 
             tipCard(
                 number: "1",
                 caption: "“기숙사 어때” 보단,",
                 detail: "“1학년 기숙사 평일 루틴 알려줘”"
             )
-            .padding(.top, 429)
+            .padding(.top, 450)
 
             tipCard(
                 number: "2",
                 caption: "질문 전에,",
                 detail: "입학 / 전공 / 학교생활 중 카테고리를 골라요."
             )
-            .padding(.top, 522)
+            .padding(.top, 543)
 
             HopesButton(
                 "채팅 시작하기",
@@ -55,7 +56,7 @@ public struct OnboardingView: View {
                 width: .fixed(338),
                 action: onStartChat
             )
-            .padding(.top, 684)
+            .padding(.top, 706)
 
             HopesTabBar(selection: $selectedTab)
                 .frame(maxHeight: .infinity, alignment: .bottom)

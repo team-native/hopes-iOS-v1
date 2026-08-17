@@ -94,6 +94,7 @@ public struct LoginView: View {
             }
         }
         .ignoresSafeArea(.container, edges: [.top, .bottom])
+        .preferredColorScheme(.light)
         .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillChangeFrameNotification)) { notification in
             guard let frame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else {
                 return

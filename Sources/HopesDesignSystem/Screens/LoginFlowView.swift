@@ -411,7 +411,7 @@ public struct LoginFlowView: View {
                 await MainActor.run {
                     conversations = mappedConversations
                     withAnimation(.easeOut(duration: 0.16)) {
-                        screen = .chatHome
+                        screen = .onboarding
                     }
                 }
             } catch {
@@ -776,7 +776,7 @@ public struct LoginFlowView: View {
                     isLoggingIn = false
                     password = ""
                     onLogin()
-                    transition(to: .chatHome)
+                    transition(to: .onboarding)
                 }
             } catch {
                 await MainActor.run {
@@ -791,7 +791,7 @@ public struct LoginFlowView: View {
     private func navigateFromTab(_ tab: HopesTab) {
         switch tab {
         case .home:
-            transition(to: .chatHome)
+            transition(to: .onboarding)
         case .chat:
             transition(to: .chatHome)
         case .history:

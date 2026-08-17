@@ -33,6 +33,7 @@ public struct MyPageView: View {
     private let onSave: (Profile) -> Void
     private let onOpenAccountInfo: () -> Void
     private let onSelectTab: (HopesTab) -> Void
+    private let cardContentHorizontalPadding: CGFloat = 24
 
     public init(
         name: Binding<String>,
@@ -95,13 +96,13 @@ public struct MyPageView: View {
             }
             .buttonStyle(.plain)
             .accessibilityHint("계정 정보 상세 화면을 엽니다")
-                .padding(.horizontal, 12)
-                .padding(.top, 194)
+                .padding(.horizontal, 24)
+                .padding(.top, 184)
 
             profileCard
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 12)
-                .padding(.top, 350)
+                .padding(.horizontal, 24)
+                .padding(.top, 352)
 
             HopesButton(
                 isSaving ? "저장 중" : "저장",
@@ -114,8 +115,8 @@ public struct MyPageView: View {
                 }
             )
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 18)
-            .padding(.top, 694)
+            .padding(.horizontal, 30)
+            .padding(.top, 696)
 
             if isLoading {
                 ProgressView("프로필을 불러오는 중...")
@@ -164,12 +165,12 @@ public struct MyPageView: View {
                 .foregroundStyle(Color.hopesTextPrimary)
 
             focusedNameField
-                .padding(.top, 22)
+                .padding(.top, 24)
 
             Text("자기소개 (AI 응답 개인화에 활용됩니다)")
                 .font(.footnote.weight(.semibold))
                 .foregroundStyle(Color.hopesTextPrimary)
-                .padding(.top, 14)
+                .padding(.top, 24)
                 .simultaneousGesture(
                     TapGesture().onEnded { focusedField = nil }
                 )
@@ -205,10 +206,10 @@ public struct MyPageView: View {
                 )
                 .stroke(Color.hopesBorder, lineWidth: 1)
             }
-            .padding(.top, 16)
+            .padding(.top, 24)
         }
-        .padding(.horizontal, 24)
-        .padding(.vertical, 28)
+        .padding(.horizontal, cardContentHorizontalPadding)
+        .padding(.vertical, 24)
         .frame(width: 354, height: 326, alignment: .topLeading)
         .background(.white)
         .clipShape(
@@ -261,7 +262,7 @@ public struct MyPageView: View {
         }
         .font(.footnote)
         .foregroundStyle(Color.hopesTextPrimary)
-        .padding(.horizontal, 24)
+        .padding(.horizontal, cardContentHorizontalPadding)
         .padding(.vertical, 24)
         .frame(width: 354, height: 128, alignment: .topLeading)
         .background(.white)
