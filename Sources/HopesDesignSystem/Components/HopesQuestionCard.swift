@@ -20,7 +20,7 @@ public struct HopesQuestionCard<Icon: View>: View {
             HopesCard(padding: 16) {
                 HStack(spacing: 14) {
                     icon
-                        .font(.subheadline.weight(.bold))
+                        .font(.system(size: 14, weight: .bold))
                         .foregroundStyle(Color.hopesBrandPrimary)
                         .frame(width: 38, height: 38)
                         .background(Color.hopesBrandTint)

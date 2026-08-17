@@ -1,7 +1,13 @@
 import SwiftUI
 
 public struct ChatDetailView: View {
+    private enum ScrollTarget {
+        static let bottom = "chat-message-bottom"
+    }
+
     @State private var selectedTab: HopesTab = .chat
+    @State private var isSaved = false
+    @State private var isLiked = false
     @Binding private var reply: String
     @FocusState private var isReplyFocused: Bool
 
@@ -11,7 +17,9 @@ public struct ChatDetailView: View {
     private let isSending: Bool
     private let errorMessage: String?
     private let onBack: () -> Void
+    private let onShowSources: () -> Void
     private let onSend: (String) -> Void
+    private let onShare: () -> Void
     private let onSelectTab: (HopesTab) -> Void
 
     public init(
@@ -34,41 +42,51 @@ public struct ChatDetailView: View {
         self.isSending = isSending
         self.errorMessage = errorMessage
         self.onBack = onBack
+        self.onShowSources = onShowSources
         self.onSend = onSend
+        self.onShare = onShare
         self.onSelectTab = onSelectTab
     }
 
     public var body: some View {
-        ZStack(alignment: .top) {
-            Color.hopesBackground
-                .contentShape(Rectangle())
-                .onTapGesture { isReplyFocused = false }
+        GeometryReader { geometry in
+            ZStack(alignment: .top) {
+                Color.hopesBackground
 
-            header
-                .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
-                .padding(.top, 72)
-                .simultaneousGesture(
-                    TapGesture().onEnded { isReplyFocused = false }
-                )
+                header
+                    .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
+                    .padding(.top, 72)
+                    .simultaneousGesture(
+                        TapGesture().onEnded { isReplyFocused = false }
+                    )
 
-            messageList
-                .padding(.top, 132)
-        }
-        .background(Color.hopesBackground.ignoresSafeArea())
-        .ignoresSafeArea(.container, edges: .top)
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            composer
-        }
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            if !isReplyFocused {
-                HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
+                messageList
+                    .padding(.top, 132)
+                    .padding(.bottom, isReplyFocused ? 74 : 158)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            .background(Color.hopesBackground.ignoresSafeArea())
+            .overlay(alignment: .bottom) {
+                VStack(spacing: 0) {
+                    composer
+
+                    if !isReplyFocused {
+                        HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                .offset(y: isReplyFocused ? 0 : geometry.safeAreaInsets.bottom)
             }
         }
+        .ignoresSafeArea(.container, edges: [.top, .bottom])
     }
 
     private var header: some View {
         HStack(spacing: 12) {
-            Button(action: onBack) {
+            Button {
+                isReplyFocused = false
+                onBack()
+            } label: {
                 Image(systemName: "chevron.left")
                     .font(.title3.weight(.semibold))
                     .foregroundStyle(Color.hopesBrandPrimary)
@@ -91,62 +109,118 @@ public struct ChatDetailView: View {
                     .font(.footnote)
                     .foregroundStyle(Color.hopesTextSecondary)
             }
-            Spacer()
+            Spacer(minLength: 8)
+
+            HopesButton(
+                isSaved ? "저장됨" : "저장",
+                variant: .secondary,
+                size: .small,
+                width: .fixed(isSaved ? 64 : 54)
+            ) {
+                isReplyFocused = false
+                isSaved.toggle()
+            }
         }
     }
 
     private var messageList: some View {
-        ScrollViewReader { proxy in
-            ScrollView {
-                LazyVStack(spacing: 12) {
-                    if isLoading {
-                        ProgressView("대화를 불러오는 중...")
-                            .padding(.top, 32)
-                    } else if messages.isEmpty {
-                        Text("질문을 보내면 AI 답변이 여기에 표시돼요.")
-                            .font(.footnote)
-                            .foregroundStyle(Color.hopesTextPlaceholder)
-                            .padding(.top, 32)
-                    }
-
-                    ForEach(messages) { message in
-                        messageBubble(message)
-                            .id(message.id)
-                    }
-
-                    if isSending {
-                        HStack(spacing: 8) {
-                            ProgressView()
-                            Text("AI가 답변을 만들고 있어요.")
+        GeometryReader { geometry in
+            ScrollViewReader { proxy in
+                ScrollView {
+                    LazyVStack(spacing: 12) {
+                        if isLoading {
+                            ProgressView("대화를 불러오는 중...")
+                                .padding(.top, 32)
+                        } else if messages.isEmpty {
+                            Text("질문을 보내면 AI 답변이 여기에 표시돼요.")
                                 .font(.footnote)
-                                .foregroundStyle(Color.hopesTextSecondary)
-                            Spacer()
+                                .foregroundStyle(Color.hopesTextPlaceholder)
+                                .padding(.top, 32)
                         }
-                        .padding(16)
-                        .background(.white)
-                        .clipShape(RoundedRectangle(cornerRadius: HopesMetrics.cardCornerRadius))
-                    }
 
-                    if let errorMessage {
-                        Text(errorMessage)
-                            .font(.footnote)
-                            .foregroundStyle(Color.hopesDanger)
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                        ForEach(messages) { message in
+                            messageBubble(message)
+                                .id(message.id)
+                        }
+
+                        if isSending {
+                            HStack(spacing: 8) {
+                                ProgressView()
+                                Text("AI가 답변을 만들고 있어요.")
+                                    .font(.footnote)
+                                    .foregroundStyle(Color.hopesTextSecondary)
+                                Spacer()
+                            }
+                            .padding(16)
+                            .background(.white)
+                            .clipShape(RoundedRectangle(cornerRadius: HopesMetrics.cardCornerRadius))
+                        }
+
+                        if let errorMessage {
+                            Text(errorMessage)
+                                .font(.footnote)
+                                .foregroundStyle(Color.hopesDanger)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+
+                        if messages.contains(where: { $0.role == .assistant }) {
+                            responseActions
+                            sourceCard
+                        }
+
+                        Color.clear
+                            .frame(height: 1)
+                            .id(ScrollTarget.bottom)
                     }
+                    .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
                 }
-                .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
-            }
-            .scrollIndicators(.hidden)
-            .scrollDismissesKeyboard(.interactively)
-            .onTapGesture { isReplyFocused = false }
-            .onChange(of: messages.count) {
-                if let lastID = messages.last?.id {
-                    withAnimation { proxy.scrollTo(lastID, anchor: .bottom) }
+                .scrollIndicators(.hidden)
+                .scrollDismissesKeyboard(.interactively)
+                .simultaneousGesture(
+                    TapGesture().onEnded { isReplyFocused = false }
+                )
+                .onAppear {
+                    scrollToBottom(proxy, animated: false)
+                }
+                .onChange(of: messages.count) {
+                    scrollToBottom(proxy)
+                }
+                .onChange(of: isReplyFocused) { _, isFocused in
+                    guard isFocused else { return }
+                    scrollToBottom(proxy)
+                }
+                .onChange(of: geometry.size.height) { _, _ in
+                    // The keyboard changes the available container height after
+                    // focus changes. Resolve the anchor again after that layout
+                    // pass so the answer's last content stays above the composer.
+                    guard isReplyFocused else { return }
+                    scrollToBottom(proxy, animated: false)
+                }
+                .onChange(of: geometry.safeAreaInsets.bottom) { _, _ in
+                    // Some devices report the keyboard change through the safe
+                    // area without changing the container's measured height.
+                    guard isReplyFocused else { return }
+                    scrollToBottom(proxy, animated: false)
                 }
             }
-            .onChange(of: isReplyFocused) { _, isFocused in
-                guard isFocused, let lastID = messages.last?.id else { return }
-                withAnimation { proxy.scrollTo(lastID, anchor: .bottom) }
+        }
+    }
+
+    private func scrollToBottom(
+        _ proxy: ScrollViewProxy,
+        animated: Bool = true
+    ) {
+        Task { @MainActor in
+            // Wait for the Safe Area resize to be reflected in the ScrollView
+            // before resolving the bottom anchor.
+            await Task.yield()
+
+            if animated {
+                withAnimation {
+                    proxy.scrollTo(ScrollTarget.bottom, anchor: .bottom)
+                }
+            } else {
+                proxy.scrollTo(ScrollTarget.bottom, anchor: .bottom)
             }
         }
     }
@@ -169,6 +243,78 @@ public struct ChatDetailView: View {
                     }
                 }
             if message.role == .assistant { Spacer(minLength: 40) }
+        }
+    }
+
+    private var responseActions: some View {
+        HStack(spacing: 12) {
+            HopesButton(
+                isLiked ? "좋아요!" : "좋아요",
+                variant: .secondary,
+                size: .small,
+                width: .fixed(isLiked ? 84 : 76)
+            ) {
+                isReplyFocused = false
+                isLiked.toggle()
+            }
+
+            HopesButton(
+                "더 물어보기",
+                size: .small,
+                width: .fixed(104)
+            ) {
+                isReplyFocused = false
+                reply = "이 답변에 대해 더 알려줘."
+            }
+
+            HopesButton(
+                "공유",
+                variant: .secondary,
+                size: .small,
+                width: .fixed(76),
+                action: {
+                    isReplyFocused = false
+                    onShare()
+                }
+            )
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var sourceCard: some View {
+        HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 10) {
+                Text("답변 근거")
+                    .font(.callout.weight(.bold))
+                    .foregroundStyle(Color.hopesTextPrimary)
+
+                Text("선배 답변을 바탕으로 정리한 참고 정보예요.")
+                    .font(.footnote)
+                    .foregroundStyle(Color.hopesTextSecondary)
+                    .lineSpacing(2)
+            }
+
+            Spacer(minLength: 0)
+
+            HopesButton(
+                "보기",
+                variant: .secondary,
+                size: .compact,
+                width: .fixed(54),
+                action: {
+                    isReplyFocused = false
+                    onShowSources()
+                }
+            )
+        }
+        .padding(.horizontal, 20)
+        .frame(maxWidth: .infinity)
+        .frame(height: 106)
+        .background(.white)
+        .clipShape(RoundedRectangle(cornerRadius: HopesMetrics.cardCornerRadius))
+        .overlay {
+            RoundedRectangle(cornerRadius: HopesMetrics.cardCornerRadius)
+                .stroke(Color.hopesBorder, lineWidth: 1)
         }
     }
 

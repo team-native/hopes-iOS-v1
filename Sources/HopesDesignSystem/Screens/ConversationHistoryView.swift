@@ -51,6 +51,8 @@ public struct ConversationHistoryView: View {
     public var body: some View {
         ZStack(alignment: .top) {
             Color.hopesBackground
+                .contentShape(Rectangle())
+                .onTapGesture { isSearchFocused = false }
 
             header
                 .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
@@ -60,7 +62,10 @@ public struct ConversationHistoryView: View {
                 "+  새 대화 시작",
                 variant: .secondary,
                 size: .large,
-                action: onNewConversation
+                action: {
+                    isSearchFocused = false
+                    onNewConversation()
+                }
             )
             .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
             .padding(.top, 144)
@@ -155,6 +160,10 @@ public struct ConversationHistoryView: View {
             }
         }
         .scrollIndicators(.hidden)
+        .scrollDismissesKeyboard(.interactively)
+        .simultaneousGesture(
+            TapGesture().onEnded { isSearchFocused = false }
+        )
         .frame(height: 420)
     }
 
@@ -170,6 +179,7 @@ public struct ConversationHistoryView: View {
 
             ForEach(conversations) { conversation in
                 Button {
+                    isSearchFocused = false
                     onSelectConversation(conversation)
                 } label: {
                     Text(conversation.title)

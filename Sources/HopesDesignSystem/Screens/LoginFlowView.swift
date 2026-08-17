@@ -122,27 +122,11 @@ public struct LoginFlowView: View {
         ZStack {
             switch screen {
             case .guide:
-                LoginSwipeGuideView {
-                    transition(to: .login)
-                }
+                loginView(isInitiallyExpanded: false)
                 .transition(.opacity)
 
             case .login:
-                LoginView(
-                    email: $email,
-                    password: $password,
-                    isLoading: isLoggingIn,
-                    errorMessage: loginErrorMessage,
-                    onLogin: {
-                        login()
-                    },
-                    onSignUp: {
-                        transition(to: .signUp)
-                    },
-                    onForgotPassword: {
-                        transition(to: .passwordReset)
-                    }
-                )
+                loginView(isInitiallyExpanded: true)
                 .transition(.opacity)
 
             case .passwordReset:
@@ -379,6 +363,26 @@ public struct LoginFlowView: View {
         }
     }
 
+    @ViewBuilder
+    private func loginView(isInitiallyExpanded: Bool) -> some View {
+        LoginView(
+            email: $email,
+            password: $password,
+            isLoading: isLoggingIn,
+            errorMessage: loginErrorMessage,
+            isInitiallyExpanded: isInitiallyExpanded,
+            onLogin: {
+                login()
+            },
+            onSignUp: {
+                transition(to: .signUp)
+            },
+            onForgotPassword: {
+                transition(to: .passwordReset)
+            }
+        )
+    }
+
     private func transition(to screen: Screen) {
         withAnimation(.easeOut(duration: 0.16)) {
             self.screen = screen
@@ -407,7 +411,7 @@ public struct LoginFlowView: View {
                 await MainActor.run {
                     conversations = mappedConversations
                     withAnimation(.easeOut(duration: 0.16)) {
-                        screen = .chatHome
+                        screen = .onboarding
                     }
                 }
             } catch {
@@ -772,7 +776,7 @@ public struct LoginFlowView: View {
                     isLoggingIn = false
                     password = ""
                     onLogin()
-                    transition(to: .chatHome)
+                    transition(to: .onboarding)
                 }
             } catch {
                 await MainActor.run {
@@ -787,7 +791,7 @@ public struct LoginFlowView: View {
     private func navigateFromTab(_ tab: HopesTab) {
         switch tab {
         case .home:
-            transition(to: .chatHome)
+            transition(to: .onboarding)
         case .chat:
             transition(to: .chatHome)
         case .history:

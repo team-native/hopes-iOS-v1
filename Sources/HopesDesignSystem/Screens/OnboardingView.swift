@@ -26,12 +26,13 @@ public struct OnboardingView: View {
                 .padding(.horizontal, 32)
                 .padding(.top, 220)
 
-            Text("질문에 학년, 관심 전공, 상황을 같이 적으면 더\n현실적인 답변을 받을 수 있어요.")
+            Text("질문에 학년, 관심 전공, 상황을 같이 적으면 더 현실적인 답변을 받을 수 있어요.")
                 .font(.system(size: 16, weight: .medium))
                 .foregroundStyle(Color("HopesBlueSecondaryText", bundle: .module))
                 .lineSpacing(5)
+                .frame(width: 306, alignment: .leading)
+                .padding(.leading, 32)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 32)
                 .padding(.top, 330)
 
             tipCard(
@@ -77,7 +78,7 @@ public struct OnboardingView: View {
                     .background(Color.hopesBrandTint)
                     .clipShape(Circle())
 
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 12) {
                     Text(caption)
                         .font(.system(size: 10, weight: .semibold))
                         .foregroundStyle(Color.hopesTextSecondary)
