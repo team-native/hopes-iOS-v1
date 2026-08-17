@@ -52,39 +52,32 @@ public struct LoginView: View {
                 VStack(spacing: 0) {
                     HopesLogo(placement: .onBrand)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.top, 14)
+                        .padding(.top, max(76, geometry.safeAreaInsets.top + 14))
                         .padding(.horizontal, 32)
 
                     hero
                         .padding(.horizontal, 32)
-                        .padding(.top, max(72, geometry.size.height * 0.192))
-                        .offset(y: 14)
+                        .padding(.top, 168)
 
                     Spacer(minLength: 20)
                 }
+                .frame(width: geometry.size.width, height: geometry.size.height, alignment: .top)
+                .blur(radius: 5 * sheetProgress)
                 .contentShape(Rectangle())
                 .onTapGesture { focusedField = nil }
-
-                VStack(spacing: 0) {
-                    Color.black.opacity(0.1)
-                        .frame(height: 397)
-
-                    Spacer(minLength: 0)
-                }
-                .ignoresSafeArea()
-                .allowsHitTesting(false)
 
                 swipeCue
                     .padding(.bottom, 190)
                     .opacity(1 - sheetProgress)
+                    .blur(radius: 5 * sheetProgress)
                     .allowsHitTesting(false)
 
                 loginSheet
                     .offset(y: sheetOffset)
                     .simultaneousGesture(sheetDragGesture(collapsedOffset: collapsedOffset))
             }
-            .ignoresSafeArea(.container, edges: focusedField == nil ? [.top, .bottom] : [])
         }
+        .ignoresSafeArea(.container, edges: focusedField == nil ? [.top, .bottom] : [.top])
     }
 
     private var hero: some View {

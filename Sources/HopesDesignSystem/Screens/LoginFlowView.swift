@@ -122,41 +122,11 @@ public struct LoginFlowView: View {
         ZStack {
             switch screen {
             case .guide:
-                LoginView(
-                    email: $email,
-                    password: $password,
-                    isLoading: isLoggingIn,
-                    errorMessage: loginErrorMessage,
-                    isInitiallyExpanded: false,
-                    onLogin: {
-                        login()
-                    },
-                    onSignUp: {
-                        transition(to: .signUp)
-                    },
-                    onForgotPassword: {
-                        transition(to: .passwordReset)
-                    }
-                )
+                loginView(isInitiallyExpanded: false)
                 .transition(.opacity)
 
             case .login:
-                LoginView(
-                    email: $email,
-                    password: $password,
-                    isLoading: isLoggingIn,
-                    errorMessage: loginErrorMessage,
-                    isInitiallyExpanded: true,
-                    onLogin: {
-                        login()
-                    },
-                    onSignUp: {
-                        transition(to: .signUp)
-                    },
-                    onForgotPassword: {
-                        transition(to: .passwordReset)
-                    }
-                )
+                loginView(isInitiallyExpanded: true)
                 .transition(.opacity)
 
             case .passwordReset:
@@ -391,6 +361,26 @@ public struct LoginFlowView: View {
                 loadConversations()
             }
         }
+    }
+
+    @ViewBuilder
+    private func loginView(isInitiallyExpanded: Bool) -> some View {
+        LoginView(
+            email: $email,
+            password: $password,
+            isLoading: isLoggingIn,
+            errorMessage: loginErrorMessage,
+            isInitiallyExpanded: isInitiallyExpanded,
+            onLogin: {
+                login()
+            },
+            onSignUp: {
+                transition(to: .signUp)
+            },
+            onForgotPassword: {
+                transition(to: .passwordReset)
+            }
+        )
     }
 
     private func transition(to screen: Screen) {
