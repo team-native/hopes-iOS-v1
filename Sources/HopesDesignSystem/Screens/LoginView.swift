@@ -6,9 +6,24 @@ public struct LoginView: View {
         case password
     }
 
+    private struct FieldFramePreferenceKey: PreferenceKey {
+        static let defaultValue: [LoginField: CGRect] = [:]
+
+        static func reduce(
+            value: inout [LoginField: CGRect],
+            nextValue: () -> [LoginField: CGRect]
+        ) {
+            value.merge(nextValue(), uniquingKeysWith: { $1 })
+        }
+    }
+
     @State private var isPasswordVisible = false
     @State private var sheetProgress: CGFloat
     @State private var sheetDragStartProgress: CGFloat?
+    @State private var keyboardShift: CGFloat = 0
+    @State private var keyboardFrame: CGRect = .zero
+    @State private var fieldFrames: [LoginField: CGRect] = [:]
+    @State private var keyboardAnimationDuration: TimeInterval = 0.25
     @Binding private var email: String
     @Binding private var password: String
     @FocusState private var focusedField: LoginField?
@@ -42,7 +57,8 @@ public struct LoginView: View {
 
     public var body: some View {
         GeometryReader { geometry in
-            let collapsedOffset = max(0, 502 - min(190, geometry.size.height))
+            let collapsedSheetRevealHeight = min(150, geometry.size.height)
+            let collapsedOffset = max(0, 502 - collapsedSheetRevealHeight)
             let sheetOffset = collapsedOffset * (1 - sheetProgress)
 
             ZStack(alignment: .bottom) {
@@ -73,11 +89,49 @@ public struct LoginView: View {
                     .allowsHitTesting(false)
 
                 loginSheet
-                    .offset(y: sheetOffset)
+                    .offset(y: sheetOffset - keyboardShift)
                     .simultaneousGesture(sheetDragGesture(collapsedOffset: collapsedOffset))
             }
         }
-        .ignoresSafeArea(.container, edges: focusedField == nil ? [.top, .bottom] : [.top])
+        .ignoresSafeArea(.container, edges: [.top, .bottom])
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillChangeFrameNotification)) { notification in
+            guard let frame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else {
+                return
+            }
+
+            keyboardFrame = frame
+            keyboardAnimationDuration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval ?? 0.25
+            updateKeyboardShift(using: frame, animated: true)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { notification in
+            keyboardFrame = .zero
+            keyboardAnimationDuration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval ?? 0.25
+
+            withAnimation(.easeInOut(duration: keyboardAnimationDuration)) {
+                keyboardShift = 0
+            }
+        }
+    }
+
+    private func updateKeyboardShift(using frame: CGRect, animated: Bool) {
+        guard frame.height > 0,
+              let focusedField,
+              let measuredFrame = fieldFrames[focusedField] else {
+            return
+        }
+
+        // The measured frame already includes the current keyboard translation.
+        // Add it back so changing focus does not accumulate or lose the sheet shift.
+        let unshiftedFieldBottom = measuredFrame.maxY + keyboardShift
+        let requiredShift = max(0, unshiftedFieldBottom + 12 - frame.minY)
+
+        if animated {
+            withAnimation(.easeInOut(duration: keyboardAnimationDuration)) {
+                keyboardShift = requiredShift
+            }
+        } else {
+            keyboardShift = requiredShift
+        }
     }
 
     private var hero: some View {
@@ -161,27 +215,21 @@ public struct LoginView: View {
 
     private var loginSheet: some View {
         GeometryReader { geometry in
-            ScrollViewReader { proxy in
-                ScrollView(.vertical, showsIndicators: false) {
-                    loginSheetContent
-                        .frame(
-                            minHeight: 502 + (focusedField == nil ? 0 : geometry.safeAreaInsets.bottom),
-                            alignment: .top
-                        )
-                }
-                .scrollIndicators(.hidden)
-                .onChange(of: focusedField) { _, field in
-                    Task { @MainActor in
-                        await Task.yield()
-
-                        if let field {
-                            withAnimation {
-                                proxy.scrollTo(field, anchor: .center)
-                            }
-                        } else {
-                            proxy.scrollTo(LoginScrollTarget.top, anchor: .top)
-                        }
+            ScrollView(.vertical, showsIndicators: false) {
+                loginSheetContent
+                    .frame(minHeight: 502, alignment: .top)
+            }
+            .scrollIndicators(.hidden)
+            .onPreferenceChange(FieldFramePreferenceKey.self) { frames in
+                fieldFrames = frames
+            }
+            .onChange(of: focusedField) { _, field in
+                if field == nil {
+                    withAnimation(.easeInOut(duration: keyboardAnimationDuration)) {
+                        keyboardShift = 0
                     }
+                } else if keyboardFrame.height > 0 {
+                    updateKeyboardShift(using: keyboardFrame, animated: true)
                 }
             }
         }
@@ -217,7 +265,7 @@ public struct LoginView: View {
                     .font(.system(size: 26, weight: .bold))
                     .foregroundStyle(Color.hopesTextPrimary)
 
-                Text("학교 이메일로 로그인하고 바로 질문을 시작하세요.")
+                Text("학교 이메일로 로그인하세요.")
                     .font(.system(size: 14))
                     .foregroundStyle(Color.hopesTextSecondary)
                     .padding(.top, 4)
@@ -239,6 +287,14 @@ public struct LoginView: View {
                     .overlay {
                         RoundedRectangle(cornerRadius: 14)
                             .stroke(Color(red: 217 / 255, green: 217 / 255, blue: 217 / 255), lineWidth: 1)
+                    }
+                    .background {
+                        GeometryReader { geometry in
+                            Color.clear.preference(
+                                key: FieldFramePreferenceKey.self,
+                                value: [.email: geometry.frame(in: .global)]
+                            )
+                        }
                     }
                     .padding(.top, 7)
                     .accessibilityLabel("이메일")
@@ -282,6 +338,14 @@ public struct LoginView: View {
                         }
                         .buttonStyle(.plain)
                         .accessibilityLabel(isPasswordVisible ? "비밀번호 숨기기" : "비밀번호 보기")
+                    }
+                    .background {
+                        GeometryReader { geometry in
+                            Color.clear.preference(
+                                key: FieldFramePreferenceKey.self,
+                                value: [.password: geometry.frame(in: .global)]
+                            )
+                        }
                     }
                     .padding(.top, 9)
                     .accessibilityLabel("비밀번호")

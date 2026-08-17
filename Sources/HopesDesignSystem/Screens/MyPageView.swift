@@ -75,7 +75,8 @@ public struct MyPageView: View {
                 .onTapGesture { focusedField = nil }
 
             header
-                .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
+                .padding(.horizontal, 24)
+                .padding(.trailing, 13)
                 .padding(.top, 70)
 
             Text("마이페이지")
@@ -90,20 +91,22 @@ public struct MyPageView: View {
                 onOpenAccountInfo()
             } label: {
                 accountCard
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
             .buttonStyle(.plain)
             .accessibilityHint("계정 정보 상세 화면을 엽니다")
-                .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
+                .padding(.horizontal, 12)
                 .padding(.top, 194)
 
             profileCard
-                .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 12)
                 .padding(.top, 350)
 
             HopesButton(
                 isSaving ? "저장 중" : "저장",
                 size: .regular,
-                width: .fixed(hasSaved && !hasUnsavedChanges ? 104 : 96),
+                width: .fixed(96),
                 isEnabled: canSave && !isLoading && !isSaving,
                 action: {
                     focusedField = nil
@@ -136,23 +139,7 @@ public struct MyPageView: View {
 
     private var header: some View {
         HStack {
-            Button {
-                focusedField = nil
-                onBack()
-            } label: {
-                Image(systemName: "chevron.left")
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundStyle(Color.hopesBrandPrimary)
-                    .frame(width: 38, height: 38)
-                    .background(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 13))
-                    .overlay {
-                        RoundedRectangle(cornerRadius: 13)
-                            .stroke(Color.hopesBorder, lineWidth: 1)
-                    }
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel("이전 화면으로 돌아가기")
+            HopesLogo()
 
             Spacer()
 
@@ -167,9 +154,7 @@ public struct MyPageView: View {
                 }
             )
         }
-        .simultaneousGesture(
-            TapGesture().onEnded { focusedField = nil }
-        )
+        .frame(height: 42, alignment: .top)
     }
 
     private var profileCard: some View {
@@ -224,8 +209,7 @@ public struct MyPageView: View {
         }
         .padding(.horizontal, 24)
         .padding(.vertical, 28)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .frame(height: 326, alignment: .top)
+        .frame(width: 354, height: 326, alignment: .topLeading)
         .background(.white)
         .clipShape(
             RoundedRectangle(cornerRadius: HopesMetrics.cardCornerRadius)
@@ -279,8 +263,7 @@ public struct MyPageView: View {
         .foregroundStyle(Color.hopesTextPrimary)
         .padding(.horizontal, 24)
         .padding(.vertical, 24)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .frame(height: 128, alignment: .top)
+        .frame(width: 354, height: 128, alignment: .topLeading)
         .background(.white)
         .clipShape(
             RoundedRectangle(cornerRadius: HopesMetrics.cardCornerRadius)

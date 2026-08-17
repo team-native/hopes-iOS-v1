@@ -37,7 +37,6 @@ public struct SignUpView: View {
         case passwordConfirm
     }
 
-    @State private var selectedTab: HopesTab = .home
     @State private var verificationCode = ""
     @State private var password = ""
     @State private var passwordConfirm = ""
@@ -87,11 +86,6 @@ public struct SignUpView: View {
                 .padding(.horizontal, 24)
                 .padding(.top, 276)
 
-            HopesTabBar(selection: $selectedTab) { _ in
-                focusedField = nil
-            }
-                .frame(maxHeight: .infinity, alignment: .bottom)
-                .ignoresSafeArea(edges: .bottom)
         }
         .onChange(of: email) {
             isEmailVerified = false

@@ -89,14 +89,14 @@ public struct HopesTabBar: View {
             onSelect(tab)
         } label: {
             ZStack(alignment: .top) {
-                if selection == tab && tab != .history {
+                if selection == tab && tab != .history && tab != .chat {
                     Capsule()
                         .fill(Color.hopesBrandTint)
                         .frame(width: 60, height: 30)
                         .position(x: 30, y: 27)
                 }
 
-                Image(systemName: selection == tab ? tab.selectedIconName : tab.iconName)
+                Image(systemName: selection == tab && tab != .chat ? tab.selectedIconName : tab.iconName)
                     .font(.system(size: 18, weight: .semibold))
                     .foregroundStyle(
                         selection == tab
