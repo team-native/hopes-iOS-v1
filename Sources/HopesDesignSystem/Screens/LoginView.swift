@@ -68,6 +68,15 @@ public struct LoginView: View {
                 Color.hopesHeroGradient
                     .ignoresSafeArea()
 
+                // The system keyboard can be translucent at its lower edge.
+                // When the sheet is translated above it, keep the exposed
+                // area white so the hero background cannot show through.
+                Color.white
+                    .frame(height: max(0, keyboardShift - sheetOffset))
+                    .frame(maxWidth: .infinity)
+                    .ignoresSafeArea(.keyboard, edges: .bottom)
+                    .allowsHitTesting(false)
+
                 VStack(spacing: 0) {
                     HopesLogo(placement: .onBrand)
                         .frame(maxWidth: .infinity, alignment: .leading)
