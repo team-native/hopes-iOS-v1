@@ -23,6 +23,7 @@ public struct LoginView: View {
     @State private var keyboardShift: CGFloat = 0
     @State private var keyboardFrame: CGRect = .zero
     @State private var fieldFrames: [LoginField: CGRect] = [:]
+    @State private var maximumKeyboardShift: CGFloat = 0
     @State private var keyboardAnimationDuration: TimeInterval = 0.25
     @Binding private var email: String
     @Binding private var password: String
@@ -60,6 +61,8 @@ public struct LoginView: View {
             let collapsedSheetRevealHeight = min(150, geometry.size.height)
             let collapsedOffset = max(0, 502 - collapsedSheetRevealHeight)
             let sheetOffset = collapsedOffset * (1 - sheetProgress)
+            let expandedSheetTop = max(0, geometry.size.height - 502)
+            let maximumShiftForSheet = expandedSheetTop * 0.5
 
             ZStack(alignment: .bottom) {
                 Color.hopesHeroGradient
@@ -88,12 +91,22 @@ public struct LoginView: View {
                     .blur(radius: 5 * sheetProgress)
                     .allowsHitTesting(false)
 
-                loginSheet
+                loginSheet(maximumKeyboardShift: maximumShiftForSheet)
                     .offset(y: sheetOffset - keyboardShift)
                     .simultaneousGesture(sheetDragGesture(collapsedOffset: collapsedOffset))
             }
+            .onAppear {
+                maximumKeyboardShift = maximumShiftForSheet
+            }
+            .onChange(of: geometry.size.height) { _, height in
+                maximumKeyboardShift = max(0, height - 502) * 0.5
+            }
         }
         .ignoresSafeArea(.container, edges: [.top, .bottom])
+        // Keep the fixed Figma sheet geometry stable while the keyboard is
+        // visible. Keyboard avoidance is handled explicitly below from the
+        // focused field's frame, rather than by shrinking this GeometryReader.
+        .ignoresSafeArea(.keyboard)
         .preferredColorScheme(.light)
         .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillChangeFrameNotification)) { notification in
             guard let frame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else {
@@ -102,7 +115,15 @@ public struct LoginView: View {
 
             keyboardFrame = frame
             keyboardAnimationDuration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval ?? 0.25
-            updateKeyboardShift(using: frame, animated: true)
+            Task { @MainActor in
+                // Let the focused field's global frame settle after the keyboard layout pass.
+                await Task.yield()
+                updateKeyboardShift(
+                    using: frame,
+                    maximumShift: maximumKeyboardShift,
+                    animated: true
+                )
+            }
         }
         .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { notification in
             keyboardFrame = .zero
@@ -114,7 +135,11 @@ public struct LoginView: View {
         }
     }
 
-    private func updateKeyboardShift(using frame: CGRect, animated: Bool) {
+    private func updateKeyboardShift(
+        using frame: CGRect,
+        maximumShift: CGFloat,
+        animated: Bool
+    ) {
         guard frame.height > 0,
               let focusedField,
               let measuredFrame = fieldFrames[focusedField] else {
@@ -123,8 +148,17 @@ public struct LoginView: View {
 
         // The measured frame already includes the current keyboard translation.
         // Add it back so changing focus does not accumulate or lose the sheet shift.
+        // The notification frame is in screen coordinates while the SwiftUI
+        // global frame is in the app window's coordinate space. Convert the
+        // keyboard frame before comparing the two. Only the focused field is
+        // considered; controls below it are intentionally allowed to remain
+        // behind the keyboard.
+        let keyboardFrameInWindow = keyboardFrameInWindow(frame)
         let unshiftedFieldBottom = measuredFrame.maxY + keyboardShift
-        let requiredShift = max(0, unshiftedFieldBottom + 12 - frame.minY)
+        let requiredShift = min(
+            maximumShift,
+            max(0, unshiftedFieldBottom + 14 - keyboardFrameInWindow.minY)
+        )
 
         if animated {
             withAnimation(.easeInOut(duration: keyboardAnimationDuration)) {
@@ -133,6 +167,21 @@ public struct LoginView: View {
         } else {
             keyboardShift = requiredShift
         }
+    }
+
+    private func keyboardFrameInWindow(_ frame: CGRect) -> CGRect {
+        #if os(iOS)
+        guard let window = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .flatMap(\.windows)
+            .first(where: { $0.isKeyWindow }) else {
+            return frame
+        }
+
+        return window.convert(frame, from: window.screen.coordinateSpace)
+        #else
+        return frame
+        #endif
     }
 
     private var hero: some View {
@@ -214,7 +263,7 @@ public struct LoginView: View {
             }
     }
 
-    private var loginSheet: some View {
+    private func loginSheet(maximumKeyboardShift: CGFloat) -> some View {
         GeometryReader { geometry in
             ScrollView(.vertical, showsIndicators: false) {
                 loginSheetContent
@@ -230,7 +279,14 @@ public struct LoginView: View {
                         keyboardShift = 0
                     }
                 } else if keyboardFrame.height > 0 {
-                    updateKeyboardShift(using: keyboardFrame, animated: true)
+                    Task { @MainActor in
+                        await Task.yield()
+                        updateKeyboardShift(
+                            using: keyboardFrame,
+                            maximumShift: maximumKeyboardShift,
+                            animated: true
+                        )
+                    }
                 }
             }
         }
