@@ -1,15 +1,9 @@
 import HopesDesignSystem
 import SwiftUI
-import UIKit
 
 @main
 @MainActor
 struct HopesApp: App {
-    init() {
-        UITextField.appearance().keyboardAppearance = .light
-        UITextView.appearance().keyboardAppearance = .light
-    }
-
     var body: some Scene {
         WindowGroup {
             LoginFlowView(
