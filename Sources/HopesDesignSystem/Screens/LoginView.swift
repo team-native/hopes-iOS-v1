@@ -141,8 +141,9 @@ public struct LoginView: View {
         animated: Bool
     ) {
         guard frame.height > 0,
-              let focusedField,
-              let measuredFrame = fieldFrames[focusedField] else {
+              focusedField != nil,
+              let emailFrame = fieldFrames[.email],
+              let passwordFrame = fieldFrames[.password] else {
             return
         }
 
@@ -150,14 +151,14 @@ public struct LoginView: View {
         // Add it back so changing focus does not accumulate or lose the sheet shift.
         // The notification frame is in screen coordinates while the SwiftUI
         // global frame is in the app window's coordinate space. Convert the
-        // keyboard frame before comparing the two. Only the focused field is
-        // considered; controls below it are intentionally allowed to remain
+        // keyboard frame before comparing the two. Keep both input fields
+        // visible; controls below them are intentionally allowed to remain
         // behind the keyboard.
         let keyboardFrameInWindow = keyboardFrameInWindow(frame)
-        let unshiftedFieldBottom = measuredFrame.maxY + keyboardShift
+        let unshiftedInputBottom = max(emailFrame.maxY, passwordFrame.maxY) + keyboardShift
         let requiredShift = min(
             maximumShift,
-            max(0, unshiftedFieldBottom + 14 - keyboardFrameInWindow.minY)
+            max(0, unshiftedInputBottom + 14 - keyboardFrameInWindow.minY)
         )
 
         if animated {
