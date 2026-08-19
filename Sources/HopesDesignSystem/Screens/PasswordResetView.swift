@@ -11,6 +11,7 @@ public struct PasswordResetView: View {
     @Binding private var code: String
     @Binding private var newPassword: String
     @FocusState private var focusedField: ResetField?
+    @State private var isPasswordVisible = false
     private let codeRequested: Bool
     private let isLoading: Bool
     private let errorMessage: String?
@@ -71,22 +72,65 @@ public struct PasswordResetView: View {
                     .padding(.top, 6)
 
                 fieldTitle("이메일", top: 36)
-                TextField("학교 이메일", text: $email)
+                TextField("이메일", text: $email)
                     .textFieldStyle(HopesResetFieldStyle())
                     .focused($focusedField, equals: .email)
-                    .disabled(codeRequested)
+                    .textInputAutocapitalization(.never)
+                    .keyboardType(.emailAddress)
+                    .textContentType(.emailAddress)
 
-                if codeRequested {
-                    fieldTitle("인증번호", top: 18)
+                fieldTitle("인증번호", top: 18)
+                HStack(spacing: 12) {
                     TextField("숫자 6자리", text: $code)
                         .textFieldStyle(HopesResetFieldStyle())
                         .focused($focusedField, equals: .code)
+                        .keyboardType(.numberPad)
+                        .textContentType(.oneTimeCode)
 
-                    fieldTitle("새 비밀번호", top: 18)
-                    SecureField("영문+숫자 8~15자", text: $newPassword)
-                        .textFieldStyle(HopesResetFieldStyle())
-                        .focused($focusedField, equals: .newPassword)
+                    Button("번호 발송", action: requestCode)
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .frame(width: 112, height: 48)
+                        .background(Color.hopesBrandPrimary)
+                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                        .buttonStyle(.plain)
+                        .disabled(isLoading || !isEmailValid)
+                        .opacity(isLoading || !isEmailValid ? 0.45 : 1)
                 }
+
+                fieldTitle("비밀번호", top: 18)
+                ZStack(alignment: .trailing) {
+                    Group {
+                        if isPasswordVisible {
+                            TextField("비밀번호", text: $newPassword)
+                        } else {
+                            SecureField("비밀번호", text: $newPassword)
+                        }
+                    }
+                    .textFieldStyle(HopesResetFieldStyle())
+                    .focused($focusedField, equals: .newPassword)
+                    .textContentType(.newPassword)
+
+                    Button {
+                        isPasswordVisible.toggle()
+                        focusedField = .newPassword
+                    } label: {
+                        Image(systemName: isPasswordVisible ? "eye" : "eye.slash")
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundStyle(Color.hopesTextSecondary)
+                            .frame(width: 44, height: 48)
+                    }
+                    .buttonStyle(.plain)
+                }
+
+                Color.clear
+                    .frame(height: 0)
+                    .onChange(of: code) { _, newValue in
+                        let filtered = String(newValue.filter(\.isNumber).prefix(6))
+                        if filtered != newValue {
+                            code = filtered
+                        }
+                    }
 
                 if let errorMessage {
                     Text(errorMessage)
@@ -97,16 +141,9 @@ public struct PasswordResetView: View {
 
                 Spacer()
 
-                HopesButton(
-                    isLoading ? "처리 중..." : codeRequested ? "비밀번호 변경" : "인증번호 받기",
-                    isEnabled: canSubmit
-                ) {
+                HopesButton("완료", size: .large, isEnabled: canSubmit) {
                     focusedField = nil
-                    if codeRequested {
-                        onReset()
-                    } else {
-                        onRequestCode()
-                    }
+                    onReset()
                 }
             }
             .padding(.horizontal, 28)
@@ -116,8 +153,21 @@ public struct PasswordResetView: View {
     }
 
     private var canSubmit: Bool {
-        guard !isLoading, !email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return false }
-        return !codeRequested || (code.range(of: #"^\d{6}$"#, options: .regularExpression) != nil && PasswordPolicy.isValid(newPassword))
+        !isLoading && isEmailValid && isCodeValid && PasswordPolicy.isValid(newPassword)
+    }
+
+    private var isEmailValid: Bool {
+        email.trimmingCharacters(in: .whitespacesAndNewlines)
+            .range(of: #"^[A-Z0-9._%+-]+@gsm\.hs\.kr$"#, options: [.regularExpression, .caseInsensitive]) != nil
+    }
+
+    private var isCodeValid: Bool {
+        code.range(of: #"^\d{6}$"#, options: .regularExpression) != nil
+    }
+
+    private func requestCode() {
+        focusedField = nil
+        onRequestCode()
     }
 
     private func fieldTitle(_ title: String, top: CGFloat) -> some View {
