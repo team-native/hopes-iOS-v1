@@ -79,7 +79,7 @@ public struct PasswordResetView: View {
                     .keyboardType(.emailAddress)
                     .textContentType(.emailAddress)
 
-                fieldTitle("인증번호", top: 18)
+                fieldTitle("인증번호", top: 8)
                 HStack(spacing: 10) {
                     TextField("숫자 6자리", text: $code)
                         .textFieldStyle(HopesResetFieldStyle())
@@ -98,7 +98,7 @@ public struct PasswordResetView: View {
                         .opacity(isLoading ? 0.45 : 1)
                 }
 
-                fieldTitle("비밀번호", top: 18)
+                fieldTitle("비밀번호", top: 8)
                 ZStack(alignment: .trailing) {
                     Group {
                         if isPasswordVisible {
