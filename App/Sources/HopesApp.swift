@@ -29,7 +29,7 @@ struct HopesApp: App {
                 }
             }
             .task {
-                try? await Task.sleep(for: .seconds(2))
+                try? await Task.sleep(for: .seconds(1))
                 guard !Task.isCancelled else { return }
                 isSplashVisible = false
             }
@@ -42,7 +42,10 @@ private struct HopesLaunchView: View {
         Color.hopesHeroGradient
             .ignoresSafeArea()
             .overlay {
-                HopesLogo(placement: .onBrand, size: .large)
+                Image("AppIcon60x60")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 104, height: 104)
             }
     }
 }

@@ -16,7 +16,7 @@ let project = Project(
                 with: [
                     "UILaunchScreen": [
                         "UIColorName": "HopesBrandPrimary",
-                        "UIImageName": "AppIcon",
+                        "UIImageName": "AppIcon60x60",
                     ],
                     "UIUserInterfaceStyle": "Light",
                     "NSAppTransportSecurity": [

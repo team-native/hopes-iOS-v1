@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 public struct HopesLogo: View {
     public enum Placement: Sendable {
@@ -27,12 +28,7 @@ public struct HopesLogo: View {
 
     public var body: some View {
         HStack(spacing: size == .compact ? 12 : 0) {
-            Text("h")
-                .font(.system(size: iconFontSize, weight: .bold))
-                .foregroundStyle(Color.hopesBrandPrimary)
-                .frame(width: iconSize, height: iconSize)
-                .background(.white)
-                .clipShape(RoundedRectangle(cornerRadius: iconCornerRadius))
+            logoImage
 
             if size == .compact {
                 VStack(alignment: .leading, spacing: 0) {
@@ -55,12 +51,33 @@ public struct HopesLogo: View {
         size == .compact ? 42 : 74
     }
 
-    private var iconFontSize: CGFloat {
-        size == .compact ? 26 : 40
+    @ViewBuilder
+    private var logoImage: some View {
+        if let image = appIconImage {
+            Image(uiImage: image)
+                .resizable()
+                .scaledToFit()
+                .frame(width: iconSize, height: iconSize)
+        } else {
+            Text("h")
+                .font(.system(size: size == .compact ? 26 : 40, weight: .bold))
+                .foregroundStyle(Color.hopesBrandPrimary)
+                .frame(width: iconSize, height: iconSize)
+                .background(.white)
+                .clipShape(RoundedRectangle(cornerRadius: size == .compact ? 12 : 18))
+        }
     }
 
-    private var iconCornerRadius: CGFloat {
-        size == .compact ? 12 : 18
+    private var appIconImage: UIImage? {
+        if let image = UIImage(named: "AppIcon60x60", in: .main, compatibleWith: nil) {
+            return image
+        }
+
+        let iconURL = Bundle.main
+            .urls(forResourcesWithExtension: "png", subdirectory: nil)?
+            .first { $0.deletingPathExtension().lastPathComponent.hasPrefix("AppIcon60x60") }
+
+        return iconURL.flatMap { UIImage(contentsOfFile: $0.path) }
     }
 
     private var primaryTextColor: Color {
