@@ -2,6 +2,7 @@ import HopesDesignSystem
 import SwiftUI
 
 @main
+@MainActor
 struct HopesApp: App {
     var body: some Scene {
         WindowGroup {

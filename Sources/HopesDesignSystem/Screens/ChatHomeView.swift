@@ -48,7 +48,13 @@ public struct ChatHomeView: View {
                 if !isFocused {
                     resetKeyboardOffset()
                 } else {
-                    updateKeyboardOffset()
+                    // Focus changes before UIKit has finished laying out the
+                    // keyboard. Recalculate once the next layout pass has
+                    // produced the input field's global frame.
+                    Task { @MainActor in
+                        await Task.yield()
+                        updateKeyboardOffset()
+                    }
                 }
             }
             .onReceive(
@@ -154,23 +160,22 @@ public struct ChatHomeView: View {
 
         keyboardFrame = globalKeyboardFrame(for: frame)
         updateKeyboardAnimation(from: notification)
-        updateKeyboardOffset()
+
+        // The keyboard notification and SwiftUI geometry preference can land
+        // in different layout passes. Let both state updates settle before
+        // calculating the translation for the complete fixed design.
+        Task { @MainActor in
+            await Task.yield()
+            updateKeyboardOffset()
+        }
     }
 
     private func globalKeyboardFrame(for screenFrame: CGRect) -> CGRect {
-        guard
-            let windowScene = UIApplication.shared.connectedScenes
-                .compactMap({ $0 as? UIWindowScene })
-                .first(where: { $0.activationState == .foregroundActive }),
-            let window = windowScene.windows.first(where: \.isKeyWindow)
-        else {
-            return screenFrame
-        }
-
-        return window.screen.coordinateSpace.convert(
-            screenFrame,
-            to: window.coordinateSpace
-        )
+        // `keyboardFrameEndUserInfoKey` and SwiftUI's `.global` geometry are
+        // both expressed in the simulator's screen coordinate space here.
+        // Converting through UIWindow could introduce a second coordinate
+        // transform and leave the calculated overlap at zero.
+        return screenFrame
     }
 
     private func updateKeyboardAnimation(from notification: Notification) {
