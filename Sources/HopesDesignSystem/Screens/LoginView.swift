@@ -68,6 +68,7 @@ public struct LoginView: View {
                 ? keyboardFrame.minY
                 : geometry.size.height
             let heroBackgroundHeight = keyboardTop
+            let currentSheetOffset = sheetOffset - keyboardShift
 
             ZStack(alignment: .bottom) {
                 Color.white
@@ -102,8 +103,20 @@ public struct LoginView: View {
                     .allowsHitTesting(false)
 
                 loginSheet(maximumKeyboardShift: maximumShiftForSheet)
-                    .offset(y: sheetOffset - keyboardShift)
+                    .offset(y: currentSheetOffset)
                     .simultaneousGesture(sheetDragGesture(collapsedOffset: collapsedOffset))
+
+                // When the sheet moves up for the keyboard, its fixed 502pt
+                // content no longer reaches the physical bottom of the app
+                // window. Keep the same white sheet surface continuous down
+                // to that edge so the hero gradient cannot appear between the
+                // sheet and the translucent keyboard corners.
+                Color.white
+                    .frame(height: max(0, -currentSheetOffset))
+                    .frame(maxWidth: .infinity)
+                    .ignoresSafeArea(.keyboard, edges: .bottom)
+                    .allowsHitTesting(false)
+                    .zIndex(9)
 
                 // The keyboard's rounded bottom area is translucent in the
                 // simulator. Cover exactly the keyboard region in the app
