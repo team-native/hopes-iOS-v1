@@ -80,7 +80,7 @@ public struct PasswordResetView: View {
                     .textContentType(.emailAddress)
 
                 fieldTitle("인증번호", top: 18)
-                HStack(spacing: 12) {
+                HStack(spacing: 10) {
                     TextField("숫자 6자리", text: $code)
                         .textFieldStyle(HopesResetFieldStyle())
                         .focused($focusedField, equals: .code)
@@ -90,7 +90,7 @@ public struct PasswordResetView: View {
                     Button("번호 발송", action: requestCode)
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundStyle(.white)
-                        .frame(width: 112, height: 48)
+                        .frame(width: 88, height: 43)
                         .background(Color.hopesBrandPrimary)
                         .clipShape(RoundedRectangle(cornerRadius: 14))
                         .buttonStyle(.plain)
@@ -185,7 +185,7 @@ private struct HopesResetFieldStyle: TextFieldStyle {
         configuration
             .font(.system(size: 15))
             .padding(.horizontal, 16)
-            .frame(height: 48)
+            .frame(height: 44)
             .background(.white)
             .clipShape(RoundedRectangle(cornerRadius: 14))
             .overlay {
