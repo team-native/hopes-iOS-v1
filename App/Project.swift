@@ -14,7 +14,10 @@ let project = Project(
             deploymentTargets: .iOS("17.0"),
             infoPlist: .extendingDefault(
                 with: [
-                    "UILaunchScreen": [:],
+                    "UILaunchScreen": [
+                        "UIColorName": "HopesBrandPrimary",
+                        "UIImageName": "AppIcon60x60",
+                    ],
                     "UIUserInterfaceStyle": "Light",
                     "NSAppTransportSecurity": [
                         "NSExceptionDomains": [
