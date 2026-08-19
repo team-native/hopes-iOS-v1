@@ -79,8 +79,8 @@ public struct PasswordResetView: View {
                     .keyboardType(.emailAddress)
                     .textContentType(.emailAddress)
 
-                fieldTitle("인증번호", top: 18)
-                HStack(spacing: 12) {
+                fieldTitle("인증번호", top: 8)
+                HStack(spacing: 10) {
                     TextField("숫자 6자리", text: $code)
                         .textFieldStyle(HopesResetFieldStyle())
                         .focused($focusedField, equals: .code)
@@ -90,15 +90,15 @@ public struct PasswordResetView: View {
                     Button("번호 발송", action: requestCode)
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundStyle(.white)
-                        .frame(width: 112, height: 48)
+                        .frame(width: 88, height: 43)
                         .background(Color.hopesBrandPrimary)
                         .clipShape(RoundedRectangle(cornerRadius: 14))
                         .buttonStyle(.plain)
-                        .disabled(isLoading || !isEmailValid)
-                        .opacity(isLoading || !isEmailValid ? 0.45 : 1)
+                        .disabled(isLoading)
+                        .opacity(isLoading ? 0.45 : 1)
                 }
 
-                fieldTitle("비밀번호", top: 18)
+                fieldTitle("비밀번호", top: 8)
                 ZStack(alignment: .trailing) {
                     Group {
                         if isPasswordVisible {
@@ -150,6 +150,7 @@ public struct PasswordResetView: View {
             .padding(.top, 24)
             .padding(.bottom, 34)
         }
+        .ignoresSafeArea(.keyboard, edges: .bottom)
     }
 
     private var canSubmit: Bool {
@@ -184,7 +185,7 @@ private struct HopesResetFieldStyle: TextFieldStyle {
         configuration
             .font(.system(size: 15))
             .padding(.horizontal, 16)
-            .frame(height: 48)
+            .frame(height: 44)
             .background(.white)
             .clipShape(RoundedRectangle(cornerRadius: 14))
             .overlay {
