@@ -13,32 +13,38 @@ public struct PasswordResetView: View {
     @FocusState private var focusedField: ResetField?
     @State private var isPasswordVisible = false
     private let codeRequested: Bool
+    private let isVerified: Bool
     private let isLoading: Bool
     private let errorMessage: String?
     private let onBack: () -> Void
     private let onRequestCode: () -> Void
     private let onReset: () -> Void
+    private let onComplete: () -> Void
 
     public init(
         email: Binding<String>,
         code: Binding<String>,
         newPassword: Binding<String>,
         codeRequested: Bool = false,
+        isVerified: Bool = false,
         isLoading: Bool = false,
         errorMessage: String? = nil,
         onBack: @escaping () -> Void = {},
         onRequestCode: @escaping () -> Void = {},
-        onReset: @escaping () -> Void = {}
+        onReset: @escaping () -> Void = {},
+        onComplete: @escaping () -> Void = {}
     ) {
         _email = email
         _code = code
         _newPassword = newPassword
         self.codeRequested = codeRequested
+        self.isVerified = isVerified
         self.isLoading = isLoading
         self.errorMessage = errorMessage
         self.onBack = onBack
         self.onRequestCode = onRequestCode
         self.onReset = onReset
+        self.onComplete = onComplete
     }
 
     public var body: some View {
@@ -78,6 +84,7 @@ public struct PasswordResetView: View {
                     .textInputAutocapitalization(.never)
                     .keyboardType(.emailAddress)
                     .textContentType(.emailAddress)
+                    .disabled(isVerified)
 
                 fieldTitle("인증번호", top: 8)
                 HStack(spacing: 10) {
@@ -86,6 +93,7 @@ public struct PasswordResetView: View {
                         .focused($focusedField, equals: .code)
                         .keyboardType(.numberPad)
                         .textContentType(.oneTimeCode)
+                        .disabled(isVerified)
 
                     Button(codeButtonTitle, action: handleCodeButton)
                         .font(.system(size: 14, weight: .semibold))
@@ -95,7 +103,7 @@ public struct PasswordResetView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 14))
                         .buttonStyle(.plain)
                         .disabled(!isCodeButtonEnabled)
-                        .opacity(isCodeButtonEnabled ? 1 : 0.45)
+                        .opacity(isVerified || isCodeButtonEnabled ? 1 : 0.45)
                 }
 
                 fieldTitle("비밀번호", top: 8)
@@ -110,6 +118,7 @@ public struct PasswordResetView: View {
                     .textFieldStyle(HopesResetFieldStyle())
                     .focused($focusedField, equals: .newPassword)
                     .textContentType(.newPassword)
+                    .disabled(isVerified)
 
                     Button {
                         isPasswordVisible.toggle()
@@ -141,9 +150,9 @@ public struct PasswordResetView: View {
 
                 Spacer()
 
-                HopesButton("완료", size: .large, isEnabled: canSubmit) {
+                HopesButton("완료", size: .large, isEnabled: canComplete) {
                     focusedField = nil
-                    onReset()
+                    onComplete()
                 }
             }
             .padding(.horizontal, 28)
@@ -158,22 +167,19 @@ public struct PasswordResetView: View {
         }
     }
 
-    private var canSubmit: Bool {
-        !isLoading
-            && codeRequested
-            && isEmailValid
-            && isCodeValid
-            && PasswordPolicy.isValid(newPassword)
+    private var canComplete: Bool {
+        isVerified && !isLoading
     }
 
     private var codeButtonTitle: String {
+        if isVerified { return "인증완료" }
         if isLoading { return "처리 중" }
         return codeRequested ? "인증하기" : "번호 발송"
     }
 
     private var isCodeButtonEnabled: Bool {
-        guard !isLoading else { return false }
-        return codeRequested ? canSubmit : isEmailValid
+        guard !isLoading, !isVerified else { return false }
+        return codeRequested ? isCodeValid : isEmailValid
     }
 
     private var isEmailValid: Bool {
@@ -188,7 +194,7 @@ public struct PasswordResetView: View {
     private func handleCodeButton() {
         focusedField = nil
         if codeRequested {
-            guard canSubmit else { return }
+            guard isCodeValid else { return }
             onReset()
         } else {
             onRequestCode()

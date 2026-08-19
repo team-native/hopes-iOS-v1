@@ -27,6 +27,7 @@ public struct LoginFlowView: View {
     @State private var passwordResetCode = ""
     @State private var passwordResetNewPassword = ""
     @State private var isPasswordResetCodeRequested = false
+    @State private var isPasswordResetVerified = false
     @State private var isResettingPassword = false
     @State private var passwordResetErrorMessage: String?
     @State private var signUpEmail = ""
@@ -135,11 +136,16 @@ public struct LoginFlowView: View {
                     code: $passwordResetCode,
                     newPassword: $passwordResetNewPassword,
                     codeRequested: isPasswordResetCodeRequested,
+                    isVerified: isPasswordResetVerified,
                     isLoading: isResettingPassword,
                     errorMessage: passwordResetErrorMessage,
-                    onBack: { transition(to: .login) },
+                    onBack: {
+                        clearPasswordResetState()
+                        transition(to: .login)
+                    },
                     onRequestCode: requestPasswordResetCode,
-                    onReset: resetPassword
+                    onReset: resetPassword,
+                    onComplete: completePasswordReset
                 )
                 .transition(.opacity)
 
@@ -437,6 +443,7 @@ public struct LoginFlowView: View {
     private func requestPasswordResetCode() {
         guard !isResettingPassword else { return }
         isResettingPassword = true
+        isPasswordResetVerified = false
         passwordResetErrorMessage = nil
         Task {
             do {
@@ -456,6 +463,10 @@ public struct LoginFlowView: View {
 
     private func resetPassword() {
         guard !isResettingPassword else { return }
+        guard PasswordPolicy.isValid(passwordResetNewPassword) else {
+            passwordResetErrorMessage = "비밀번호는 영문과 숫자를 포함해 8~15자로 입력해주세요."
+            return
+        }
         isResettingPassword = true
         passwordResetErrorMessage = nil
         Task {
@@ -467,11 +478,7 @@ public struct LoginFlowView: View {
                 )
                 await MainActor.run {
                     isResettingPassword = false
-                    isPasswordResetCodeRequested = false
-                    passwordResetCode = ""
-                    passwordResetNewPassword = ""
-                    password = ""
-                    transition(to: .login)
+                    isPasswordResetVerified = true
                 }
             } catch {
                 await MainActor.run {
@@ -480,6 +487,22 @@ public struct LoginFlowView: View {
                 }
             }
         }
+    }
+
+    private func completePasswordReset() {
+        guard isPasswordResetVerified else { return }
+        clearPasswordResetState()
+        password = ""
+        transition(to: .login)
+    }
+
+    private func clearPasswordResetState() {
+        isPasswordResetCodeRequested = false
+        isPasswordResetVerified = false
+        isResettingPassword = false
+        passwordResetCode = ""
+        passwordResetNewPassword = ""
+        passwordResetErrorMessage = nil
     }
 
     private func loadProfile() {
