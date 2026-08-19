@@ -18,12 +18,22 @@ public struct LoginView: View {
         }
     }
 
+    private struct LoginFormBottomPreferenceKey: PreferenceKey {
+        static let defaultValue: CGFloat = 0
+
+        static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+            value = nextValue()
+        }
+    }
+
     @State private var isPasswordVisible = false
+    @State private var isKeyboardVisible = false
     @State private var sheetProgress: CGFloat
     @State private var sheetDragStartProgress: CGFloat?
     @State private var keyboardShift: CGFloat = 0
     @State private var keyboardFrame: CGRect = .zero
     @State private var fieldFrames: [LoginField: CGRect] = [:]
+    @State private var loginFormBottom: CGFloat = 0
     @State private var maximumKeyboardShift: CGFloat = 0
     @State private var keyboardAnimationDuration: TimeInterval = 0.25
     @Binding private var email: String
@@ -63,7 +73,10 @@ public struct LoginView: View {
             let collapsedOffset = max(0, 502 - collapsedSheetRevealHeight)
             let sheetOffset = collapsedOffset * (1 - sheetProgress)
             let expandedSheetTop = max(0, geometry.size.height - 502)
-            let maximumShiftForSheet = expandedSheetTop * 0.5
+            let maximumShiftForSheet = max(
+                0,
+                expandedSheetTop - geometry.safeAreaInsets.top
+            )
             let keyboardTop = keyboardFrame.height > 0
                 ? keyboardFrame.minY
                 : geometry.size.height
@@ -102,7 +115,7 @@ public struct LoginView: View {
                     .allowsHitTesting(false)
 
                 loginSheet(maximumKeyboardShift: maximumShiftForSheet)
-                    .offset(y: sheetOffset - keyboardShift)
+                    .offset(y: sheetOffset - (isKeyboardVisible ? keyboardShift : 0))
                     .simultaneousGesture(sheetDragGesture(collapsedOffset: collapsedOffset))
 
                 // The keyboard's rounded bottom area is translucent in the
@@ -123,7 +136,10 @@ public struct LoginView: View {
                 maximumKeyboardShift = maximumShiftForSheet
             }
             .onChange(of: geometry.size.height) { _, height in
-                maximumKeyboardShift = max(0, height - 502) * 0.5
+                maximumKeyboardShift = max(
+                    0,
+                    height - 502 - geometry.safeAreaInsets.top
+                )
             }
         }
         .ignoresSafeArea(.container, edges: [.top, .bottom])
@@ -145,6 +161,9 @@ public struct LoginView: View {
 
             keyboardFrame = frame
             keyboardAnimationDuration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval ?? 0.25
+            withAnimation(.easeInOut(duration: keyboardAnimationDuration)) {
+                isKeyboardVisible = true
+            }
             Task { @MainActor in
                 // Let the focused field's global frame settle after the keyboard layout pass.
                 await Task.yield()
@@ -161,6 +180,7 @@ public struct LoginView: View {
             keyboardAnimationDuration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval ?? 0.25
 
             withAnimation(.easeInOut(duration: keyboardAnimationDuration)) {
+                isKeyboardVisible = false
                 keyboardShift = 0
             }
         }
@@ -172,9 +192,7 @@ public struct LoginView: View {
         animated: Bool
     ) {
         guard frame.height > 0,
-              focusedField != nil,
-              let emailFrame = fieldFrames[.email],
-              let passwordFrame = fieldFrames[.password] else {
+              focusedField != nil else {
             return
         }
 
@@ -186,10 +204,17 @@ public struct LoginView: View {
         // visible; controls below them are intentionally allowed to remain
         // behind the keyboard.
         let keyboardFrameInWindow = keyboardFrameInWindow(frame)
-        let unshiftedInputBottom = max(emailFrame.maxY, passwordFrame.maxY) + keyboardShift
+        let measuredInputBottom = max(
+            fieldFrames[.email]?.maxY ?? 0,
+            fieldFrames[.password]?.maxY ?? 0
+        )
+        let measuredFormBottom = loginFormBottom > 0
+            ? loginFormBottom
+            : measuredInputBottom
+        let unshiftedFormBottom = measuredFormBottom + keyboardShift
         let requiredShift = min(
             maximumShift,
-            max(0, unshiftedInputBottom + 14 - keyboardFrameInWindow.minY)
+            max(0, unshiftedFormBottom + 14 - keyboardFrameInWindow.minY)
         )
 
         if animated {
@@ -338,12 +363,19 @@ public struct LoginView: View {
             .onPreferenceChange(FieldFramePreferenceKey.self) { frames in
                 fieldFrames = frames
             }
+            .onPreferenceChange(LoginFormBottomPreferenceKey.self) { bottom in
+                loginFormBottom = bottom
+            }
             .onChange(of: focusedField) { _, field in
                 if field == nil {
                     withAnimation(.easeInOut(duration: keyboardAnimationDuration)) {
+                        isKeyboardVisible = false
                         keyboardShift = 0
                     }
                 } else if keyboardFrame.height > 0 {
+                    withAnimation(.easeInOut(duration: keyboardAnimationDuration)) {
+                        isKeyboardVisible = true
+                    }
                     Task { @MainActor in
                         await Task.yield()
                         applyLightKeyboardAppearanceToInputs()
@@ -521,6 +553,14 @@ public struct LoginView: View {
             .buttonStyle(.plain)
             .padding(.horizontal, 32)
             .padding(.top, errorMessage == nil ? 422 : 450)
+            .background {
+                GeometryReader { geometry in
+                    Color.clear.preference(
+                        key: LoginFormBottomPreferenceKey.self,
+                        value: geometry.frame(in: .global).maxY
+                    )
+                }
+            }
         }
         .frame(height: 502, alignment: .top)
         .frame(maxWidth: .infinity)
