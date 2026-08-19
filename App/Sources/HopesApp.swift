@@ -26,15 +26,12 @@ struct HopesApp: App {
 
                 if isSplashVisible {
                     HopesLaunchView()
-                        .transition(.opacity)
                 }
             }
             .task {
-                try? await Task.sleep(for: .milliseconds(450))
+                try? await Task.sleep(for: .seconds(2))
                 guard !Task.isCancelled else { return }
-                withAnimation(.easeOut(duration: 0.18)) {
-                    isSplashVisible = false
-                }
+                isSplashVisible = false
             }
         }
     }
@@ -42,13 +39,10 @@ struct HopesApp: App {
 
 private struct HopesLaunchView: View {
     var body: some View {
-        Color.hopesBackground
+        Color.hopesHeroGradient
             .ignoresSafeArea()
             .overlay {
-                Image("AppIcon")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 96, height: 96)
+                HopesLogo(placement: .onBrand, size: .large)
             }
     }
 }
