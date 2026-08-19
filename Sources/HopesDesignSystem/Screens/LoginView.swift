@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 public struct LoginView: View {
     private enum LoginField: Hashable {
@@ -63,19 +64,19 @@ public struct LoginView: View {
             let sheetOffset = collapsedOffset * (1 - sheetProgress)
             let expandedSheetTop = max(0, geometry.size.height - 502)
             let maximumShiftForSheet = expandedSheetTop * 0.5
+            let keyboardTop = keyboardFrame.height > 0
+                ? keyboardFrame.minY
+                : geometry.size.height
+            let heroBackgroundHeight = keyboardTop
 
             ZStack(alignment: .bottom) {
-                Color.hopesHeroGradient
+                Color.white
                     .ignoresSafeArea()
 
-                // The system keyboard can be translucent at its lower edge.
-                // When the sheet is translated above it, keep the exposed
-                // area white so the hero background cannot show through.
-                Color.white
-                    .frame(height: max(0, keyboardShift - sheetOffset))
-                    .frame(maxWidth: .infinity)
-                    .ignoresSafeArea(.keyboard, edges: .bottom)
-                    .allowsHitTesting(false)
+                Color.hopesHeroGradient
+                    .frame(height: heroBackgroundHeight)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                    .ignoresSafeArea(edges: .top)
 
                 VStack(spacing: 0) {
                     HopesLogo(placement: .onBrand)
@@ -103,6 +104,20 @@ public struct LoginView: View {
                 loginSheet(maximumKeyboardShift: maximumShiftForSheet)
                     .offset(y: sheetOffset - keyboardShift)
                     .simultaneousGesture(sheetDragGesture(collapsedOffset: collapsedOffset))
+
+                // The keyboard's rounded bottom area is translucent in the
+                // simulator. Cover exactly the keyboard region in the app
+                // window so the hero gradient cannot show through it.
+                Color.white
+                    .frame(
+                        height: keyboardFrame.height > 0
+                            ? max(0, geometry.size.height - keyboardTop)
+                            : 0
+                    )
+                    .frame(maxWidth: .infinity)
+                    .ignoresSafeArea(.keyboard, edges: .bottom)
+                    .allowsHitTesting(false)
+                    .zIndex(10)
             }
             .onAppear {
                 maximumKeyboardShift = maximumShiftForSheet
@@ -117,6 +132,12 @@ public struct LoginView: View {
         // focused field's frame, rather than by shrinking this GeometryReader.
         .ignoresSafeArea(.keyboard)
         .preferredColorScheme(.light)
+        .onAppear {
+            Task { @MainActor in
+                await Task.yield()
+                applyLightKeyboardAppearanceToInputs()
+            }
+        }
         .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillChangeFrameNotification)) { notification in
             guard let frame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else {
                 return
@@ -127,6 +148,7 @@ public struct LoginView: View {
             Task { @MainActor in
                 // Let the focused field's global frame settle after the keyboard layout pass.
                 await Task.yield()
+                applyLightKeyboardAppearanceToInputs()
                 updateKeyboardShift(
                     using: frame,
                     maximumShift: maximumKeyboardShift,
@@ -176,6 +198,39 @@ public struct LoginView: View {
             }
         } else {
             keyboardShift = requiredShift
+        }
+    }
+
+    @MainActor
+    private func applyLightKeyboardAppearanceToInputs() {
+        guard let window = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .flatMap(\.windows)
+            .first(where: { $0.isKeyWindow }),
+            let _ = window.windowScene else {
+            return
+        }
+
+        applyLightKeyboardAppearance(to: window)
+    }
+
+    private func applyLightKeyboardAppearance(to view: UIView) {
+        if let textField = view as? UITextField,
+           textField.keyboardAppearance != .light {
+            textField.keyboardAppearance = .light
+            if textField.isFirstResponder {
+                textField.reloadInputViews()
+            }
+        } else if let textView = view as? UITextView,
+                  textView.keyboardAppearance != .light {
+            textView.keyboardAppearance = .light
+            if textView.isFirstResponder {
+                textView.reloadInputViews()
+            }
+        }
+
+        for subview in view.subviews {
+            applyLightKeyboardAppearance(to: subview)
         }
     }
 
@@ -291,6 +346,7 @@ public struct LoginView: View {
                 } else if keyboardFrame.height > 0 {
                     Task { @MainActor in
                         await Task.yield()
+                        applyLightKeyboardAppearanceToInputs()
                         updateKeyboardShift(
                             using: keyboardFrame,
                             maximumShift: maximumKeyboardShift,
