@@ -109,8 +109,8 @@ public struct ConversationHistoryView: View {
                 .onSubmit(performSearch)
 
             Button(action: performSearch) {
-                Text("⌕")
-                    .font(.subheadline.weight(.semibold))
+                Image(systemName: "magnifyingglass")
+                    .font(.system(size: 18, weight: .semibold))
                     .foregroundStyle(Color.hopesTextPrimary)
                     .frame(width: 38, height: 41)
             }
