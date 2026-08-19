@@ -7,7 +7,6 @@ public struct ChatDetailView: View {
 
     @State private var selectedTab: HopesTab = .chat
     @State private var isSaved = false
-    @State private var isLiked = false
     @Binding private var reply: String
     @FocusState private var isReplyFocused: Bool
 
@@ -163,11 +162,6 @@ public struct ChatDetailView: View {
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
 
-                        if messages.contains(where: { $0.role == .assistant }) {
-                            responseActions
-                            sourceCard
-                        }
-
                         Color.clear
                             .frame(height: 1)
                             .id(ScrollTarget.bottom)
@@ -243,78 +237,6 @@ public struct ChatDetailView: View {
                     }
                 }
             if message.role == .assistant { Spacer(minLength: 40) }
-        }
-    }
-
-    private var responseActions: some View {
-        HStack(spacing: 12) {
-            HopesButton(
-                isLiked ? "좋아요!" : "좋아요",
-                variant: .secondary,
-                size: .small,
-                width: .fixed(isLiked ? 84 : 76)
-            ) {
-                isReplyFocused = false
-                isLiked.toggle()
-            }
-
-            HopesButton(
-                "더 물어보기",
-                size: .small,
-                width: .fixed(104)
-            ) {
-                isReplyFocused = false
-                reply = "이 답변에 대해 더 알려줘."
-            }
-
-            HopesButton(
-                "공유",
-                variant: .secondary,
-                size: .small,
-                width: .fixed(76),
-                action: {
-                    isReplyFocused = false
-                    onShare()
-                }
-            )
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-    private var sourceCard: some View {
-        HStack(spacing: 12) {
-            VStack(alignment: .leading, spacing: 10) {
-                Text("답변 근거")
-                    .font(.callout.weight(.bold))
-                    .foregroundStyle(Color.hopesTextPrimary)
-
-                Text("선배 답변을 바탕으로 정리한 참고 정보예요.")
-                    .font(.footnote)
-                    .foregroundStyle(Color.hopesTextSecondary)
-                    .lineSpacing(2)
-            }
-
-            Spacer(minLength: 0)
-
-            HopesButton(
-                "보기",
-                variant: .secondary,
-                size: .compact,
-                width: .fixed(54),
-                action: {
-                    isReplyFocused = false
-                    onShowSources()
-                }
-            )
-        }
-        .padding(.horizontal, 20)
-        .frame(maxWidth: .infinity)
-        .frame(height: 106)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: HopesMetrics.cardCornerRadius))
-        .overlay {
-            RoundedRectangle(cornerRadius: HopesMetrics.cardCornerRadius)
-                .stroke(Color.hopesBorder, lineWidth: 1)
         }
     }
 
