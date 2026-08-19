@@ -3,8 +3,6 @@ import UIKit
 
 public struct ChatHomeView: View {
     @State private var selectedTab: HopesTab = .chat
-    @State private var keyboardOffset: CGFloat = 0
-    @State private var inputBottom: CGFloat = 0
     @State private var keyboardFrame: CGRect?
     @State private var keyboardAnimationDuration: Double = 0.25
     @Binding private var message: String
@@ -34,26 +32,27 @@ public struct ChatHomeView: View {
     }
 
     public var body: some View {
-        GeometryReader { _ in
+        GeometryReader { geometry in
             ZStack(alignment: .top) {
                 fixedDesign
-                    .offset(y: keyboardOffset)
+                    .offset(y: -keyboardShift(in: geometry))
+
+                composer
+                    .padding(.horizontal, 24)
+                    .padding(.top, composerTop(in: geometry))
+
+                if !isInputFocused && keyboardFrame == nil {
+                    HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
+                        .frame(maxHeight: .infinity, alignment: .bottom)
+                }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            .onPreferenceChange(ChatHomeInputBottomPreferenceKey.self) { bottom in
-                inputBottom = bottom
-                updateKeyboardOffset()
-            }
+            .ignoresSafeArea(.container, edges: .bottom)
+            .ignoresSafeArea(.keyboard, edges: .bottom)
             .onChange(of: isInputFocused) { _, isFocused in
                 if !isFocused {
-                    resetKeyboardOffset()
-                } else {
-                    // Focus changes before UIKit has finished laying out the
-                    // keyboard. Recalculate once the next layout pass has
-                    // produced the input field's global frame.
-                    Task { @MainActor in
-                        await Task.yield()
-                        updateKeyboardOffset()
+                    withAnimation(.easeOut(duration: keyboardAnimationDuration)) {
+                        keyboardFrame = nil
                     }
                 }
             }
@@ -76,13 +75,15 @@ public struct ChatHomeView: View {
                     for: UIResponder.keyboardWillHideNotification
                 )
             ) { notification in
-                keyboardFrame = nil
                 updateKeyboardAnimation(from: notification)
-                resetKeyboardOffset()
+                withAnimation(.easeOut(duration: keyboardAnimationDuration)) {
+                    keyboardFrame = nil
+                }
             }
         }
         .background(Color.hopesBackground.ignoresSafeArea())
         .ignoresSafeArea(.container, edges: .top)
+        .ignoresSafeArea(.keyboard, edges: .bottom)
     }
 
     private var fixedDesign: some View {
@@ -137,14 +138,6 @@ public struct ChatHomeView: View {
                 TapGesture().onEnded { isInputFocused = false }
             )
 
-            composer
-                .padding(.horizontal, 24)
-                .padding(.top, 728)
-
-            if !isInputFocused {
-                HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
-                    .frame(maxHeight: .infinity, alignment: .bottom)
-            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .ignoresSafeArea(.container, edges: .bottom)
@@ -158,24 +151,27 @@ public struct ChatHomeView: View {
             return
         }
 
-        keyboardFrame = globalKeyboardFrame(for: frame)
         updateKeyboardAnimation(from: notification)
 
-        // The keyboard notification and SwiftUI geometry preference can land
-        // in different layout passes. Let both state updates settle before
-        // calculating the translation for the complete fixed design.
-        Task { @MainActor in
-            await Task.yield()
-            updateKeyboardOffset()
+        let convertedFrame = globalKeyboardFrame(for: frame)
+        withAnimation(.easeOut(duration: keyboardAnimationDuration)) {
+            keyboardFrame = convertedFrame
         }
     }
 
     private func globalKeyboardFrame(for screenFrame: CGRect) -> CGRect {
-        // `keyboardFrameEndUserInfoKey` and SwiftUI's `.global` geometry are
-        // both expressed in the simulator's screen coordinate space here.
-        // Converting through UIWindow could introduce a second coordinate
-        // transform and leave the calculated overlap at zero.
+        #if os(iOS)
+        guard let window = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .flatMap(\.windows)
+            .first(where: { $0.isKeyWindow }) else {
+            return screenFrame
+        }
+
+        return window.convert(screenFrame, from: window.screen.coordinateSpace)
+        #else
         return screenFrame
+        #endif
     }
 
     private func updateKeyboardAnimation(from notification: Notification) {
@@ -184,36 +180,20 @@ public struct ChatHomeView: View {
         }
     }
 
-    private func updateKeyboardOffset() {
-        guard isInputFocused, let keyboardFrame, inputBottom > 0 else {
-            resetKeyboardOffset()
-            return
+    private func keyboardShift(in geometry: GeometryProxy) -> CGFloat {
+        guard isInputFocused, let keyboardFrame else {
+            return 0
         }
 
-        // `inputBottom` includes the currently applied offset. Remove it first
-        // so repeated frame/preference updates always calculate from the
-        // original Figma layout position.
-        let unshiftedInputBottom = inputBottom - keyboardOffset
-        let overlap = max(0, unshiftedInputBottom - keyboardFrame.minY)
-        let targetOffset = -overlap
+        let rootFrame = geometry.frame(in: .global)
+        let keyboardTop = keyboardFrame.minY - rootFrame.minY
+        let composerTop = max(0, keyboardTop - 12 - 52)
 
-        guard abs(targetOffset - keyboardOffset) > 0.5 else {
-            return
-        }
-
-        withAnimation(.easeOut(duration: keyboardAnimationDuration)) {
-            keyboardOffset = targetOffset
-        }
+        return max(0, 728 - composerTop)
     }
 
-    private func resetKeyboardOffset() {
-        guard keyboardOffset != 0 else {
-            return
-        }
-
-        withAnimation(.easeOut(duration: keyboardAnimationDuration)) {
-            keyboardOffset = 0
-        }
+    private func composerTop(in geometry: GeometryProxy) -> CGFloat {
+        728 - keyboardShift(in: geometry)
     }
 
     private var header: some View {
@@ -267,15 +247,6 @@ public struct ChatHomeView: View {
             RoundedRectangle(cornerRadius: HopesMetrics.cardCornerRadius)
                 .stroke(Color.hopesBorder, lineWidth: 1)
         }
-        .background {
-            GeometryReader { geometry in
-                Color.clear
-                    .preference(
-                        key: ChatHomeInputBottomPreferenceKey.self,
-                        value: geometry.frame(in: .global).maxY
-                    )
-            }
-        }
         .shadow(
             color: Color(red: 13 / 255, green: 26 / 255, blue: 46 / 255)
                 .opacity(0.07),
@@ -294,14 +265,6 @@ public struct ChatHomeView: View {
         }
 
         onSend(trimmedMessage)
-    }
-}
-
-private struct ChatHomeInputBottomPreferenceKey: PreferenceKey {
-    static let defaultValue: CGFloat = 0
-
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = nextValue()
     }
 }
 
