@@ -94,8 +94,8 @@ public struct PasswordResetView: View {
                         .background(Color.hopesBrandPrimary)
                         .clipShape(RoundedRectangle(cornerRadius: 14))
                         .buttonStyle(.plain)
-                        .disabled(isLoading || !isEmailValid)
-                        .opacity(isLoading || !isEmailValid ? 0.45 : 1)
+                        .disabled(isLoading)
+                        .opacity(isLoading ? 0.45 : 1)
                 }
 
                 fieldTitle("비밀번호", top: 18)
@@ -150,6 +150,7 @@ public struct PasswordResetView: View {
             .padding(.top, 24)
             .padding(.bottom, 34)
         }
+        .ignoresSafeArea(.keyboard, edges: .bottom)
     }
 
     private var canSubmit: Bool {
