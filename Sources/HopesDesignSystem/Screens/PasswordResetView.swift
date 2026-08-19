@@ -87,15 +87,15 @@ public struct PasswordResetView: View {
                         .keyboardType(.numberPad)
                         .textContentType(.oneTimeCode)
 
-                    Button("번호 발송", action: requestCode)
+                    Button(codeButtonTitle, action: handleCodeButton)
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundStyle(.white)
                         .frame(width: 88, height: 43)
                         .background(Color.hopesBrandPrimary)
                         .clipShape(RoundedRectangle(cornerRadius: 14))
                         .buttonStyle(.plain)
-                        .disabled(isLoading)
-                        .opacity(isLoading ? 0.45 : 1)
+                        .disabled(!isCodeButtonEnabled)
+                        .opacity(isCodeButtonEnabled ? 1 : 0.45)
                 }
 
                 fieldTitle("비밀번호", top: 8)
@@ -151,10 +151,29 @@ public struct PasswordResetView: View {
             .padding(.bottom, 34)
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
+        .onChange(of: codeRequested) { _, requested in
+            if requested {
+                focusedField = .code
+            }
+        }
     }
 
     private var canSubmit: Bool {
-        !isLoading && isEmailValid && isCodeValid && PasswordPolicy.isValid(newPassword)
+        !isLoading
+            && codeRequested
+            && isEmailValid
+            && isCodeValid
+            && PasswordPolicy.isValid(newPassword)
+    }
+
+    private var codeButtonTitle: String {
+        if isLoading { return "처리 중" }
+        return codeRequested ? "인증하기" : "번호 발송"
+    }
+
+    private var isCodeButtonEnabled: Bool {
+        guard !isLoading else { return false }
+        return codeRequested ? canSubmit : isEmailValid
     }
 
     private var isEmailValid: Bool {
@@ -166,9 +185,14 @@ public struct PasswordResetView: View {
         code.range(of: #"^\d{6}$"#, options: .regularExpression) != nil
     }
 
-    private func requestCode() {
+    private func handleCodeButton() {
         focusedField = nil
-        onRequestCode()
+        if codeRequested {
+            guard canSubmit else { return }
+            onReset()
+        } else {
+            onRequestCode()
+        }
     }
 
     private func fieldTitle(_ title: String, top: CGFloat) -> some View {

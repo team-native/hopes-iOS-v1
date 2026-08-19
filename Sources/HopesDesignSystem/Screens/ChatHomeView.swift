@@ -3,8 +3,7 @@ import UIKit
 
 public struct ChatHomeView: View {
     @State private var selectedTab: HopesTab = .chat
-    @State private var keyboardFrame: CGRect?
-    @State private var keyboardAnimationDuration: Double = 0.25
+    @State private var isKeyboardVisible = false
     @Binding private var message: String
     @FocusState private var isInputFocused: Bool
 
@@ -32,58 +31,60 @@ public struct ChatHomeView: View {
     }
 
     public var body: some View {
-        GeometryReader { geometry in
-            ZStack(alignment: .top) {
+        ScrollViewReader { proxy in
+            ScrollView(.vertical, showsIndicators: false) {
                 fixedDesign
-                    .offset(y: -keyboardShift(in: geometry))
-
-                composer
-                    .padding(.horizontal, 24)
-                    .padding(.top, composerTop(in: geometry))
-
-                if !isInputFocused && keyboardFrame == nil {
-                    HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
-                        .frame(maxHeight: .infinity, alignment: .bottom)
-                }
+                    .frame(height: 728)
+                    .id("chat-home-top")
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            .ignoresSafeArea(.container, edges: .bottom)
-            .ignoresSafeArea(.keyboard, edges: .bottom)
-            .onChange(of: isInputFocused) { _, isFocused in
-                if !isFocused {
-                    withAnimation(.easeOut(duration: keyboardAnimationDuration)) {
-                        keyboardFrame = nil
+            .scrollDisabled(!isInputFocused)
+            .scrollDismissesKeyboard(.interactively)
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                VStack(spacing: 0) {
+                    composer
+                        .padding(.horizontal, 24)
+
+                    if !isInputFocused && !isKeyboardVisible {
+                        Color.clear
+                            .frame(height: 10)
+
+                        HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
+                    } else {
+                        Color.clear
+                            .frame(height: 10)
                     }
                 }
-            }
-            .onReceive(
-                NotificationCenter.default.publisher(
-                    for: UIResponder.keyboardWillChangeFrameNotification
-                )
-            ) { notification in
-                updateKeyboardFrame(from: notification)
+                .background(Color.hopesBackground)
             }
             .onReceive(
                 NotificationCenter.default.publisher(
                     for: UIResponder.keyboardWillShowNotification
                 )
-            ) { notification in
-                updateKeyboardFrame(from: notification)
+            ) { _ in
+                isKeyboardVisible = true
+            }
+            .onReceive(
+                NotificationCenter.default.publisher(
+                    for: UIResponder.keyboardDidShowNotification
+                )
+            ) { _ in
+                withAnimation(.easeOut(duration: 0.2)) {
+                    proxy.scrollTo(1, anchor: .bottom)
+                }
             }
             .onReceive(
                 NotificationCenter.default.publisher(
                     for: UIResponder.keyboardWillHideNotification
                 )
-            ) { notification in
-                updateKeyboardAnimation(from: notification)
-                withAnimation(.easeOut(duration: keyboardAnimationDuration)) {
-                    keyboardFrame = nil
+            ) { _ in
+                isKeyboardVisible = false
+                withAnimation(.easeOut(duration: 0.2)) {
+                    proxy.scrollTo("chat-home-top", anchor: .top)
                 }
             }
+            .background(Color.hopesBackground.ignoresSafeArea())
+            .ignoresSafeArea(.container, edges: [.top, .bottom])
         }
-        .background(Color.hopesBackground.ignoresSafeArea())
-        .ignoresSafeArea(.container, edges: .top)
-        .ignoresSafeArea(.keyboard, edges: .bottom)
     }
 
     private var fixedDesign: some View {
@@ -123,13 +124,14 @@ public struct ChatHomeView: View {
             )
 
             VStack(spacing: 6) {
-                ForEach(suggestions, id: \.1) { icon, title in
-                    HopesQuestionCard(title: title) {
+                ForEach(suggestions.indices, id: \.self) { index in
+                    HopesQuestionCard(title: suggestions[index].1) {
                         isInputFocused = false
-                        message = title
+                        message = suggestions[index].1
                     } icon: {
-                        Text(icon)
+                        Text(suggestions[index].0)
                     }
+                    .id(index)
                 }
             }
             .padding(.horizontal, 24)
@@ -141,59 +143,6 @@ public struct ChatHomeView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .ignoresSafeArea(.container, edges: .bottom)
-    }
-
-    private func updateKeyboardFrame(from notification: Notification) {
-        guard
-            let frame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
-            frame.height > 0
-        else {
-            return
-        }
-
-        updateKeyboardAnimation(from: notification)
-
-        let convertedFrame = globalKeyboardFrame(for: frame)
-        withAnimation(.easeOut(duration: keyboardAnimationDuration)) {
-            keyboardFrame = convertedFrame
-        }
-    }
-
-    private func globalKeyboardFrame(for screenFrame: CGRect) -> CGRect {
-        #if os(iOS)
-        guard let window = UIApplication.shared.connectedScenes
-            .compactMap({ $0 as? UIWindowScene })
-            .flatMap(\.windows)
-            .first(where: { $0.isKeyWindow }) else {
-            return screenFrame
-        }
-
-        return window.convert(screenFrame, from: window.screen.coordinateSpace)
-        #else
-        return screenFrame
-        #endif
-    }
-
-    private func updateKeyboardAnimation(from notification: Notification) {
-        if let duration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double {
-            keyboardAnimationDuration = duration
-        }
-    }
-
-    private func keyboardShift(in geometry: GeometryProxy) -> CGFloat {
-        guard isInputFocused, let keyboardFrame else {
-            return 0
-        }
-
-        let rootFrame = geometry.frame(in: .global)
-        let keyboardTop = keyboardFrame.minY - rootFrame.minY
-        let composerTop = max(0, keyboardTop - 12 - 52)
-
-        return max(0, 728 - composerTop)
-    }
-
-    private func composerTop(in geometry: GeometryProxy) -> CGFloat {
-        728 - keyboardShift(in: geometry)
     }
 
     private var header: some View {
