@@ -4,9 +4,14 @@ public struct OnboardingView: View {
     @State private var selectedTab: HopesTab = .home
 
     private let onStartChat: () -> Void
+    private let onSelectTab: (HopesTab) -> Void
 
-    public init(onStartChat: @escaping () -> Void = {}) {
+    public init(
+        onStartChat: @escaping () -> Void = {},
+        onSelectTab: @escaping (HopesTab) -> Void = { _ in }
+    ) {
         self.onStartChat = onStartChat
+        self.onSelectTab = onSelectTab
     }
 
     public var body: some View {
@@ -58,7 +63,7 @@ public struct OnboardingView: View {
             )
             .padding(.top, 706)
 
-            HopesTabBar(selection: $selectedTab)
+            HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
                 .frame(maxHeight: .infinity, alignment: .bottom)
         }
         .ignoresSafeArea()
