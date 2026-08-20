@@ -14,7 +14,6 @@
 		4972133A33B87B3193D6545C /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F15427619A42E8FFE9D0105 /* SettingsView.swift */; };
 		4A7F8AC643E76686859A4D86 /* HopesLogo.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0599E93436B0D30E7BDA12F /* HopesLogo.swift */; };
 		4D8771E646E11E3E521222D6 /* Inter-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 3342798DED84A33FFD2D5736 /* Inter-Bold.otf */; };
-		4E339178F6FDDF5C960147D1 /* LoginSwipeGuideView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659B7F3EC1D858AB847617C1 /* LoginSwipeGuideView.swift */; };
 		4E8BE08AD350A9A12E7C4922 /* HopesStatTile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DC0E7300A73BC075AD9A967 /* HopesStatTile.swift */; };
 		4F50C8B58959F9625BA64616 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3106EB932D453712DA27E5A /* OnboardingView.swift */; };
 		51554DF77EEF4F43811E15B1 /* AnswerEvidenceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 954EA9E4D422AAA312EE6994 /* AnswerEvidenceView.swift */; };
@@ -126,7 +125,6 @@
 		60471C8E5766F7E02CA92C0C /* HopesMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HopesMetrics.swift; sourceTree = "<group>"; };
 		629BB96E9F2DCA511ED670F4 /* HopesButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HopesButton.swift; sourceTree = "<group>"; };
 		65426EF2F9D46FA2F7ED581C /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
-		659B7F3EC1D858AB847617C1 /* LoginSwipeGuideView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginSwipeGuideView.swift; sourceTree = "<group>"; };
 		782B2CF845D169F188CFB617 /* HopesCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HopesCard.swift; sourceTree = "<group>"; };
 		7C219C5C9FD3C6972B1276DC /* ChatDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatDetailView.swift; sourceTree = "<group>"; };
 		7D8B28CEBC56A41C2CF56022 /* HopesActionRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HopesActionRow.swift; sourceTree = "<group>"; };
@@ -207,7 +205,6 @@
 				B3F01EEAB25EF4E994D40A63 /* ConversationHistoryView.swift */,
 				96966F841E0B72230E67A611 /* GeneralSettingsView.swift */,
 				A6C3CBB7C31AFF4347DB81A1 /* LoginFlowView.swift */,
-				659B7F3EC1D858AB847617C1 /* LoginSwipeGuideView.swift */,
 				65426EF2F9D46FA2F7ED581C /* LoginView.swift */,
 				E05202390E13D67A68B767F1 /* MyPageView.swift */,
 				D3106EB932D453712DA27E5A /* OnboardingView.swift */,
@@ -527,7 +524,6 @@
 				E63BDBBBE1102DA6AAC5B4A8 /* ConversationHistoryView.swift in Sources */,
 				491CEB33D7EC1BE900E5BFF9 /* GeneralSettingsView.swift in Sources */,
 				850F853AAE6318DB65F7F557 /* LoginFlowView.swift in Sources */,
-				4E339178F6FDDF5C960147D1 /* LoginSwipeGuideView.swift in Sources */,
 				9F54FAF77D98FD02C156B13B /* LoginView.swift in Sources */,
 				B5DC7C0986A35F51232D42CF /* MyPageView.swift in Sources */,
 				4F50C8B58959F9625BA64616 /* OnboardingView.swift in Sources */,

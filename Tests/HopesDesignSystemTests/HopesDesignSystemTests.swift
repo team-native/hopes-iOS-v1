@@ -218,13 +218,6 @@ func contactViewCanBeConstructed() {
 
 @Test
 @MainActor
-func loginSwipeGuideCanBeConstructed() {
-    _ = LoginSwipeGuideView()
-    _ = LoginSwipeGuideView(onOpenLogin: {})
-}
-
-@Test
-@MainActor
 func loginViewsCanBeConstructed() {
     _ = LoginView(
         email: .constant(""),
