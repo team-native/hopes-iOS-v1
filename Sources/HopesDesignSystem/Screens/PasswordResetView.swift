@@ -86,6 +86,10 @@ public struct PasswordResetView: View {
                     .textContentType(.emailAddress)
                     .disabled(isVerified)
 
+                if let emailErrorMessage {
+                    feedbackText(emailErrorMessage, color: Color.hopesDanger)
+                }
+
                 fieldTitle("인증번호", top: 8)
                 HStack(spacing: 10) {
                     TextField("숫자 6자리", text: $code)
@@ -101,9 +105,16 @@ public struct PasswordResetView: View {
                         .frame(width: 88, height: 43)
                         .background(Color.hopesBrandPrimary)
                         .clipShape(RoundedRectangle(cornerRadius: 14))
+                        .contentShape(RoundedRectangle(cornerRadius: 14))
                         .buttonStyle(.plain)
                         .disabled(!isCodeButtonEnabled)
                         .opacity(isVerified || isCodeButtonEnabled ? 1 : 0.45)
+                }
+
+                if isVerified {
+                    feedbackText("인증이 완료되었습니다.", color: Color.hopesSuccess)
+                } else if let codeErrorMessage {
+                    feedbackText(codeErrorMessage, color: Color.hopesDanger)
                 }
 
                 fieldTitle("비밀번호", top: 8)
@@ -132,6 +143,8 @@ public struct PasswordResetView: View {
                     .buttonStyle(.plain)
                 }
 
+                feedbackText(passwordFeedbackMessage, color: passwordFeedbackColor)
+
                 Color.clear
                     .frame(height: 0)
                     .onChange(of: code) { _, newValue in
@@ -140,13 +153,6 @@ public struct PasswordResetView: View {
                             code = filtered
                         }
                     }
-
-                if let errorMessage {
-                    Text(errorMessage)
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundStyle(Color.hopesDanger)
-                        .padding(.top, 12)
-                }
 
                 Spacer()
 
@@ -172,9 +178,40 @@ public struct PasswordResetView: View {
     }
 
     private var codeButtonTitle: String {
-        if isVerified { return "인증완료" }
+        if isVerified { return "인증 완료" }
         if isLoading { return "처리 중" }
         return codeRequested ? "인증하기" : "번호 발송"
+    }
+
+    private var emailErrorMessage: String? {
+        guard let errorMessage, errorMessage.contains("이메일") || errorMessage.contains("회원") else {
+            return nil
+        }
+        return errorMessage
+    }
+
+    private var codeErrorMessage: String? {
+        guard let errorMessage,
+              !errorMessage.contains("이메일"),
+              !errorMessage.contains("회원"),
+              !errorMessage.contains("비밀번호")
+        else { return nil }
+        return errorMessage
+    }
+
+    private var passwordFeedbackMessage: String {
+        if let errorMessage, errorMessage.contains("비밀번호") {
+            return errorMessage
+        }
+        return "영문과 숫자를 포함해 8~15자로 입력해주세요."
+    }
+
+    private var passwordFeedbackColor: Color {
+        guard !newPassword.isEmpty else { return Color.hopesTextSecondary }
+        if let errorMessage, errorMessage.contains("비밀번호") {
+            return Color.hopesDanger
+        }
+        return PasswordPolicy.isValid(newPassword) ? Color.hopesTextSecondary : Color.hopesDanger
     }
 
     private var isCodeButtonEnabled: Bool {
@@ -207,6 +244,13 @@ public struct PasswordResetView: View {
             .foregroundStyle(Color.hopesTextPrimary)
             .padding(.top, top)
             .padding(.bottom, 8)
+    }
+
+    private func feedbackText(_ message: String, color: Color) -> some View {
+        Text(message)
+            .font(.system(size: 12, weight: .medium))
+            .foregroundStyle(color)
+            .padding(.top, 6)
     }
 }
 
