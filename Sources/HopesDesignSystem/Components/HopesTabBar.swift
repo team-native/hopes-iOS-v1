@@ -22,13 +22,13 @@ public enum HopesTab: String, CaseIterable, Sendable {
     fileprivate var iconName: String {
         switch self {
         case .home:
-            "house"
+            "HopesTabHome"
         case .chat:
-            "message"
+            "HopesTabChat"
         case .history:
-            "clock.arrow.circlepath"
+            "HopesTabHistory"
         case .settings:
-            "person"
+            "HopesTabMyPage"
         }
     }
 }
@@ -76,8 +76,10 @@ public struct HopesTabBar: View {
             onSelect(tab)
         } label: {
             ZStack(alignment: .top) {
-                Image(systemName: tab.iconName)
-                    .font(.system(size: 24, weight: .regular))
+                Image(tab.iconName)
+                    .resizable()
+                    .renderingMode(.template)
+                    .aspectRatio(contentMode: .fit)
                     .foregroundStyle(
                         selection == tab
                             ? Color(red: 13 / 255, green: 138 / 255, blue: 229 / 255)
@@ -104,6 +106,7 @@ public struct HopesTabBar: View {
         .accessibilityLabel(tab.title)
         .accessibilityAddTraits(selection == tab ? .isSelected : [])
     }
+
 }
 
 #Preview("Hopes Tab Bar") {
