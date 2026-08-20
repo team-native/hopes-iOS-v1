@@ -487,17 +487,20 @@ public struct LoginView: View {
                     .accessibilityLabel("비밀번호")
                     .id(LoginField.password)
 
-                Button {
-                    focusedField = nil
-                    onForgotPassword()
-                } label: {
-                    Text("비밀번호를 잊으셨나요?")
-                }
+                HStack(spacing: 0) {
+                    Spacer()
+
+                    Button {
+                        focusedField = nil
+                        onForgotPassword()
+                    } label: {
+                        Text("비밀번호를 잊으셨나요?")
+                    }
                     .font(.system(size: 12, weight: .medium))
                     .foregroundStyle(Color.hopesBrandPrimary)
                     .buttonStyle(.plain)
-                    .frame(maxWidth: .infinity, alignment: .trailing)
-                    .padding(.top, 8)
+                }
+                .padding(.top, 8)
             }
             .padding(.horizontal, 32)
             .padding(.top, 68)
@@ -522,16 +525,21 @@ public struct LoginView: View {
                     .padding(.top, 407)
             }
 
-            Button {
-                focusedField = nil
-                onSignUp()
-            } label: {
-                Text("계정이 없으신가요?  회원가입")
-                    .font(.system(size: 13, weight: .medium))
-                    .foregroundStyle(Color.hopesTextSecondary)
-                    .frame(maxWidth: .infinity)
+            HStack(spacing: 0) {
+                Spacer()
+
+                Button {
+                    focusedField = nil
+                    onSignUp()
+                } label: {
+                    Text("계정이 없으신가요?  회원가입")
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundStyle(Color.hopesTextSecondary)
+                }
+                .buttonStyle(.plain)
+
+                Spacer()
             }
-            .buttonStyle(.plain)
             .padding(.horizontal, 32)
             .padding(.top, errorMessage == nil ? 422 : 450)
         }

@@ -118,6 +118,7 @@ public struct HopesButton: View {
             )
             .background(backgroundColor)
             .clipShape(RoundedRectangle(cornerRadius: HopesMetrics.controlCornerRadius))
+            .contentShape(RoundedRectangle(cornerRadius: HopesMetrics.controlCornerRadius))
             .overlay {
                 RoundedRectangle(cornerRadius: HopesMetrics.controlCornerRadius)
                     .stroke(borderColor, lineWidth: borderColor == .clear ? 0 : 1)

@@ -311,17 +311,22 @@ public struct SignUpView: View {
     }
 
     private var loginLink: some View {
-        Button {
-            focusedField = nil
-            onGoToLogin()
-        } label: {
-            (Text("계정이 있으신가요?  ").foregroundStyle(Color.hopesTextSecondary)
-                + Text("로그인").foregroundStyle(Color.hopesBrandPrimary).underline())
-                .font(.footnote)
-                .frame(maxWidth: .infinity)
-                .frame(height: 18)
+        HStack(spacing: 0) {
+            Spacer()
+
+            Button {
+                focusedField = nil
+                onGoToLogin()
+            } label: {
+                (Text("계정이 있으신가요?  ").foregroundStyle(Color.hopesTextSecondary)
+                    + Text("로그인").foregroundStyle(Color.hopesBrandPrimary).underline())
+                    .font(.footnote)
+                    .frame(height: 18)
+            }
+            .buttonStyle(.plain)
+
+            Spacer()
         }
-        .buttonStyle(.plain)
     }
 
     private var normalizedEmail: String {
