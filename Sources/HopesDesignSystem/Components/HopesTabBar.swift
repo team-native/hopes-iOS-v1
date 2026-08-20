@@ -31,19 +31,6 @@ public enum HopesTab: String, CaseIterable, Sendable {
             "person"
         }
     }
-
-    fileprivate var selectedIconName: String {
-        switch self {
-        case .home:
-            "house.fill"
-        case .chat:
-            "message.fill"
-        case .history:
-            "clock.arrow.circlepath"
-        case .settings:
-            "person.fill"
-        }
-    }
 }
 
 public struct HopesTabBar: View {
@@ -89,14 +76,7 @@ public struct HopesTabBar: View {
             onSelect(tab)
         } label: {
             ZStack(alignment: .top) {
-                if selection == tab && tab != .history && tab != .chat {
-                    Capsule()
-                        .fill(Color.hopesBrandTint)
-                        .frame(width: 60, height: 30)
-                        .position(x: 30, y: 27)
-                }
-
-                Image(systemName: selection == tab && tab != .chat ? tab.selectedIconName : tab.iconName)
+                Image(systemName: tab.iconName)
                     .font(.system(size: 18, weight: .semibold))
                     .foregroundStyle(
                         selection == tab

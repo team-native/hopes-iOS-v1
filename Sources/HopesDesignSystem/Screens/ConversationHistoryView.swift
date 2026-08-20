@@ -148,15 +148,9 @@ public struct ConversationHistoryView: View {
                 }
 
                 conversationSection(
-                    title: "지난 7일",
-                    conversations: filteredConversations(for: .recent)
+                    title: "모든 기록",
+                    conversations: filteredConversations
                 )
-
-                conversationSection(
-                    title: "이전",
-                    conversations: filteredConversations(for: .older)
-                )
-                .padding(.top, 20)
             }
         }
         .scrollIndicators(.hidden)
@@ -204,15 +198,10 @@ public struct ConversationHistoryView: View {
         }
     }
 
-    private func filteredConversations(
-        for period: Conversation.Period
-    ) -> [Conversation] {
+    private var filteredConversations: [Conversation] {
         conversations.filter { conversation in
-            conversation.period == period
-                && (
-                    trimmedQuery.isEmpty
-                        || conversation.title.localizedCaseInsensitiveContains(trimmedQuery)
-                )
+            trimmedQuery.isEmpty
+                || conversation.title.localizedCaseInsensitiveContains(trimmedQuery)
         }
     }
 
