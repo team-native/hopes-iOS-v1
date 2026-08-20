@@ -76,7 +76,7 @@ public struct ConversationHistoryView: View {
 
             conversationList
                 .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
-                .padding(.top, 282)
+                .padding(.top, 257)
 
             HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
                 .frame(maxHeight: .infinity, alignment: .bottom)
