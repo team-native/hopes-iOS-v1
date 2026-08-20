@@ -77,7 +77,7 @@ public struct HopesTabBar: View {
         } label: {
             ZStack(alignment: .top) {
                 Image(systemName: tab.iconName)
-                    .font(.system(size: 18, weight: .semibold))
+                    .font(.system(size: 24, weight: .regular))
                     .foregroundStyle(
                         selection == tab
                             ? Color(red: 13 / 255, green: 138 / 255, blue: 229 / 255)
