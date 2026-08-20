@@ -166,10 +166,13 @@ public struct LoginFlowView: View {
                 .transition(.opacity)
 
             case .onboarding:
-                OnboardingView {
-                    onStartChat()
-                    transition(to: .chatHome)
-                }
+                OnboardingView(
+                    onStartChat: {
+                        onStartChat()
+                        transition(to: .chatHome)
+                    },
+                    onSelectTab: navigateFromTab
+                )
                     .transition(.opacity)
 
             case .chatHome:
