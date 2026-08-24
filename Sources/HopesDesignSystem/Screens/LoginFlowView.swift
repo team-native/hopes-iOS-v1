@@ -273,8 +273,6 @@ public struct LoginFlowView: View {
             case .settings:
                 SettingsView(
                     isLoggingOut: isLoggingOut,
-                    isDeletingAccount: isDeletingAccount,
-                    accountDeletionErrorMessage: accountDeletionErrorMessage,
                     errorMessage: settingsErrorMessage,
                     onBackToChat: {
                         transition(to: .myPage)
@@ -291,7 +289,6 @@ public struct LoginFlowView: View {
                     onLogout: {
                         logout()
                     },
-                    onDeleteAccount: deleteAccount,
                     onSelectTab: navigateFromTab
                 )
                     .transition(.opacity)
@@ -357,12 +354,15 @@ public struct LoginFlowView: View {
                     email: profileEmail,
                     major: profileMajor,
                     cohort: profileCohort,
+                    isDeletingAccount: isDeletingAccount,
+                    accountDeletionErrorMessage: accountDeletionErrorMessage,
                     onBack: {
                         transition(to: .myPage)
                     },
                     onDone: {
                         transition(to: .myPage)
                     },
+                    onDeleteAccount: deleteAccount,
                     onSelectTab: navigateFromTab
                 )
                     .transition(.opacity)
