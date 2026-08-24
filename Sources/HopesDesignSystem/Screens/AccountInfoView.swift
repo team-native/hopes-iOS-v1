@@ -9,33 +9,23 @@ public struct AccountInfoView: View {
     private let isSchoolVerified: Bool
     private let onBack: () -> Void
     private let onDone: () -> Void
-    private let isDeletingAccount: Bool
-    private let accountDeletionErrorMessage: String?
-    private let onDeleteAccount: (String) -> Void
     private let onSelectTab: (HopesTab) -> Void
-    @State private var isDeletionSheetPresented = false
 
     public init(
         email: String = "s26055@gsm.hs.kr",
         major: String = "인공지능소프트웨어과",
         cohort: String = "10기",
         isSchoolVerified: Bool = true,
-        isDeletingAccount: Bool = false,
-        accountDeletionErrorMessage: String? = nil,
         onBack: @escaping () -> Void = {},
         onDone: @escaping () -> Void = {},
-        onDeleteAccount: @escaping (String) -> Void = { _ in },
         onSelectTab: @escaping (HopesTab) -> Void = { _ in }
     ) {
         self.email = email
         self.major = major
         self.cohort = cohort
         self.isSchoolVerified = isSchoolVerified
-        self.isDeletingAccount = isDeletingAccount
-        self.accountDeletionErrorMessage = accountDeletionErrorMessage
         self.onBack = onBack
         self.onDone = onDone
-        self.onDeleteAccount = onDeleteAccount
         self.onSelectTab = onSelectTab
     }
 
@@ -51,29 +41,10 @@ public struct AccountInfoView: View {
                 .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
                 .padding(.top, 156)
 
-            HopesButton(
-                "회원탈퇴",
-                variant: .danger,
-                width: .fixed(330),
-                action: { isDeletionSheetPresented = true }
-            )
-            .padding(.top, 470)
-
             HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
                 .frame(maxHeight: .infinity, alignment: .bottom)
         }
         .ignoresSafeArea()
-        .sheet(isPresented: $isDeletionSheetPresented) {
-            AccountDeletionView(
-                isDeleting: isDeletingAccount,
-                errorMessage: accountDeletionErrorMessage,
-                onCancel: { isDeletionSheetPresented = false },
-                onDelete: onDeleteAccount
-            )
-            .presentationDetents([.medium])
-            .presentationDragIndicator(.visible)
-            .interactiveDismissDisabled(isDeletingAccount)
-        }
     }
 
     private var header: some View {
