@@ -145,6 +145,14 @@ public struct InquiryRequest: Encodable, Sendable {
     public let content: String
 }
 
+public struct DeleteAccountRequest: Encodable, Sendable, Equatable {
+    public let password: String
+
+    public init(password: String) {
+        self.password = password
+    }
+}
+
 public enum HopesAPIError: LocalizedError, Sendable, Equatable {
     case invalidResponse
     case unauthorized(String)
