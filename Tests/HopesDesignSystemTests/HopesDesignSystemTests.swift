@@ -35,6 +35,12 @@ func passwordPolicyMatchesServerRegex() {
 }
 
 @Test
+func deleteAccountRequestMatchesBackendPayload() throws {
+    let data = try JSONEncoder().encode(DeleteAccountRequest(password: "hopes123"))
+    #expect(String(decoding: data, as: UTF8.self) == #"{"password":"hopes123"}"#)
+}
+
+@Test
 func mainResponseMatchesServerPayload() throws {
     let payload = Data(#"{"chatList":[{"id":42,"title":"기숙사 생활","updatedAt":"2026-08-13T14:00:00Z"}],"newChat":false,"searchKeyword":null,"page":0,"size":50,"hasNext":false}"#.utf8)
     let response = try JSONDecoder().decode(MainResponse.self, from: payload)

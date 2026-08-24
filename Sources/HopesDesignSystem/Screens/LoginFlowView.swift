@@ -50,6 +50,8 @@ public struct LoginFlowView: View {
     @State private var isSendingInquiry = false
     @State private var inquiryErrorMessage: String?
     @State private var isLoggingOut = false
+    @State private var isDeletingAccount = false
+    @State private var accountDeletionErrorMessage: String?
     @State private var conversations: [ConversationHistoryView.Conversation] = []
     @State private var isLoadingConversations = false
     @State private var conversationErrorMessage: String?
@@ -352,12 +354,15 @@ public struct LoginFlowView: View {
                     email: profileEmail,
                     major: profileMajor,
                     cohort: profileCohort,
+                    isDeletingAccount: isDeletingAccount,
+                    accountDeletionErrorMessage: accountDeletionErrorMessage,
                     onBack: {
                         transition(to: .myPage)
                     },
                     onDone: {
                         transition(to: .myPage)
                     },
+                    onDeleteAccount: deleteAccount,
                     onSelectTab: navigateFromTab
                 )
                     .transition(.opacity)
@@ -667,6 +672,36 @@ public struct LoginFlowView: View {
                     handleAuthenticationFailure(error)
                     isLoggingOut = false
                     settingsErrorMessage = error.localizedDescription
+                }
+            }
+        }
+    }
+
+    private func deleteAccount(password: String) {
+        guard !isDeletingAccount else { return }
+        isDeletingAccount = true
+        accountDeletionErrorMessage = nil
+        Task {
+            do {
+                try await HopesAPIClient.shared.deleteMyAccount(password: password)
+                await MainActor.run {
+                    isDeletingAccount = false
+                    activeChat = nil
+                    conversations = []
+                    selectedConversationID = nil
+                    profileName = ""
+                    profileIntroduction = ""
+                    profileEmail = ""
+                    profileMajor = ""
+                    profileCohort = ""
+                    self.password = ""
+                    transition(to: .login)
+                }
+            } catch {
+                await MainActor.run {
+                    handleAuthenticationFailure(error)
+                    isDeletingAccount = false
+                    accountDeletionErrorMessage = error.localizedDescription
                 }
             }
         }

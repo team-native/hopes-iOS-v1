@@ -226,6 +226,16 @@ public actor HopesAPIClient {
         return response
     }
 
+    public func deleteMyAccount(password: String) async throws {
+        try await requestNoContent(
+            path: "/api/users/me",
+            method: "DELETE",
+            body: DeleteAccountRequest(password: password),
+            requiresAuthentication: true
+        )
+        try? await tokenStore.clear()
+    }
+
     private func authenticatedGet<Response: Decodable>(path: String) async throws -> Response {
         guard let url = URL(string: path, relativeTo: baseURL) else {
             throw HopesAPIError.invalidResponse
@@ -285,8 +295,7 @@ public actor HopesAPIClient {
         }
 
         guard 200..<300 ~= httpResponse.statusCode else {
-            let message = (try? decoder.decode(MessageEnvelope.self, from: data).message)
-                ?? "요청을 처리하지 못했습니다."
+            let message = serverMessage(from: data)
             if httpResponse.statusCode == 401 {
                 if requiresAuthentication {
                     try? await tokenStore.clear()
@@ -302,6 +311,70 @@ public actor HopesAPIClient {
             throw HopesAPIError.decoding
         }
     }
+
+    private func requestNoContent<Body: Encodable>(
+        path: String,
+        method: String,
+        body: Body,
+        requiresAuthentication: Bool
+    ) async throws {
+        guard let url = URL(string: path, relativeTo: baseURL) else {
+            throw HopesAPIError.invalidResponse
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = method
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        request.timeoutInterval = 20
+        request.httpBody = try encoder.encode(body)
+
+        if requiresAuthentication {
+            guard let token = try await tokenStore.token() else {
+                throw HopesAPIError.unauthorized("로그인이 필요합니다")
+            }
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+
+        let data: Data
+        let response: URLResponse
+        do {
+            (data, response) = try await session.data(for: request)
+        } catch {
+            throw HopesAPIError.transport(error.localizedDescription)
+        }
+
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw HopesAPIError.invalidResponse
+        }
+
+        guard 200..<300 ~= httpResponse.statusCode else {
+            let message = serverMessage(from: data)
+            if httpResponse.statusCode == 401 {
+                try? await tokenStore.clear()
+                throw HopesAPIError.unauthorized(message)
+            }
+            throw HopesAPIError.server(statusCode: httpResponse.statusCode, message: message)
+        }
+    }
+
+    private func serverMessage(from data: Data) -> String {
+        if let message = try? decoder.decode(MessageEnvelope.self, from: data).message {
+            return message
+        }
+        if let response = try? decoder.decode(ServerErrorEnvelope.self, from: data) {
+            return response.error.message
+        }
+        return "요청을 처리하지 못했습니다."
+    }
 }
 
 private struct EmptyRequest: Encodable {}
+
+private struct ServerErrorEnvelope: Decodable {
+    let error: Detail
+
+    struct Detail: Decodable {
+        let message: String
+    }
+}
