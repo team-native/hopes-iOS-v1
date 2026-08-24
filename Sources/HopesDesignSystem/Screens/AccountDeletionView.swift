@@ -2,23 +2,21 @@ import SwiftUI
 
 public struct AccountDeletionView: View {
     @State private var password = ""
-    @State private var isConfirmationPresented = false
-
     private let isDeleting: Bool
     private let errorMessage: String?
     private let onCancel: () -> Void
-    private let onDelete: (String) -> Void
+    private let onContinue: (String) -> Void
 
     public init(
         isDeleting: Bool = false,
         errorMessage: String? = nil,
         onCancel: @escaping () -> Void = {},
-        onDelete: @escaping (String) -> Void = { _ in }
+        onContinue: @escaping (String) -> Void = { _ in }
     ) {
         self.isDeleting = isDeleting
         self.errorMessage = errorMessage
         self.onCancel = onCancel
-        self.onDelete = onDelete
+        self.onContinue = onContinue
     }
 
     public var body: some View {
@@ -67,23 +65,11 @@ public struct AccountDeletionView: View {
                     variant: .danger,
                     width: .fill,
                     isEnabled: canDelete,
-                    action: { isConfirmationPresented = true }
+                    action: { onContinue(password) }
                 )
             }
         }
         .padding(24)
-        .confirmationDialog(
-            "정말 회원탈퇴 하시겠어요?",
-            isPresented: $isConfirmationPresented,
-            titleVisibility: .visible
-        ) {
-            Button("회원탈퇴", role: .destructive) {
-                onDelete(password)
-            }
-            Button("취소", role: .cancel) {}
-        } message: {
-            Text("계정과 학습 기록은 복구할 수 없습니다.")
-        }
     }
 
     private var canDelete: Bool {
