@@ -42,10 +42,16 @@ private struct HopesLaunchView: View {
         Color.hopesHeroGradient
             .ignoresSafeArea()
             .overlay {
-                Image("AppIcon60x60")
+                Image("HopesAppLogo")
                     .resizable()
                     .scaledToFit()
                     .frame(width: 104, height: 104)
+                    .clipShape(
+                        RoundedRectangle(
+                            cornerRadius: 23,
+                            style: .continuous
+                        )
+                    )
             }
     }
 }
