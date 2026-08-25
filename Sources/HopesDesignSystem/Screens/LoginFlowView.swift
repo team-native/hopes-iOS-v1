@@ -289,6 +289,9 @@ public struct LoginFlowView: View {
                     onLogout: {
                         logout()
                     },
+                    isDeletingAccount: isDeletingAccount,
+                    accountDeletionErrorMessage: accountDeletionErrorMessage,
+                    onDeleteAccount: deleteAccount,
                     onSelectTab: navigateFromTab
                 )
                     .transition(.opacity)
