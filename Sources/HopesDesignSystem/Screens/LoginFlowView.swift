@@ -699,9 +699,9 @@ public struct LoginFlowView: View {
                 }
             } catch {
                 await MainActor.run {
-                    handleAuthenticationFailure(error)
                     isDeletingAccount = false
                     accountDeletionErrorMessage = error.localizedDescription
+                    settingsErrorMessage = "회원탈퇴에 실패했습니다. \(error.localizedDescription)"
                 }
             }
         }
