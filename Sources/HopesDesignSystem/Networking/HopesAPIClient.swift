@@ -228,10 +228,11 @@ public actor HopesAPIClient {
 
     public func deleteMyAccount(password: String) async throws {
         try await requestNoContent(
-            path: "/api/users/me",
+            path: "/api/account",
             method: "DELETE",
             body: DeleteAccountRequest(password: password),
-            requiresAuthentication: true
+            requiresAuthentication: true,
+            clearStoredTokenOnUnauthorized: false
         )
         try? await tokenStore.clear()
     }
@@ -316,7 +317,8 @@ public actor HopesAPIClient {
         path: String,
         method: String,
         body: Body,
-        requiresAuthentication: Bool
+        requiresAuthentication: Bool,
+        clearStoredTokenOnUnauthorized: Bool = true
     ) async throws {
         guard let url = URL(string: path, relativeTo: baseURL) else {
             throw HopesAPIError.invalidResponse
@@ -351,7 +353,9 @@ public actor HopesAPIClient {
         guard 200..<300 ~= httpResponse.statusCode else {
             let message = serverMessage(from: data)
             if httpResponse.statusCode == 401 {
-                try? await tokenStore.clear()
+                if clearStoredTokenOnUnauthorized {
+                    try? await tokenStore.clear()
+                }
                 throw HopesAPIError.unauthorized(message)
             }
             throw HopesAPIError.server(statusCode: httpResponse.statusCode, message: message)
