@@ -1,5 +1,4 @@
 import SwiftUI
-import UIKit
 
 public struct HopesLogo: View {
     public enum Placement: Sendable {
@@ -53,31 +52,16 @@ public struct HopesLogo: View {
 
     @ViewBuilder
     private var logoImage: some View {
-        if let image = appIconImage {
-            Image(uiImage: image)
-                .resizable()
-                .scaledToFit()
-                .frame(width: iconSize, height: iconSize)
-        } else {
-            Text("h")
-                .font(.system(size: size == .compact ? 26 : 40, weight: .bold))
-                .foregroundStyle(Color.hopesBrandPrimary)
-                .frame(width: iconSize, height: iconSize)
-                .background(.white)
-                .clipShape(RoundedRectangle(cornerRadius: size == .compact ? 12 : 18))
-        }
-    }
-
-    private var appIconImage: UIImage? {
-        if let image = UIImage(named: "AppIcon60x60", in: .main, compatibleWith: nil) {
-            return image
-        }
-
-        let iconURL = Bundle.main
-            .urls(forResourcesWithExtension: "png", subdirectory: nil)?
-            .first { $0.deletingPathExtension().lastPathComponent.hasPrefix("AppIcon60x60") }
-
-        return iconURL.flatMap { UIImage(contentsOfFile: $0.path) }
+        Image("HopesAppLogo", bundle: .module)
+            .resizable()
+            .scaledToFit()
+            .frame(width: iconSize, height: iconSize)
+            .clipShape(
+                RoundedRectangle(
+                    cornerRadius: iconSize * 0.224,
+                    style: .continuous
+                )
+            )
     }
 
     private var primaryTextColor: Color {
