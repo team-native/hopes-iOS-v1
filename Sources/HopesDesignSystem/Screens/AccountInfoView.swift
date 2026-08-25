@@ -68,7 +68,7 @@ public struct AccountInfoView: View {
                 isDeleting: isDeletingAccount,
                 errorMessage: accountDeletionErrorMessage,
                 onCancel: { isDeletionSheetPresented = false },
-                onDelete: onDeleteAccount
+                onContinue: onDeleteAccount
             )
             .presentationDetents([.medium])
             .presentationDragIndicator(.visible)
