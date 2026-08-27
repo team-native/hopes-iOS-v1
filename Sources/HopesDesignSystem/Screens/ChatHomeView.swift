@@ -1,9 +1,7 @@
 import SwiftUI
-import UIKit
 
 public struct ChatHomeView: View {
     @State private var selectedTab: HopesTab = .chat
-    @State private var isKeyboardVisible = false
     @Binding private var message: String
     @FocusState private var isInputFocused: Bool
 
@@ -34,17 +32,16 @@ public struct ChatHomeView: View {
         ScrollViewReader { proxy in
             ScrollView(.vertical, showsIndicators: false) {
                 fixedDesign
-                    .frame(height: 728)
                     .id("chat-home-top")
             }
-            .scrollDisabled(!isInputFocused)
+            .scrollBounceBehavior(.basedOnSize)
             .scrollDismissesKeyboard(.interactively)
             .safeAreaInset(edge: .bottom, spacing: 0) {
                 VStack(spacing: 0) {
                     composer
                         .padding(.horizontal, 24)
 
-                    if !isInputFocused && !isKeyboardVisible {
+                    if !isInputFocused {
                         Color.clear
                             .frame(height: 10)
 
@@ -56,43 +53,21 @@ public struct ChatHomeView: View {
                 }
                 .background(Color.hopesBackground)
             }
-            .onReceive(
-                NotificationCenter.default.publisher(
-                    for: UIResponder.keyboardWillShowNotification
-                )
-            ) { _ in
-                isKeyboardVisible = true
-            }
-            .onReceive(
-                NotificationCenter.default.publisher(
-                    for: UIResponder.keyboardDidShowNotification
-                )
-            ) { _ in
-                withAnimation(.easeOut(duration: 0.2)) {
-                    proxy.scrollTo(1, anchor: .bottom)
-                }
-            }
-            .onReceive(
-                NotificationCenter.default.publisher(
-                    for: UIResponder.keyboardWillHideNotification
-                )
-            ) { _ in
-                isKeyboardVisible = false
-                withAnimation(.easeOut(duration: 0.2)) {
-                    proxy.scrollTo("chat-home-top", anchor: .top)
+            .onChange(of: isInputFocused) { _, isFocused in
+                guard isFocused else { return }
+                Task { @MainActor in
+                    await Task.yield()
+                    withAnimation(.easeOut(duration: 0.2)) {
+                        proxy.scrollTo("chat-home-bottom", anchor: .bottom)
+                    }
                 }
             }
             .background(Color.hopesBackground.ignoresSafeArea())
-            .ignoresSafeArea(.container, edges: [.top, .bottom])
         }
     }
 
     private var fixedDesign: some View {
-        ZStack(alignment: .top) {
-            Color.hopesBackground
-                .contentShape(Rectangle())
-                .onTapGesture { isInputFocused = false }
-
+        VStack(spacing: 0) {
             header
                 .padding(.horizontal, 24)
                 .padding(.top, 72)
@@ -101,7 +76,7 @@ public struct ChatHomeView: View {
                 )
 
             HopesLogo(size: .large)
-                .padding(.top, 184)
+                .padding(.top, 74)
                 .contentShape(Rectangle())
                 .simultaneousGesture(
                     TapGesture().onEnded { isInputFocused = false }
@@ -116,9 +91,9 @@ public struct ChatHomeView: View {
                     .font(.footnote)
                     .foregroundStyle(Color.hopesTextSecondary)
                     .multilineTextAlignment(.center)
-                    .frame(width: 318)
+                    .frame(maxWidth: 318)
             }
-            .padding(.top, 283)
+            .padding(.top, 49)
             .simultaneousGesture(
                 TapGesture().onEnded { isInputFocused = false }
             )
@@ -135,14 +110,18 @@ public struct ChatHomeView: View {
                 }
             }
             .padding(.horizontal, 24)
-            .padding(.top, 396)
+            .padding(.top, 70)
             .simultaneousGesture(
                 TapGesture().onEnded { isInputFocused = false }
             )
 
+            Color.clear
+                .frame(height: 24)
+                .id("chat-home-bottom")
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .ignoresSafeArea(.container, edges: .bottom)
+        .frame(maxWidth: .infinity, alignment: .top)
+        .contentShape(Rectangle())
+        .onTapGesture { isInputFocused = false }
     }
 
     private var header: some View {

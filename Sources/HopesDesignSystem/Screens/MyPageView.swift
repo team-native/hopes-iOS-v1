@@ -70,72 +70,70 @@ public struct MyPageView: View {
     }
 
     public var body: some View {
-        ZStack(alignment: .top) {
-            Color.hopesBackground
-                .contentShape(Rectangle())
-                .onTapGesture { focusedField = nil }
-
-            header
-                .padding(.horizontal, 24)
-                .padding(.trailing, 13)
-                .padding(.top, 70)
-
-            Text("마이페이지")
-                .font(.title.weight(.bold))
-                .foregroundStyle(Color.hopesTextPrimary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
-                .padding(.top, 138)
-
-            Button {
-                focusedField = nil
-                onOpenAccountInfo()
-            } label: {
-                accountCard
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            .buttonStyle(.plain)
-            .accessibilityHint("계정 정보 상세 화면을 엽니다")
-                .padding(.horizontal, 24)
-                .padding(.top, 184)
-
-            profileCard
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 24)
-                .padding(.top, 352)
-
-            HopesButton(
-                isSaving ? "저장 중" : "저장",
-                size: .regular,
-                width: .fixed(96),
-                isEnabled: canSave && !isLoading && !isSaving,
-                action: {
-                    focusedField = nil
-                    saveProfile()
-                }
-            )
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 30)
-            .padding(.top, 696)
-
-            if isLoading {
-                ProgressView("프로필을 불러오는 중...")
-                    .padding(.top, 660)
-            } else if let errorMessage {
-                Text(errorMessage)
-                    .font(.footnote)
-                    .foregroundStyle(Color.hopesDanger)
+        ScrollView(.vertical, showsIndicators: false) {
+            VStack(alignment: .leading, spacing: 0) {
+                header
                     .padding(.horizontal, 24)
-                    .padding(.top, 660)
-            }
+                    .padding(.trailing, 13)
+                    .padding(.top, 70)
 
+                Text("마이페이지")
+                    .font(.title.weight(.bold))
+                    .foregroundStyle(Color.hopesTextPrimary)
+                    .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
+                    .padding(.top, 26)
+
+                Button {
+                    focusedField = nil
+                    onOpenAccountInfo()
+                } label: {
+                    accountCard
+                }
+                .buttonStyle(.plain)
+                .accessibilityHint("계정 정보 상세 화면을 엽니다")
+                .padding(.horizontal, 24)
+                .padding(.top, 12)
+
+                profileCard
+                    .padding(.horizontal, 24)
+                    .padding(.top, 40)
+
+                if isLoading {
+                    ProgressView("프로필을 불러오는 중...")
+                        .frame(maxWidth: .infinity)
+                        .padding(.top, 12)
+                } else if let errorMessage {
+                    Text(errorMessage)
+                        .font(.footnote)
+                        .foregroundStyle(Color.hopesDanger)
+                        .padding(.horizontal, 24)
+                        .padding(.top, 12)
+                }
+
+                HopesButton(
+                    isSaving ? "저장 중" : "저장",
+                    size: .regular,
+                    width: .fixed(96),
+                    isEnabled: canSave && !isLoading && !isSaving,
+                    action: {
+                        focusedField = nil
+                        saveProfile()
+                    }
+                )
+                .padding(.horizontal, 30)
+                .padding(.top, 18)
+                .padding(.bottom, 24)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .scrollDismissesKeyboard(.interactively)
+        .safeAreaInset(edge: .bottom, spacing: 0) {
             HopesTabBar(selection: $selectedTab) { tab in
                 focusedField = nil
                 onSelectTab(tab)
             }
-                .frame(maxHeight: .infinity, alignment: .bottom)
         }
-        .ignoresSafeArea()
+        .background(Color.hopesBackground.ignoresSafeArea())
     }
 
     private var header: some View {

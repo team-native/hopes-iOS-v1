@@ -75,18 +75,19 @@ public struct SignUpView: View {
     }
 
     public var body: some View {
-        ZStack(alignment: .top) {
-            Color.hopesBackground
-                .ignoresSafeArea()
-                .contentShape(Rectangle())
-                .onTapGesture { focusedField = nil }
-            header
+        ScrollView(.vertical, showsIndicators: false) {
+            VStack(spacing: 0) {
+                header
 
-            signUpPanel
-                .padding(.horizontal, 24)
-                .padding(.top, 276)
-
+                signUpPanel
+                    .padding(.horizontal, 24)
+                    .padding(.top, 26)
+            }
+            .frame(maxWidth: .infinity)
         }
+        .scrollDismissesKeyboard(.interactively)
+        .scrollIndicators(.hidden)
+        .background(Color.hopesBackground.ignoresSafeArea())
         .onChange(of: email) {
             isEmailVerified = false
             verificationCode = ""
@@ -98,8 +99,18 @@ public struct SignUpView: View {
     private var signUpPanel: some View {
         VStack(spacing: 0) {
             signUpCard
+
             signUpButton
                 .padding(.top, 42)
+
+            if let message = errorMessage ?? statusMessage {
+                Text(message)
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(errorMessage == nil ? Color.hopesSuccess : Color.hopesDanger)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.top, 10)
+            }
+
             loginLink
                 .padding(.top, 10)
         }
@@ -107,20 +118,21 @@ public struct SignUpView: View {
     }
 
     private var header: some View {
-        ZStack(alignment: .topLeading) {
-            Color.hopesHeroGradient
+        VStack(alignment: .leading, spacing: 0) {
             HopesLogo(placement: .onBrand)
                 .padding(.leading, 32)
                 .padding(.top, 76)
+
             Text("학교 이메일로\n간단히 시작하기")
                 .font(.system(size: 28, weight: .bold))
                 .foregroundStyle(.white)
                 .lineSpacing(1)
                 .padding(.leading, 32)
-                .padding(.top, 154)
+                .padding(.top, 28)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .frame(height: 250)
-        .ignoresSafeArea(edges: .top)
+        .background(Color.hopesHeroGradient.ignoresSafeArea(edges: .top))
     }
 
     private var signUpCard: some View {
@@ -300,14 +312,6 @@ public struct SignUpView: View {
         .buttonStyle(.plain)
         .disabled(!isFormValid || isSigningUp)
         .opacity(isFormValid && !isSigningUp ? 1 : 0.45)
-        .overlay(alignment: .bottom) {
-            if let message = errorMessage ?? statusMessage {
-                Text(message)
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundStyle(errorMessage == nil ? Color.hopesSuccess : Color.hopesDanger)
-                    .offset(y: 18)
-            }
-        }
     }
 
     private var loginLink: some View {
