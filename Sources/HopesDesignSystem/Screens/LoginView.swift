@@ -64,6 +64,12 @@ public struct LoginView: View {
             let sheetOffset = collapsedOffset * (1 - sheetProgress)
             let expandedSheetTop = max(0, geometry.size.height - 502)
             let maximumShiftForSheet = expandedSheetTop * 0.5
+            // Designed-for-iPhone compatibility can expose a shorter effective
+            // height than a full iPhone screen. Preserve the Figma spacing on
+            // regular heights, but make room between the hero copy and cue on
+            // compact heights.
+            let heroTopPadding = min(168, max(80, geometry.size.height - 615))
+            let swipeCueBottomPadding: CGFloat = geometry.size.height < 800 ? 150 : 190
             let keyboardTop = keyboardFrame.height > 0
                 ? keyboardFrame.minY
                 : geometry.size.height
@@ -87,7 +93,7 @@ public struct LoginView: View {
 
                     hero
                         .padding(.horizontal, 32)
-                        .padding(.top, 168)
+                        .padding(.top, heroTopPadding)
 
                     Spacer(minLength: 20)
                 }
@@ -97,7 +103,7 @@ public struct LoginView: View {
                 .onTapGesture { focusedField = nil }
 
                 swipeCue
-                    .padding(.bottom, 190)
+                    .padding(.bottom, swipeCueBottomPadding)
                     .opacity(1 - sheetProgress)
                     .blur(radius: 5 * sheetProgress)
                     .allowsHitTesting(false)
@@ -385,12 +391,7 @@ public struct LoginView: View {
     }
 
     private var loginSheetContent: some View {
-        ZStack(alignment: .top) {
-            Color.clear
-                .contentShape(Rectangle())
-                .id(LoginScrollTarget.top)
-                .onTapGesture { focusedField = nil }
-
+        VStack(spacing: 0) {
             Capsule()
                 .fill(Color("HopesSheetHandle", bundle: .module))
                 .frame(width: 86, height: 5)
@@ -503,7 +504,7 @@ public struct LoginView: View {
                 .padding(.top, 8)
             }
             .padding(.horizontal, 32)
-            .padding(.top, 68)
+            .padding(.top, 43)
 
             HopesButton(
                 isLoading ? "로그인 중..." : "로그인",
@@ -513,8 +514,8 @@ public struct LoginView: View {
                     onLogin()
                 }
             )
-                .padding(.horizontal, 32)
-                .padding(.top, 355)
+            .padding(.horizontal, 32)
+            .padding(.top, 35)
 
             if let errorMessage {
                 Text(errorMessage)
@@ -522,7 +523,7 @@ public struct LoginView: View {
                     .foregroundStyle(Color.hopesDanger)
                     .frame(maxWidth: .infinity)
                     .padding(.horizontal, 32)
-                    .padding(.top, 407)
+                    .padding(.top, 8)
             }
 
             HStack(spacing: 0) {
@@ -541,10 +542,16 @@ public struct LoginView: View {
                 Spacer()
             }
             .padding(.horizontal, 32)
-            .padding(.top, errorMessage == nil ? 422 : 450)
+            .padding(.top, errorMessage == nil ? 21 : 27)
         }
-        .frame(height: 502, alignment: .top)
+        .frame(minHeight: 502, alignment: .top)
         .frame(maxWidth: .infinity)
+        .background {
+            Color.clear
+                .contentShape(Rectangle())
+                .onTapGesture { focusedField = nil }
+        }
+        .id(LoginScrollTarget.top)
     }
 }
 
