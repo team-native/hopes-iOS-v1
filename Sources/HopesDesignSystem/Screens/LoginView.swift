@@ -7,25 +7,9 @@ public struct LoginView: View {
         case password
     }
 
-    private struct FieldFramePreferenceKey: PreferenceKey {
-        static let defaultValue: [LoginField: CGRect] = [:]
-
-        static func reduce(
-            value: inout [LoginField: CGRect],
-            nextValue: () -> [LoginField: CGRect]
-        ) {
-            value.merge(nextValue(), uniquingKeysWith: { $1 })
-        }
-    }
-
     @State private var isPasswordVisible = false
     @State private var sheetProgress: CGFloat
     @State private var sheetDragStartProgress: CGFloat?
-    @State private var keyboardShift: CGFloat = 0
-    @State private var keyboardFrame: CGRect = .zero
-    @State private var fieldFrames: [LoginField: CGRect] = [:]
-    @State private var maximumKeyboardShift: CGFloat = 0
-    @State private var keyboardAnimationDuration: TimeInterval = 0.25
     @Binding private var email: String
     @Binding private var password: String
     @FocusState private var focusedField: LoginField?
@@ -62,26 +46,18 @@ public struct LoginView: View {
             let collapsedSheetRevealHeight = min(150, geometry.size.height)
             let collapsedOffset = max(0, 502 - collapsedSheetRevealHeight)
             let sheetOffset = collapsedOffset * (1 - sheetProgress)
-            let expandedSheetTop = max(0, geometry.size.height - 502)
-            let maximumShiftForSheet = expandedSheetTop * 0.5
             // Designed-for-iPhone compatibility can expose a shorter effective
             // height than a full iPhone screen. Preserve the Figma spacing on
             // regular heights, but make room between the hero copy and cue on
             // compact heights.
             let heroTopPadding = min(168, max(80, geometry.size.height - 615))
             let swipeCueBottomPadding: CGFloat = geometry.size.height < 800 ? 150 : 190
-            let keyboardTop = keyboardFrame.height > 0
-                ? keyboardFrame.minY
-                : geometry.size.height
-            let heroBackgroundHeight = keyboardTop
-            let currentSheetOffset = sheetOffset - keyboardShift
 
             ZStack(alignment: .bottom) {
                 Color.white
                     .ignoresSafeArea()
 
                 Color.hopesHeroGradient
-                    .frame(height: heroBackgroundHeight)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                     .ignoresSafeArea(edges: .top)
 
@@ -108,115 +84,18 @@ public struct LoginView: View {
                     .blur(radius: 5 * sheetProgress)
                     .allowsHitTesting(false)
 
-                loginSheet(maximumKeyboardShift: maximumShiftForSheet)
-                    .offset(y: currentSheetOffset)
+                loginSheet()
+                    .offset(y: sheetOffset)
                     .simultaneousGesture(sheetDragGesture(collapsedOffset: collapsedOffset))
-
-                // When the sheet moves up for the keyboard, its fixed 502pt
-                // content no longer reaches the physical bottom of the app
-                // window. Keep the same white sheet surface continuous down
-                // to that edge so the hero gradient cannot appear between the
-                // sheet and the translucent keyboard corners.
-                Color.white
-                    .frame(height: max(0, -currentSheetOffset))
-                    .frame(maxWidth: .infinity)
-                    .ignoresSafeArea(.keyboard, edges: .bottom)
-                    .allowsHitTesting(false)
-                    .zIndex(9)
-
-                // The keyboard's rounded bottom area is translucent in the
-                // simulator. Cover exactly the keyboard region in the app
-                // window so the hero gradient cannot show through it.
-                Color.white
-                    .frame(
-                        height: keyboardFrame.height > 0
-                            ? max(0, geometry.size.height - keyboardTop)
-                            : 0
-                    )
-                    .frame(maxWidth: .infinity)
-                    .ignoresSafeArea(.keyboard, edges: .bottom)
-                    .allowsHitTesting(false)
-                    .zIndex(10)
-            }
-            .onAppear {
-                maximumKeyboardShift = maximumShiftForSheet
-            }
-            .onChange(of: geometry.size.height) { _, height in
-                maximumKeyboardShift = max(0, height - 502) * 0.5
             }
         }
         .ignoresSafeArea(.container, edges: [.top, .bottom])
-        // Keep the fixed Figma sheet geometry stable while the keyboard is
-        // visible. Keyboard avoidance is handled explicitly below from the
-        // focused field's frame, rather than by shrinking this GeometryReader.
-        .ignoresSafeArea(.keyboard)
         .preferredColorScheme(.light)
         .onAppear {
             Task { @MainActor in
                 await Task.yield()
                 applyLightKeyboardAppearanceToInputs()
             }
-        }
-        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillChangeFrameNotification)) { notification in
-            guard let frame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else {
-                return
-            }
-
-            keyboardFrame = frame
-            keyboardAnimationDuration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval ?? 0.25
-            Task { @MainActor in
-                // Let the focused field's global frame settle after the keyboard layout pass.
-                await Task.yield()
-                applyLightKeyboardAppearanceToInputs()
-                updateKeyboardShift(
-                    using: frame,
-                    maximumShift: maximumKeyboardShift,
-                    animated: true
-                )
-            }
-        }
-        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { notification in
-            keyboardFrame = .zero
-            keyboardAnimationDuration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval ?? 0.25
-
-            withAnimation(.easeInOut(duration: keyboardAnimationDuration)) {
-                keyboardShift = 0
-            }
-        }
-    }
-
-    private func updateKeyboardShift(
-        using frame: CGRect,
-        maximumShift: CGFloat,
-        animated: Bool
-    ) {
-        guard frame.height > 0,
-              focusedField != nil,
-              let emailFrame = fieldFrames[.email],
-              let passwordFrame = fieldFrames[.password] else {
-            return
-        }
-
-        // The measured frame already includes the current keyboard translation.
-        // Add it back so changing focus does not accumulate or lose the sheet shift.
-        // The notification frame is in screen coordinates while the SwiftUI
-        // global frame is in the app window's coordinate space. Convert the
-        // keyboard frame before comparing the two. Keep both input fields
-        // visible; controls below them are intentionally allowed to remain
-        // behind the keyboard.
-        let keyboardFrameInWindow = keyboardFrameInWindow(frame)
-        let unshiftedInputBottom = max(emailFrame.maxY, passwordFrame.maxY) + keyboardShift
-        let requiredShift = min(
-            maximumShift,
-            max(0, unshiftedInputBottom + 14 - keyboardFrameInWindow.minY)
-        )
-
-        if animated {
-            withAnimation(.easeInOut(duration: keyboardAnimationDuration)) {
-                keyboardShift = requiredShift
-            }
-        } else {
-            keyboardShift = requiredShift
         }
     }
 
@@ -253,20 +132,6 @@ public struct LoginView: View {
         }
     }
 
-    private func keyboardFrameInWindow(_ frame: CGRect) -> CGRect {
-        #if os(iOS)
-        guard let window = UIApplication.shared.connectedScenes
-            .compactMap({ $0 as? UIWindowScene })
-            .flatMap(\.windows)
-            .first(where: { $0.isKeyWindow }) else {
-            return frame
-        }
-
-        return window.convert(frame, from: window.screen.coordinateSpace)
-        #else
-        return frame
-        #endif
-    }
 
     private var hero: some View {
         VStack(alignment: .leading, spacing: 13) {
@@ -347,34 +212,13 @@ public struct LoginView: View {
             }
     }
 
-    private func loginSheet(maximumKeyboardShift: CGFloat) -> some View {
-        GeometryReader { geometry in
-            ScrollView(.vertical, showsIndicators: false) {
-                loginSheetContent
-                    .frame(minHeight: 502, alignment: .top)
-            }
-            .scrollIndicators(.hidden)
-            .onPreferenceChange(FieldFramePreferenceKey.self) { frames in
-                fieldFrames = frames
-            }
-            .onChange(of: focusedField) { _, field in
-                if field == nil {
-                    withAnimation(.easeInOut(duration: keyboardAnimationDuration)) {
-                        keyboardShift = 0
-                    }
-                } else if keyboardFrame.height > 0 {
-                    Task { @MainActor in
-                        await Task.yield()
-                        applyLightKeyboardAppearanceToInputs()
-                        updateKeyboardShift(
-                            using: keyboardFrame,
-                            maximumShift: maximumKeyboardShift,
-                            animated: true
-                        )
-                    }
-                }
-            }
+    private func loginSheet() -> some View {
+        ScrollView(.vertical, showsIndicators: false) {
+            loginSheetContent
+                .frame(minHeight: 502, alignment: .top)
         }
+        .scrollIndicators(.hidden)
+        .scrollDismissesKeyboard(.interactively)
         .frame(height: 502)
         .background(.white)
         .clipShape(
@@ -425,14 +269,6 @@ public struct LoginView: View {
                         RoundedRectangle(cornerRadius: 14)
                             .stroke(Color(red: 217 / 255, green: 217 / 255, blue: 217 / 255), lineWidth: 1)
                     }
-                    .background {
-                        GeometryReader { geometry in
-                            Color.clear.preference(
-                                key: FieldFramePreferenceKey.self,
-                                value: [.email: geometry.frame(in: .global)]
-                            )
-                        }
-                    }
                     .padding(.top, 7)
                     .accessibilityLabel("이메일")
                     .id(LoginField.email)
@@ -475,14 +311,6 @@ public struct LoginView: View {
                         }
                         .buttonStyle(.plain)
                         .accessibilityLabel(isPasswordVisible ? "비밀번호 숨기기" : "비밀번호 보기")
-                    }
-                    .background {
-                        GeometryReader { geometry in
-                            Color.clear.preference(
-                                key: FieldFramePreferenceKey.self,
-                                value: [.password: geometry.frame(in: .global)]
-                            )
-                        }
                     }
                     .padding(.top, 9)
                     .accessibilityLabel("비밀번호")
