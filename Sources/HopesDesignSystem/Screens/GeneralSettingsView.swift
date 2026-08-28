@@ -21,25 +21,25 @@ public struct GeneralSettingsView: View {
     }
 
     public var body: some View {
-        ZStack(alignment: .top) {
-            Color.hopesBackground
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                header
+                    .padding(.top, 24)
 
-            header
-                .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
-                .padding(.top, 72)
+                generalCard
+                    .padding(.top, 32)
 
-            generalCard
-                .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
-                .padding(.top, 158)
-
-            actionButtons
-                .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
-                .padding(.top, 688)
-
-            HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
-                .frame(maxHeight: .infinity, alignment: .bottom)
+                actionButtons
+                    .padding(.top, 32)
+            }
+            .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
+            .padding(.bottom, 24)
         }
-        .ignoresSafeArea()
+        .scrollIndicators(.hidden)
+        .background(Color.hopesBackground.ignoresSafeArea())
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
+        }
     }
 
     private var header: some View {
@@ -94,7 +94,6 @@ public struct GeneralSettingsView: View {
                     .padding(.top, 28)
             }
         }
-        .frame(height: 180)
     }
 
     private var backToChatRow: some View {
@@ -135,7 +134,7 @@ public struct GeneralSettingsView: View {
             HopesButton(
                 "완료",
                 size: .regular,
-                width: .fixed(170),
+                width: .fill,
                 action: onDone
             )
 
@@ -143,7 +142,7 @@ public struct GeneralSettingsView: View {
                 "뒤로",
                 variant: .secondary,
                 size: .regular,
-                width: .fixed(170),
+                width: .fill,
                 action: onBack
             )
         }

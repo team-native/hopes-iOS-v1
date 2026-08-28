@@ -49,39 +49,44 @@ public struct ConversationHistoryView: View {
     }
 
     public var body: some View {
-        ZStack(alignment: .top) {
-            Color.hopesBackground
-                .contentShape(Rectangle())
-                .onTapGesture { isSearchFocused = false }
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                header
+                    .padding(.top, 24)
 
-            header
-                .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
-                .padding(.top, 76)
+                HopesButton(
+                    "+  새 대화 시작",
+                    variant: .secondary,
+                    size: .large,
+                    action: {
+                        isSearchFocused = false
+                        onNewConversation()
+                    }
+                )
+                .padding(.top, 24)
 
-            HopesButton(
-                "+  새 대화 시작",
-                variant: .secondary,
-                size: .large,
-                action: {
-                    isSearchFocused = false
-                    onNewConversation()
-                }
-            )
+                searchBar
+                    .padding(.top, 16)
+
+                conversationList
+                    .padding(.top, 20)
+            }
             .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
-            .padding(.top, 144)
-
-            searchBar
-                .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
-                .padding(.top, 208)
-
-            conversationList
-                .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
-                .padding(.top, 257)
-
-            HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
-                .frame(maxHeight: .infinity, alignment: .bottom)
+            .padding(.bottom, 24)
         }
-        .ignoresSafeArea()
+        .scrollIndicators(.hidden)
+        .scrollDismissesKeyboard(.interactively)
+        .simultaneousGesture(
+            TapGesture().onEnded { isSearchFocused = false },
+            including: .gesture
+        )
+        .background(Color.hopesBackground.ignoresSafeArea())
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            HopesTabBar(selection: $selectedTab) { tab in
+                isSearchFocused = false
+                onSelectTab(tab)
+            }
+        }
     }
 
     private var header: some View {
@@ -127,8 +132,7 @@ public struct ConversationHistoryView: View {
     }
 
     private var conversationList: some View {
-        ScrollView {
-            LazyVStack(alignment: .leading, spacing: 0) {
+        LazyVStack(alignment: .leading, spacing: 0) {
                 if isLoading {
                     ProgressView("대화 목록을 불러오는 중...")
                         .frame(maxWidth: .infinity)
@@ -151,14 +155,7 @@ public struct ConversationHistoryView: View {
                     title: "모든 기록",
                     conversations: filteredConversations
                 )
-            }
         }
-        .scrollIndicators(.hidden)
-        .scrollDismissesKeyboard(.interactively)
-        .simultaneousGesture(
-            TapGesture().onEnded { isSearchFocused = false }
-        )
-        .frame(height: 420)
     }
 
     private func conversationSection(

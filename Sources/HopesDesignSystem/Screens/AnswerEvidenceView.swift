@@ -43,33 +43,32 @@ public struct AnswerEvidenceView: View {
     }
 
     public var body: some View {
-        ZStack(alignment: .top) {
-            Color.hopesBackground
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                header
+                    .padding(.top, 24)
 
-            header
-                .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
-                .padding(.top, 72)
+                summaryCard
+                    .padding(.top, 32)
 
-            summaryCard
-                .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
-                .padding(.top, 156)
+                evidenceList
+                    .padding(.top, 28)
 
-            evidenceList
-                .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
-                .padding(.top, 390)
-
-            HopesButton(
-                "이 근거로 더 물어보기",
-                size: .large,
-                action: onAskMore
-            )
+                HopesButton(
+                    "이 근거로 더 물어보기",
+                    size: .large,
+                    action: onAskMore
+                )
+                .padding(.top, 28)
+            }
             .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
-            .padding(.top, 684)
-
-            HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
-                .frame(maxHeight: .infinity, alignment: .bottom)
+            .padding(.bottom, 24)
         }
-        .ignoresSafeArea()
+        .scrollIndicators(.hidden)
+        .background(Color.hopesBackground.ignoresSafeArea())
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
+        }
     }
 
     private var header: some View {
@@ -141,7 +140,6 @@ public struct AnswerEvidenceView: View {
         .padding(.horizontal, 24)
         .padding(.vertical, 24)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .frame(height: 190)
         .background(.white)
         .clipShape(
             RoundedRectangle(cornerRadius: HopesMetrics.cardCornerRadius)

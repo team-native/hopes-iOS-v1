@@ -41,26 +41,30 @@ public struct PersonalSettingsView: View {
     }
 
     public var body: some View {
-        ZStack(alignment: .top) {
-            Color.hopesBackground
-                .contentShape(Rectangle())
-                .onTapGesture { focusedField = nil }
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                header
+                    .padding(.top, 24)
 
-            header
-                .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
-                .padding(.top, 72)
-
-            promptCard
-                .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
-                .padding(.top, 158)
-
+                promptCard
+                    .padding(.top, 32)
+            }
+            .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
+            .padding(.bottom, 24)
+        }
+        .scrollIndicators(.hidden)
+        .scrollDismissesKeyboard(.interactively)
+        .simultaneousGesture(
+            TapGesture().onEnded { focusedField = nil },
+            including: .gesture
+        )
+        .background(Color.hopesBackground.ignoresSafeArea())
+        .safeAreaInset(edge: .bottom, spacing: 0) {
             HopesTabBar(selection: $selectedTab) { tab in
                 focusedField = nil
                 onSelectTab(tab)
             }
-                .frame(maxHeight: .infinity, alignment: .bottom)
         }
-        .ignoresSafeArea()
     }
 
     private var header: some View {
@@ -141,7 +145,6 @@ public struct PersonalSettingsView: View {
                 }
             }
         }
-        .frame(height: 408)
     }
 
     private var promptEditor: some View {

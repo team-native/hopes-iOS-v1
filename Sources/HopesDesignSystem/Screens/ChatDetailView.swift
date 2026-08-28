@@ -48,38 +48,34 @@ public struct ChatDetailView: View {
     }
 
     public var body: some View {
-        GeometryReader { geometry in
-            ZStack(alignment: .top) {
-                Color.hopesBackground
-                    .contentShape(Rectangle())
-                    .onTapGesture { isReplyFocused = false }
+        VStack(spacing: 0) {
+            header
+                .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
+                .padding(.top, 16)
+                .padding(.bottom, 20)
+                .simultaneousGesture(
+                    TapGesture().onEnded { isReplyFocused = false }
+                )
 
-                header
-                    .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
-                    .padding(.top, 72)
-                    .simultaneousGesture(
-                        TapGesture().onEnded { isReplyFocused = false }
-                    )
+            messageList
+        }
+        .background(Color.hopesBackground.ignoresSafeArea())
+        // 키보드가 표시되면 시스템 Safe Area가 작성 영역을 자동으로 위로 밀어 올립니다.
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            VStack(spacing: 0) {
+                composer
 
-                messageList
-                    .padding(.top, 132)
-                    .padding(.bottom, isReplyFocused ? 74 : 158)
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            .background(Color.hopesBackground.ignoresSafeArea())
-            .overlay(alignment: .bottom) {
-                VStack(spacing: 0) {
-                    composer
-
-                    if !isReplyFocused {
-                        HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
+                if !isReplyFocused {
+                    HopesTabBar(selection: $selectedTab) { tab in
+                        isReplyFocused = false
+                        onSelectTab(tab)
                     }
                 }
-                .frame(maxWidth: .infinity)
-                .offset(y: isReplyFocused ? 0 : geometry.safeAreaInsets.bottom)
             }
+            .background(Color.hopesBackground)
         }
-        .ignoresSafeArea(.container, edges: [.top, .bottom])
+        .contentShape(Rectangle())
+        .onTapGesture { isReplyFocused = false }
     }
 
     private var header: some View {

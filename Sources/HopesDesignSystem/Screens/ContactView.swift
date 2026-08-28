@@ -42,30 +42,33 @@ public struct ContactView: View {
     }
 
     public var body: some View {
-        ZStack(alignment: .top) {
-            Color.hopesBackground
-                .contentShape(Rectangle())
-                .onTapGesture { focusedField = nil }
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                header
+                    .padding(.top, 24)
 
-            header
-                .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
-                .padding(.top, 72)
+                contactCard
+                    .padding(.top, 32)
 
-            contactCard
-                .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
-                .padding(.top, 156)
-
-            mailInformation
-                .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
-                .padding(.top, 624)
-
+                mailInformation
+                    .padding(.top, 20)
+            }
+            .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
+            .padding(.bottom, 24)
+        }
+        .scrollIndicators(.hidden)
+        .scrollDismissesKeyboard(.interactively)
+        .simultaneousGesture(
+            TapGesture().onEnded { focusedField = nil },
+            including: .gesture
+        )
+        .background(Color.hopesBackground.ignoresSafeArea())
+        .safeAreaInset(edge: .bottom, spacing: 0) {
             HopesTabBar(selection: $selectedTab) { tab in
                 focusedField = nil
                 onSelectTab(tab)
             }
-                .frame(maxHeight: .infinity, alignment: .bottom)
         }
-        .ignoresSafeArea()
     }
 
     private var header: some View {
@@ -148,7 +151,6 @@ public struct ContactView: View {
             }
             .padding(.top, 16)
         }
-        .frame(height: 420)
     }
 
     private var emailField: some View {

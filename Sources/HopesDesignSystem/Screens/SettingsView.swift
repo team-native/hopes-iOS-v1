@@ -48,49 +48,43 @@ public struct SettingsView: View {
     }
 
     public var body: some View {
-        ZStack(alignment: .top) {
-            Color.hopesBackground
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                header
+                    .padding(.top, 24)
 
-            header
-                .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
-                .padding(.top, 76)
+                HopesActionRow(
+                    title: "개인 설정",
+                    subtitle: "시스템 프롬프트 관리",
+                    action: onOpenPersonalSettings
+                )
+                .padding(.top, 34)
 
-            HopesActionRow(
-                title: "개인 설정",
-                subtitle: "시스템 프롬프트 관리",
-                action: onOpenPersonalSettings
-            )
-            .frame(width: 314)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.leading, 37)
-            .padding(.top, 150)
+                HopesActionRow(
+                    title: "문의하기",
+                    subtitle: contactEmail,
+                    action: onOpenContact
+                )
+                .padding(.top, 12)
 
-            HopesActionRow(
-                title: "문의하기",
-                subtitle: contactEmail,
-                action: onOpenContact
-            )
-            .frame(width: 314)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.leading, 37)
-            .padding(.top, 217)
+                accountActions
+                    .padding(.top, 32)
 
-            accountActions
-                .padding(.horizontal, 29)
-                .padding(.top, 318)
-
-            if let errorMessage {
-                Text(errorMessage)
-                    .font(.footnote)
-                    .foregroundStyle(Color.hopesDanger)
-                    .padding(.horizontal, 30)
-                    .padding(.top, 490)
+                if let errorMessage {
+                    Text(errorMessage)
+                        .font(.footnote)
+                        .foregroundStyle(Color.hopesDanger)
+                        .padding(.top, 18)
+                }
             }
-
-            HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
-                .frame(maxHeight: .infinity, alignment: .bottom)
+            .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
+            .padding(.bottom, 24)
         }
-        .ignoresSafeArea()
+        .scrollIndicators(.hidden)
+        .background(Color.hopesBackground.ignoresSafeArea())
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
+        }
         .sheet(isPresented: $isDeletionSheetPresented, onDismiss: {
             guard let password = deletionPasswordAwaitingConfirmation else { return }
             pendingDeletionPassword = password

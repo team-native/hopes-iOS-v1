@@ -40,29 +40,30 @@ public struct AccountInfoView: View {
     }
 
     public var body: some View {
-        ZStack(alignment: .top) {
-            Color.hopesBackground
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                header
+                    .padding(.top, 24)
 
-            header
-                .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
-                .padding(.top, 72)
+                accountCard
+                    .padding(.top, 32)
 
-            accountCard
-                .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
-                .padding(.top, 156)
-
-            HopesButton(
-                "회원탈퇴",
-                variant: .danger,
-                width: .fixed(330),
-                action: { isDeletionSheetPresented = true }
-            )
-            .padding(.top, 470)
-
-            HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
-                .frame(maxHeight: .infinity, alignment: .bottom)
+                HopesButton(
+                    "회원탈퇴",
+                    variant: .danger,
+                    width: .fill,
+                    action: { isDeletionSheetPresented = true }
+                )
+                .padding(.top, 30)
+            }
+            .padding(.horizontal, HopesMetrics.screenHorizontalPadding)
+            .padding(.bottom, 24)
         }
-        .ignoresSafeArea()
+        .scrollIndicators(.hidden)
+        .background(Color.hopesBackground.ignoresSafeArea())
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            HopesTabBar(selection: $selectedTab, onSelect: onSelectTab)
+        }
         .sheet(isPresented: $isDeletionSheetPresented) {
             AccountDeletionView(
                 isDeleting: isDeletingAccount,
@@ -138,7 +139,6 @@ public struct AccountInfoView: View {
             .foregroundStyle(Color.hopesTextPrimary)
             .padding(.top, 4)
         }
-        .frame(height: 284)
     }
 
 }
