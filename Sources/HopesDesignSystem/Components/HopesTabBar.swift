@@ -46,27 +46,19 @@ public struct HopesTabBar: View {
     }
 
     public var body: some View {
-        GeometryReader { geometry in
-            ZStack(alignment: .top) {
-                Color.white
-
-                HStack(spacing: 0) {
-                    ForEach(HopesTab.allCases, id: \.self) { tab in
-                        tabButton(tab)
-                            .frame(maxWidth: .infinity)
-                    }
-                }
-                .frame(width: geometry.size.width, height: 84, alignment: .top)
-            }
-            .frame(width: geometry.size.width, height: 84, alignment: .top)
-            .overlay(alignment: .top) {
-                Rectangle()
-                    .fill(Color.hopesBorder)
-                    .frame(height: 1)
+        HStack(spacing: 0) {
+            ForEach(HopesTab.allCases, id: \.self) { tab in
+                tabButton(tab)
+                    .frame(maxWidth: .infinity)
             }
         }
-        .frame(maxWidth: .infinity)
-        .frame(height: 84, alignment: .top)
+        .frame(height: 84)
+        .background(.white)
+        .overlay(alignment: .top) {
+            Rectangle()
+                .fill(Color.hopesBorder)
+                .frame(height: 1)
+        }
         .ignoresSafeArea(.container, edges: .bottom)
     }
 
@@ -75,7 +67,7 @@ public struct HopesTabBar: View {
             selection = tab
             onSelect(tab)
         } label: {
-            ZStack(alignment: .top) {
+            VStack(spacing: 4) {
                 Image(tab.iconName)
                     .resizable()
                     .renderingMode(.template)
@@ -86,7 +78,6 @@ public struct HopesTabBar: View {
                             : Color.hopesTextPlaceholder
                     )
                     .frame(width: 24, height: 24)
-                    .position(x: 30, y: 24)
 
                 Text(tab.title)
                     .font(.system(size: 10, weight: .semibold))
@@ -95,13 +86,11 @@ public struct HopesTabBar: View {
                             ? Color(red: 13 / 255, green: 138 / 255, blue: 229 / 255)
                             : Color.hopesTextSecondary
                     )
-                    .frame(width: 46, height: 12, alignment: .center)
-                    .position(x: 30, y: 47)
+                    .lineLimit(1)
             }
-            .frame(width: 60, height: 84, alignment: .top)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .contentShape(Rectangle())
         }
-        .frame(width: 60, height: 84, alignment: .top)
         .buttonStyle(.plain)
         .accessibilityLabel(tab.title)
         .accessibilityAddTraits(selection == tab ? .isSelected : [])

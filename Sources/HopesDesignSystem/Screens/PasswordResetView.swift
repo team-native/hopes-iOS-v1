@@ -48,12 +48,7 @@ public struct PasswordResetView: View {
     }
 
     public var body: some View {
-        ZStack(alignment: .topLeading) {
-            Color.hopesBackground
-                .ignoresSafeArea()
-                .contentShape(Rectangle())
-                .onTapGesture { focusedField = nil }
-
+        ScrollView {
             VStack(alignment: .leading, spacing: 0) {
                 Button {
                     focusedField = nil
@@ -154,18 +149,23 @@ public struct PasswordResetView: View {
                         }
                     }
 
-                Spacer()
-
                 HopesButton("완료", size: .large, isEnabled: canComplete) {
                     focusedField = nil
                     onComplete()
                 }
+                .padding(.top, 36)
             }
             .padding(.horizontal, 28)
             .padding(.top, 24)
             .padding(.bottom, 34)
         }
-        .ignoresSafeArea(.keyboard, edges: .bottom)
+        .scrollIndicators(.hidden)
+        .scrollDismissesKeyboard(.interactively)
+        .simultaneousGesture(
+            TapGesture().onEnded { focusedField = nil },
+            including: .gesture
+        )
+        .background(Color.hopesBackground.ignoresSafeArea())
         .onChange(of: codeRequested) { _, requested in
             if requested {
                 focusedField = .code
