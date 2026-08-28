@@ -36,6 +36,10 @@ public struct ChatHomeView: View {
             }
             .scrollBounceBehavior(.basedOnSize)
             .scrollDismissesKeyboard(.interactively)
+            .simultaneousGesture(
+                TapGesture().onEnded { isInputFocused = false },
+                including: .gesture
+            )
             .safeAreaInset(edge: .bottom, spacing: 0) {
                 VStack(spacing: 0) {
                     composer

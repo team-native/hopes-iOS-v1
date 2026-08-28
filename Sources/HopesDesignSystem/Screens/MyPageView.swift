@@ -127,6 +127,10 @@ public struct MyPageView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .scrollDismissesKeyboard(.interactively)
+        .simultaneousGesture(
+            TapGesture().onEnded { focusedField = nil },
+            including: .gesture
+        )
         .safeAreaInset(edge: .bottom, spacing: 0) {
             HopesTabBar(selection: $selectedTab) { tab in
                 focusedField = nil
