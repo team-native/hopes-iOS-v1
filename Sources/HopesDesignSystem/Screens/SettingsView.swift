@@ -231,6 +231,7 @@ public struct SettingsView: View {
 
 private struct SettingsAccountDeletionView: View {
     @State private var password = ""
+    @FocusState private var isPasswordFocused: Bool
 
     let isDeleting: Bool
     let errorMessage: String?
@@ -264,6 +265,7 @@ private struct SettingsAccountDeletionView: View {
                         RoundedRectangle(cornerRadius: HopesMetrics.controlCornerRadius)
                             .stroke(Color.hopesBorder, lineWidth: 1)
                     }
+                    .focused($isPasswordFocused)
             }
             .padding(.top, 28)
 
@@ -287,6 +289,10 @@ private struct SettingsAccountDeletionView: View {
                 )
             }
         }
+        .simultaneousGesture(
+            TapGesture().onEnded { isPasswordFocused = false },
+            including: .gesture
+        )
         .padding(24)
     }
 }

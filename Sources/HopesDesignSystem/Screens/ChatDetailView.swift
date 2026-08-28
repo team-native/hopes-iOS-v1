@@ -51,6 +51,8 @@ public struct ChatDetailView: View {
         GeometryReader { geometry in
             ZStack(alignment: .top) {
                 Color.hopesBackground
+                    .contentShape(Rectangle())
+                    .onTapGesture { isReplyFocused = false }
 
                 header
                     .padding(.horizontal, HopesMetrics.screenHorizontalPadding)

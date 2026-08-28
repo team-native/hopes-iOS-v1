@@ -86,6 +86,10 @@ public struct SignUpView: View {
             .frame(maxWidth: .infinity)
         }
         .scrollDismissesKeyboard(.interactively)
+        .simultaneousGesture(
+            TapGesture().onEnded { focusedField = nil },
+            including: .gesture
+        )
         .scrollIndicators(.hidden)
         .background(Color.hopesBackground.ignoresSafeArea())
         .onChange(of: email) {
