@@ -53,7 +53,7 @@ public struct HopesTabBar: View {
             }
         }
         .frame(height: 84)
-        .background(.white)
+        .background(Color.white.ignoresSafeArea(edges: .bottom))
         .overlay(alignment: .top) {
             Rectangle()
                 .fill(Color.hopesBorder)
