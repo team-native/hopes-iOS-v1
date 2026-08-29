@@ -159,7 +159,8 @@ public struct SignUpView: View {
                     placeholder: "영문·숫자 포함 8~15자",
                     kind: .password,
                     isPasswordVisible: $isPasswordVisible,
-                    focus: .password
+                    focus: .password,
+                    validationMessage: passwordValidationMessage
                 )
                 signUpField(
                     "비밀번호 확인",
@@ -167,7 +168,8 @@ public struct SignUpView: View {
                     placeholder: "비밀번호 재입력",
                     kind: .password,
                     isPasswordVisible: $isPasswordConfirmVisible,
-                    focus: .passwordConfirm
+                    focus: .passwordConfirm,
+                    validationMessage: passwordConfirmValidationMessage
                 )
             }
             .padding(.horizontal, 16)
@@ -228,7 +230,8 @@ public struct SignUpView: View {
         placeholder: String,
         kind: SignUpFieldKind = .plain,
         isPasswordVisible: Binding<Bool>? = nil,
-        focus: SignUpField? = nil
+        focus: SignUpField? = nil,
+        validationMessage: String? = nil
     ) -> some View {
         VStack(alignment: .leading, spacing: 7) {
             Text(title)
@@ -294,10 +297,16 @@ public struct SignUpView: View {
             .clipShape(RoundedRectangle(cornerRadius: HopesMetrics.controlCornerRadius))
             .overlay {
                 RoundedRectangle(cornerRadius: HopesMetrics.controlCornerRadius)
-                    .stroke(Color.hopesBorder, lineWidth: 1)
+                    .stroke(validationMessage == nil ? Color.hopesBorder : Color.hopesDanger, lineWidth: 1)
+            }
+
+            if let validationMessage {
+                Text(validationMessage)
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(Color.hopesDanger)
             }
         }
-        .frame(height: 76, alignment: .top)
+        .frame(height: validationMessage == nil ? 76 : 94, alignment: .top)
     }
 
     private var signUpButton: some View {
@@ -350,6 +359,18 @@ public struct SignUpView: View {
 
     private var isVerificationCodeValid: Bool {
         verificationCode.range(of: #"^\d{6}$"#, options: .regularExpression) != nil
+    }
+
+    private var passwordValidationMessage: String? {
+        guard !password.isEmpty, !PasswordPolicy.isValid(password) else { return nil }
+        return "영문과 숫자를 포함한 8~15자로 입력해주세요."
+    }
+
+    private var passwordConfirmValidationMessage: String? {
+        guard !passwordConfirm.isEmpty, PasswordPolicy.isValid(password), password != passwordConfirm else {
+            return nil
+        }
+        return "비밀번호가 일치하지 않습니다."
     }
 
     private var isFormValid: Bool {
