@@ -27,7 +27,7 @@ public struct OnboardingView: View {
                     .foregroundStyle(.white)
                     .lineSpacing(3)
                     .padding(.horizontal, 32)
-                    .padding(.top, 88)
+                    .padding(.top, 48)
 
                 Text("질문에 학년, 관심 전공, 상황을 같이 적으면 더 현실적인 답변을 받을 수 있어요.")
                     .font(.system(size: 16, weight: .medium))
@@ -51,7 +51,7 @@ public struct OnboardingView: View {
                     )
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.top, 56)
+                .padding(.top, 40)
 
                 HopesButton(
                     "채팅 시작하기",

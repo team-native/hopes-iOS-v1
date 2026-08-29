@@ -74,13 +74,13 @@ public struct ChatHomeView: View {
         VStack(spacing: 0) {
             header
                 .padding(.horizontal, 24)
-                .padding(.top, 72)
+                .padding(.top, 16)
                 .simultaneousGesture(
                     TapGesture().onEnded { isInputFocused = false }
                 )
 
             HopesLogo(size: .large)
-                .padding(.top, 74)
+                .padding(.top, 54)
                 .contentShape(Rectangle())
                 .simultaneousGesture(
                     TapGesture().onEnded { isInputFocused = false }
@@ -97,7 +97,7 @@ public struct ChatHomeView: View {
                     .multilineTextAlignment(.center)
                     .frame(maxWidth: 318)
             }
-            .padding(.top, 49)
+            .padding(.top, 22)
             .simultaneousGesture(
                 TapGesture().onEnded { isInputFocused = false }
             )
@@ -114,7 +114,7 @@ public struct ChatHomeView: View {
                 }
             }
             .padding(.horizontal, 24)
-            .padding(.top, 70)
+            .padding(.top, 40)
             .simultaneousGesture(
                 TapGesture().onEnded { isInputFocused = false }
             )
