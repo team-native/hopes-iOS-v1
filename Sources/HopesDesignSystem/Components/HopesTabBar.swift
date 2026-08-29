@@ -53,13 +53,12 @@ public struct HopesTabBar: View {
             }
         }
         .frame(height: 84)
-        .background(Color.white.ignoresSafeArea(edges: .bottom))
+        .background(.white)
         .overlay(alignment: .top) {
             Rectangle()
                 .fill(Color.hopesBorder)
                 .frame(height: 1)
         }
-        .ignoresSafeArea(.container, edges: .bottom)
     }
 
     private func tabButton(_ tab: HopesTab) -> some View {
