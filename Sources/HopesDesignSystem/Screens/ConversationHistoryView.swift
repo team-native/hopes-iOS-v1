@@ -82,9 +82,11 @@ public struct ConversationHistoryView: View {
         )
         .background(Color.hopesBackground.ignoresSafeArea())
         .safeAreaInset(edge: .bottom, spacing: 0) {
-            HopesTabBar(selection: $selectedTab) { tab in
-                isSearchFocused = false
-                onSelectTab(tab)
+            if !isSearchFocused {
+                HopesTabBar(selection: $selectedTab) { tab in
+                    isSearchFocused = false
+                    onSelectTab(tab)
+                }
             }
         }
     }

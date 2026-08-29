@@ -132,9 +132,11 @@ public struct MyPageView: View {
             including: .gesture
         )
         .safeAreaInset(edge: .bottom, spacing: 0) {
-            HopesTabBar(selection: $selectedTab) { tab in
-                focusedField = nil
-                onSelectTab(tab)
+            if focusedField == nil {
+                HopesTabBar(selection: $selectedTab) { tab in
+                    focusedField = nil
+                    onSelectTab(tab)
+                }
             }
         }
         .background(Color.hopesBackground.ignoresSafeArea())
@@ -212,7 +214,7 @@ public struct MyPageView: View {
         }
         .padding(.horizontal, cardContentHorizontalPadding)
         .padding(.vertical, 24)
-        .frame(width: 354, height: 326, alignment: .topLeading)
+        .frame(maxWidth: .infinity, minHeight: 326, maxHeight: 326, alignment: .topLeading)
         .background(.white)
         .clipShape(
             RoundedRectangle(cornerRadius: HopesMetrics.cardCornerRadius)
@@ -266,7 +268,7 @@ public struct MyPageView: View {
         .foregroundStyle(Color.hopesTextPrimary)
         .padding(.horizontal, cardContentHorizontalPadding)
         .padding(.vertical, 24)
-        .frame(width: 354, height: 128, alignment: .topLeading)
+        .frame(maxWidth: .infinity, minHeight: 128, maxHeight: 128, alignment: .topLeading)
         .background(.white)
         .clipShape(
             RoundedRectangle(cornerRadius: HopesMetrics.cardCornerRadius)
