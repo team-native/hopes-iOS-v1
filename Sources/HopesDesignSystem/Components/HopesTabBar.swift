@@ -46,19 +46,23 @@ public struct HopesTabBar: View {
     }
 
     public var body: some View {
-        HStack(spacing: 0) {
-            ForEach(HopesTab.allCases, id: \.self) { tab in
-                tabButton(tab)
-                    .frame(maxWidth: .infinity)
+        GeometryReader { geometry in
+            HStack(spacing: 0) {
+                ForEach(HopesTab.allCases, id: \.self) { tab in
+                    tabButton(tab)
+                        .frame(maxWidth: .infinity)
+                }
+            }
+            .frame(height: max(0, 84 - geometry.safeAreaInsets.bottom))
+            .frame(maxWidth: .infinity, alignment: .top)
+            .background(.white)
+            .overlay(alignment: .top) {
+                Rectangle()
+                    .fill(Color.hopesBorder)
+                    .frame(height: 1)
             }
         }
         .frame(height: 84)
-        .background(.white)
-        .overlay(alignment: .top) {
-            Rectangle()
-                .fill(Color.hopesBorder)
-                .frame(height: 1)
-        }
     }
 
     private func tabButton(_ tab: HopesTab) -> some View {
