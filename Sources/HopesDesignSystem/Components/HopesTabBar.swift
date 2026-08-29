@@ -34,6 +34,7 @@ public enum HopesTab: String, CaseIterable, Sendable {
 }
 
 public struct HopesTabBar: View {
+    private let contentHeight: CGFloat = 56
     @Binding private var selection: HopesTab
     private let onSelect: (HopesTab) -> Void
 
@@ -46,23 +47,20 @@ public struct HopesTabBar: View {
     }
 
     public var body: some View {
-        GeometryReader { geometry in
-            HStack(spacing: 0) {
-                ForEach(HopesTab.allCases, id: \.self) { tab in
-                    tabButton(tab)
-                        .frame(maxWidth: .infinity)
-                }
-            }
-            .frame(height: max(0, 84 - geometry.safeAreaInsets.bottom))
-            .frame(maxWidth: .infinity, alignment: .top)
-            .background(.white)
-            .overlay(alignment: .top) {
-                Rectangle()
-                    .fill(Color.hopesBorder)
-                    .frame(height: 1)
+        HStack(spacing: 0) {
+            ForEach(HopesTab.allCases, id: \.self) { tab in
+                tabButton(tab)
+                    .frame(maxWidth: .infinity)
             }
         }
-        .frame(height: 84)
+        .frame(height: contentHeight)
+        .frame(maxWidth: .infinity)
+        .background(.white)
+        .overlay(alignment: .top) {
+            Rectangle()
+                .fill(Color.hopesBorder)
+                .frame(height: 1)
+        }
     }
 
     private func tabButton(_ tab: HopesTab) -> some View {
