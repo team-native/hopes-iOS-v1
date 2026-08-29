@@ -4,7 +4,7 @@ import SwiftUI
 @main
 @MainActor
 struct HopesApp: App {
-    @State private var isSplashVisible = true
+    @State private var isLaunchVisible = true
 
     var body: some Scene {
         WindowGroup {
@@ -24,14 +24,14 @@ struct HopesApp: App {
                     isContactInitiallyOpen: ProcessInfo.processInfo.arguments.contains("--show-contact")
                 )
 
-                if isSplashVisible {
+                if isLaunchVisible {
                     HopesLaunchView()
                 }
             }
             .task {
                 try? await Task.sleep(for: .seconds(1))
                 guard !Task.isCancelled else { return }
-                isSplashVisible = false
+                isLaunchVisible = false
             }
         }
     }
@@ -39,19 +39,13 @@ struct HopesApp: App {
 
 private struct HopesLaunchView: View {
     var body: some View {
-        Color.hopesHeroGradient
+        Color.white
             .ignoresSafeArea()
             .overlay {
-                Image("HopesAppLogo")
+                Image("HopesLaunchLogo")
                     .resizable()
                     .scaledToFit()
                     .frame(width: 104, height: 104)
-                    .clipShape(
-                        RoundedRectangle(
-                            cornerRadius: 23,
-                            style: .continuous
-                        )
-                    )
             }
     }
 }

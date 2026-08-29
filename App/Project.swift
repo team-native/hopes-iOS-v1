@@ -15,7 +15,8 @@ let project = Project(
             infoPlist: .extendingDefault(
                 with: [
                     "UILaunchScreen": [
-                        "UIColorName": "HopesBrandPrimary",
+                        "UIColorName": "HopesLaunchBackground",
+                        "UIImageName": "HopesLaunchLogo",
                     ],
                     "UIUserInterfaceStyle": "Light",
                     "NSAppTransportSecurity": [
