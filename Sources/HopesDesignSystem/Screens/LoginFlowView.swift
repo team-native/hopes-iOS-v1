@@ -357,15 +357,12 @@ public struct LoginFlowView: View {
                     email: profileEmail,
                     major: profileMajor,
                     cohort: profileCohort,
-                    isDeletingAccount: isDeletingAccount,
-                    accountDeletionErrorMessage: accountDeletionErrorMessage,
                     onBack: {
                         transition(to: .myPage)
                     },
                     onDone: {
                         transition(to: .myPage)
                     },
-                    onDeleteAccount: deleteAccount,
                     onSelectTab: navigateFromTab
                 )
                     .transition(.opacity)

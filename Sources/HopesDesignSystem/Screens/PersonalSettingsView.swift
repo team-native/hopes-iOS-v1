@@ -60,9 +60,11 @@ public struct PersonalSettingsView: View {
         )
         .background(Color.hopesBackground.ignoresSafeArea())
         .safeAreaInset(edge: .bottom, spacing: 0) {
-            HopesTabBar(selection: $selectedTab) { tab in
-                focusedField = nil
-                onSelectTab(tab)
+            if focusedField == nil {
+                HopesTabBar(selection: $selectedTab) { tab in
+                    focusedField = nil
+                    onSelectTab(tab)
+                }
             }
         }
     }
