@@ -14,6 +14,8 @@ let project = Project(
             deploymentTargets: .iOS("17.0"),
             infoPlist: .extendingDefault(
                 with: [
+                    "CFBundleShortVersionString": "$(MARKETING_VERSION)",
+                    "CFBundleVersion": "$(CURRENT_PROJECT_VERSION)",
                     "UILaunchScreen": [
                         "UIColorName": "HopesLaunchBackground",
                         "UIImageName": "HopesLaunchLogo",
@@ -39,6 +41,8 @@ let project = Project(
             settings: .settings(
                 base: [
                     "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
+                    "MARKETING_VERSION": "1.0.1",
+                    "CURRENT_PROJECT_VERSION": "2",
                 ]
             )
         ),
