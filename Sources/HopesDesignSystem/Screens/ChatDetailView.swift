@@ -6,7 +6,6 @@ public struct ChatDetailView: View {
     }
 
     @State private var selectedTab: HopesTab = .chat
-    @State private var isSaved = false
     @Binding private var reply: String
     @FocusState private var isReplyFocused: Bool
 
@@ -107,16 +106,6 @@ public struct ChatDetailView: View {
                     .foregroundStyle(Color.hopesTextSecondary)
             }
             Spacer(minLength: 8)
-
-            HopesButton(
-                isSaved ? "저장됨" : "저장",
-                variant: .secondary,
-                size: .small,
-                width: .fixed(isSaved ? 64 : 54)
-            ) {
-                isReplyFocused = false
-                isSaved.toggle()
-            }
         }
     }
 
