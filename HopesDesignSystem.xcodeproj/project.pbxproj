@@ -30,6 +30,9 @@
 		987B24C6A616C8925DEFB6FE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BD95F9E4E322823649F46F02 /* Assets.xcassets */; };
 		9F54FAF77D98FD02C156B13B /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65426EF2F9D46FA2F7ED581C /* LoginView.swift */; };
 		A017239666D0BBB822C5D073 /* ChatHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2917DD60F2C7E2E6E8458691 /* ChatHomeView.swift */; };
+		A1B2C3D4E5F60718293A4B5C /* HopesAPIClient+Account.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B2C3D4E5F60718293A4B5C /* HopesAPIClient+Account.swift */; };
+		A1B2C3D4E5F60718293A4B5D /* HopesAPIClient+Authentication.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B2C3D4E5F60718293A4B5D /* HopesAPIClient+Authentication.swift */; };
+		A1B2C3D4E5F60718293A4B5E /* HopesAPIClient+Chats.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B2C3D4E5F60718293A4B5E /* HopesAPIClient+Chats.swift */; };
 		ACC6EBB93D0B473B2A998CAC /* Inter-SemiBold.otf in Resources */ = {isa = PBXBuildFile; fileRef = BB37C4829C885934FD88FEB1 /* Inter-SemiBold.otf */; };
 		B3561CCCF247C3DC9A964ADE /* LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 9467D2EB6C60D521BB8C7F6C /* LICENSE.txt */; };
 		B5DC7C0986A35F51232D42CF /* MyPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E05202390E13D67A68B767F1 /* MyPageView.swift */; };
@@ -130,7 +133,7 @@
 		7D8B28CEBC56A41C2CF56022 /* HopesActionRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HopesActionRow.swift; sourceTree = "<group>"; };
 		7DC0E7300A73BC075AD9A967 /* HopesStatTile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HopesStatTile.swift; sourceTree = "<group>"; };
 		8229377FB12E6AC78153C208 /* HopesFont.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HopesFont.swift; sourceTree = "<group>"; };
-		8794C2AB63BF1D4BEA318CA3 /* HopesAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HopesAPIClient.swift; sourceTree = "<group>"; };
+		8794C2AB63BF1D4BEA318CA3 /* HopesAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Client/HopesAPIClient.swift; sourceTree = "<group>"; };
 		88497311E9D713E88CCC119E /* HopesDesignSystemTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "HopesDesignSystemTests-Info.plist"; sourceTree = "<group>"; };
 		8F15427619A42E8FFE9D0105 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		9467D2EB6C60D521BB8C7F6C /* LICENSE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
@@ -141,6 +144,9 @@
 		A6C3CBB7C31AFF4347DB81A1 /* LoginFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginFlowView.swift; sourceTree = "<group>"; };
 		B3F01EEAB25EF4E994D40A63 /* ConversationHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationHistoryView.swift; sourceTree = "<group>"; };
 		B82E6A4A7706C9593066BD32 /* HopesDesignSystem_HopesDesignSystem.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HopesDesignSystem_HopesDesignSystem.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
+		B1B2C3D4E5F60718293A4B5C /* HopesAPIClient+Account.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Features/HopesAPIClient+Account.swift"; sourceTree = "<group>"; };
+		B1B2C3D4E5F60718293A4B5D /* HopesAPIClient+Authentication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Features/HopesAPIClient+Authentication.swift"; sourceTree = "<group>"; };
+		B1B2C3D4E5F60718293A4B5E /* HopesAPIClient+Chats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Features/HopesAPIClient+Chats.swift"; sourceTree = "<group>"; };
 		BB37C4829C885934FD88FEB1 /* Inter-SemiBold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-SemiBold.otf"; sourceTree = "<group>"; };
 		BD95F9E4E322823649F46F02 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C7AC53941C3A81044113D4B8 /* HopesDesignSystem_HopesDesignSystem-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "HopesDesignSystem_HopesDesignSystem-Info.plist"; sourceTree = "<group>"; };
@@ -149,13 +155,13 @@
 		D12CC8862E79265913898EFB /* HopesToast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HopesToast.swift; sourceTree = "<group>"; };
 		D3106EB932D453712DA27E5A /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		D371C250AC9BC0232761EA1E /* HopesColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HopesColor.swift; sourceTree = "<group>"; };
-		D67AC6C6A813CF0A5EF48A20 /* APIModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIModels.swift; sourceTree = "<group>"; };
+		D67AC6C6A813CF0A5EF48A20 /* APIModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models/APIModels.swift; sourceTree = "<group>"; };
 		D7D4CD6FA460DCE6D1229E33 /* HopesTabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HopesTabBar.swift; sourceTree = "<group>"; };
 		DB73FA2E47B0880AF24FB9AC /* HopesDesignSystem-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "HopesDesignSystem-Info.plist"; sourceTree = "<group>"; };
 		DF311C32FBBCD619E14D95E7 /* HopesDesignSystemTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HopesDesignSystemTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E05202390E13D67A68B767F1 /* MyPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPageView.swift; sourceTree = "<group>"; };
 		EB917C344FD0F92880A72EA0 /* SignUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpView.swift; sourceTree = "<group>"; };
-		F416ED77564915F0C2557549 /* AccessTokenStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessTokenStore.swift; sourceTree = "<group>"; };
+		F416ED77564915F0C2557549 /* AccessTokenStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Storage/AccessTokenStore.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -290,6 +296,9 @@
 				F416ED77564915F0C2557549 /* AccessTokenStore.swift */,
 				D67AC6C6A813CF0A5EF48A20 /* APIModels.swift */,
 				8794C2AB63BF1D4BEA318CA3 /* HopesAPIClient.swift */,
+				B1B2C3D4E5F60718293A4B5C /* HopesAPIClient+Account.swift */,
+				B1B2C3D4E5F60718293A4B5D /* HopesAPIClient+Authentication.swift */,
+				B1B2C3D4E5F60718293A4B5E /* HopesAPIClient+Chats.swift */,
 			);
 			path = Networking;
 			sourceTree = "<group>";
@@ -516,6 +525,9 @@
 				6F941B79D5E456365FE39342 /* APIModels.swift in Sources */,
 				736B0DEFCC160475AF684992 /* AccessTokenStore.swift in Sources */,
 				587CFDB93E443A2AA86C01F7 /* HopesAPIClient.swift in Sources */,
+				A1B2C3D4E5F60718293A4B5C /* HopesAPIClient+Account.swift in Sources */,
+				A1B2C3D4E5F60718293A4B5D /* HopesAPIClient+Authentication.swift in Sources */,
+				A1B2C3D4E5F60718293A4B5E /* HopesAPIClient+Chats.swift in Sources */,
 				84FA7C0E51161E5128FDA2D2 /* AccountInfoView.swift in Sources */,
 				51554DF77EEF4F43811E15B1 /* AnswerEvidenceView.swift in Sources */,
 				659B1CEFFC611030534FAE41 /* ChatDetailView.swift in Sources */,
