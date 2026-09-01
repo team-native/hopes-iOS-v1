@@ -98,7 +98,7 @@ public struct ChatDetailView: View {
 
             VStack(alignment: .leading, spacing: 1) {
                 Text(title)
-                    .font(.system(size: 24, weight: .bold))
+                    .font(.system(size: 20, weight: .bold))
                     .foregroundStyle(Color.hopesTextPrimary)
                     .lineLimit(1)
                 Text("홉스 AI 답변")
