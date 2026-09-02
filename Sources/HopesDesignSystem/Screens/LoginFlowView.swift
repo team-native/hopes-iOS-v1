@@ -57,6 +57,7 @@ public struct LoginFlowView: View {
     @State private var conversationErrorMessage: String?
     @State private var selectedConversationID: Int64?
     @State private var activeChat: ChatResponse?
+    @State private var shouldRestoreActiveChat = false
     @State private var isLoadingChat = false
     @State private var isSendingMessage = false
     @State private var chatErrorMessage: String?
@@ -199,6 +200,7 @@ public struct LoginFlowView: View {
                     isSending: isSendingMessage,
                     errorMessage: chatErrorMessage,
                     onBack: {
+                        shouldRestoreActiveChat = false
                         transition(to: .chatHome)
                     },
                     onShowSources: {
@@ -235,6 +237,7 @@ public struct LoginFlowView: View {
                     },
                     onSelectConversation: { conversation in
                         selectedConversationID = conversation.id
+                        shouldRestoreActiveChat = true
                         transition(to: .chatDetail)
                         loadChat(id: conversation.id)
                     },
@@ -740,6 +743,7 @@ public struct LoginFlowView: View {
         isLoadingChat = true
         chatErrorMessage = nil
         activeChat = nil
+        shouldRestoreActiveChat = true
         transition(to: .chatDetail)
         Task {
             do {
@@ -854,7 +858,12 @@ public struct LoginFlowView: View {
         case .home:
             transition(to: .onboarding)
         case .chat:
-            transition(to: .chatHome)
+            if shouldRestoreActiveChat,
+               activeChat != nil || selectedConversationID != nil || isLoadingChat {
+                transition(to: .chatDetail)
+            } else {
+                transition(to: .chatHome)
+            }
         case .history:
             transition(to: .conversationHistory)
         case .settings:
