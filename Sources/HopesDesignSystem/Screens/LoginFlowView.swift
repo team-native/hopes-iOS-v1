@@ -1,7 +1,7 @@
 import SwiftUI
 
 public struct LoginFlowView: View {
-    private enum Screen {
+    enum Screen {
         case guide
         case login
         case passwordReset
@@ -19,50 +19,50 @@ public struct LoginFlowView: View {
         case accountInfo
     }
 
-    @State private var screen: Screen
-    @State private var email = ""
-    @State private var password = ""
-    @State private var isLoggingIn = false
-    @State private var loginErrorMessage: String?
-    @State private var passwordResetCode = ""
-    @State private var passwordResetNewPassword = ""
-    @State private var isPasswordResetCodeRequested = false
-    @State private var isPasswordResetVerified = false
-    @State private var isResettingPassword = false
-    @State private var passwordResetErrorMessage: String?
-    @State private var signUpEmail = ""
-    @State private var name = ""
-    @State private var major = ""
-    @State private var cohort = ""
-    @State private var chatMessage = ""
-    @State private var chatReply = ""
-    @State private var profileName = "임서하"
-    @State private var profileIntroduction = ""
-    @State private var profileEmail = ""
-    @State private var profileMajor = ""
-    @State private var profileCohort = ""
-    @State private var isLoadingProfile = false
-    @State private var isSavingProfile = false
-    @State private var profileErrorMessage: String?
-    @State private var customPrompt = ""
-    @State private var isSavingSettings = false
-    @State private var settingsErrorMessage: String?
-    @State private var isSendingInquiry = false
-    @State private var inquiryErrorMessage: String?
-    @State private var isLoggingOut = false
-    @State private var isDeletingAccount = false
-    @State private var accountDeletionErrorMessage: String?
-    @State private var conversations: [ConversationHistoryView.Conversation] = []
-    @State private var isLoadingConversations = false
-    @State private var conversationErrorMessage: String?
-    @State private var selectedConversationID: Int64?
-    @State private var activeChat: ChatResponse?
-    @State private var shouldRestoreActiveChat = false
-    @State private var isLoadingChat = false
-    @State private var isSendingMessage = false
-    @State private var chatErrorMessage: String?
+    @State var screen: Screen
+    @State var email = ""
+    @State var password = ""
+    @State var isLoggingIn = false
+    @State var loginErrorMessage: String?
+    @State var passwordResetCode = ""
+    @State var passwordResetNewPassword = ""
+    @State var isPasswordResetCodeRequested = false
+    @State var isPasswordResetVerified = false
+    @State var isResettingPassword = false
+    @State var passwordResetErrorMessage: String?
+    @State var signUpEmail = ""
+    @State var name = ""
+    @State var major = ""
+    @State var cohort = ""
+    @State var chatMessage = ""
+    @State var chatReply = ""
+    @State var profileName = "임서하"
+    @State var profileIntroduction = ""
+    @State var profileEmail = ""
+    @State var profileMajor = ""
+    @State var profileCohort = ""
+    @State var isLoadingProfile = false
+    @State var isSavingProfile = false
+    @State var profileErrorMessage: String?
+    @State var customPrompt = ""
+    @State var isSavingSettings = false
+    @State var settingsErrorMessage: String?
+    @State var isSendingInquiry = false
+    @State var inquiryErrorMessage: String?
+    @State var isLoggingOut = false
+    @State var isDeletingAccount = false
+    @State var accountDeletionErrorMessage: String?
+    @State var conversations: [ConversationHistoryView.Conversation] = []
+    @State var isLoadingConversations = false
+    @State var conversationErrorMessage: String?
+    @State var selectedConversationID: Int64?
+    @State var activeChat: ChatResponse?
+    @State var shouldRestoreActiveChat = false
+    @State var isLoadingChat = false
+    @State var isSendingMessage = false
+    @State var chatErrorMessage: String?
 
-    private let onLogin: () -> Void
+    let onLogin: () -> Void
     private let onSignUp: (SignUpFormData) -> Void
     private let onStartChat: () -> Void
     private let restoresSessionOnLaunch: Bool
@@ -400,476 +400,6 @@ public struct LoginFlowView: View {
         )
     }
 
-    private func transition(to screen: Screen) {
-        withAnimation(.easeOut(duration: 0.16)) {
-            self.screen = screen
-        }
-        if screen == .chatHome || screen == .conversationHistory {
-            loadConversations()
-        } else if screen == .myPage {
-            loadProfile()
-        } else if screen == .settings || screen == .personalSettings {
-            loadSettings()
-        }
-    }
-
-    private func restoreSession() {
-        Task {
-            do {
-                guard try await HopesAPIClient.shared.hasStoredAccessToken() else { return }
-                let response = try await HopesAPIClient.shared.main()
-                let mappedConversations = response.chatList.map { summary in
-                    ConversationHistoryView.Conversation(
-                        id: summary.id,
-                        title: summary.title,
-                        period: conversationPeriod(for: summary.updatedAt)
-                    )
-                }
-                await MainActor.run {
-                    conversations = mappedConversations
-                    withAnimation(.easeOut(duration: 0.16)) {
-                        screen = .onboarding
-                    }
-                }
-            } catch {
-                await MainActor.run {
-                    handleAuthenticationFailure(error)
-                }
-            }
-        }
-    }
-
-    private func handleAuthenticationFailure(_ error: Error) {
-        guard let apiError = error as? HopesAPIError,
-              case .unauthorized = apiError
-        else { return }
-        activeChat = nil
-        selectedConversationID = nil
-        conversations = []
-        password = ""
-        loginErrorMessage = "로그인이 만료되었습니다. 다시 로그인해주세요."
-        transition(to: .login)
-    }
-
-    private func requestPasswordResetCode() {
-        guard !isResettingPassword else { return }
-        isResettingPassword = true
-        isPasswordResetVerified = false
-        passwordResetErrorMessage = nil
-        Task {
-            do {
-                try await HopesAPIClient.shared.requestPasswordReset(email: email.trimmingCharacters(in: .whitespacesAndNewlines))
-                await MainActor.run {
-                    isResettingPassword = false
-                    isPasswordResetCodeRequested = true
-                }
-            } catch {
-                await MainActor.run {
-                    isResettingPassword = false
-                    passwordResetErrorMessage = error.localizedDescription
-                }
-            }
-        }
-    }
-
-    private func resetPassword() {
-        guard !isResettingPassword else { return }
-        guard PasswordPolicy.isValid(passwordResetNewPassword) else {
-            passwordResetErrorMessage = "비밀번호는 영문과 숫자를 포함해 8~15자로 입력해주세요."
-            return
-        }
-        isResettingPassword = true
-        passwordResetErrorMessage = nil
-        Task {
-            do {
-                try await HopesAPIClient.shared.resetPassword(
-                    email: email.trimmingCharacters(in: .whitespacesAndNewlines),
-                    code: passwordResetCode,
-                    newPassword: passwordResetNewPassword
-                )
-                await MainActor.run {
-                    isResettingPassword = false
-                    isPasswordResetVerified = true
-                }
-            } catch {
-                await MainActor.run {
-                    isResettingPassword = false
-                    passwordResetErrorMessage = error.localizedDescription
-                }
-            }
-        }
-    }
-
-    private func completePasswordReset() {
-        guard isPasswordResetVerified else { return }
-        clearPasswordResetState()
-        password = ""
-        transition(to: .login)
-    }
-
-    private func clearPasswordResetState() {
-        isPasswordResetCodeRequested = false
-        isPasswordResetVerified = false
-        isResettingPassword = false
-        passwordResetCode = ""
-        passwordResetNewPassword = ""
-        passwordResetErrorMessage = nil
-    }
-
-    private func loadProfile() {
-        guard !isLoadingProfile else { return }
-        isLoadingProfile = true
-        profileErrorMessage = nil
-        Task {
-            do {
-                let profile = try await HopesAPIClient.shared.myPage()
-                await MainActor.run {
-                    apply(profile: profile)
-                    isLoadingProfile = false
-                }
-            } catch {
-                await MainActor.run {
-                    handleAuthenticationFailure(error)
-                    isLoadingProfile = false
-                    profileErrorMessage = error.localizedDescription
-                }
-            }
-        }
-    }
-
-    private func saveProfile(_ profile: MyPageView.Profile) {
-        guard !isSavingProfile else { return }
-        isSavingProfile = true
-        profileErrorMessage = nil
-        Task {
-            do {
-                let updated = try await HopesAPIClient.shared.updateMyPage(
-                    username: profile.name,
-                    nickname: nil,
-                    profileInfo: profile.introduction
-                )
-                await MainActor.run {
-                    apply(profile: updated)
-                    isSavingProfile = false
-                }
-            } catch {
-                await MainActor.run {
-                    handleAuthenticationFailure(error)
-                    isSavingProfile = false
-                    profileErrorMessage = error.localizedDescription
-                }
-            }
-        }
-    }
-
-    private func loadSettings() {
-        Task {
-            do {
-                let settings = try await HopesAPIClient.shared.settings()
-                await MainActor.run {
-                    customPrompt = settings.customPrompt
-                    apply(profile: settings.accountSetting)
-                    settingsErrorMessage = nil
-                }
-            } catch {
-                await MainActor.run {
-                    handleAuthenticationFailure(error)
-                    settingsErrorMessage = error.localizedDescription
-                }
-            }
-        }
-    }
-
-    private func saveSettings(prompt: String) {
-        guard !isSavingSettings else { return }
-        isSavingSettings = true
-        settingsErrorMessage = nil
-        Task {
-            do {
-                let settings = try await HopesAPIClient.shared.updateSettings(customPrompt: prompt)
-                await MainActor.run {
-                    customPrompt = settings.customPrompt
-                    isSavingSettings = false
-                }
-            } catch {
-                await MainActor.run {
-                    handleAuthenticationFailure(error)
-                    isSavingSettings = false
-                    settingsErrorMessage = error.localizedDescription
-                }
-            }
-        }
-    }
-
-    private func deleteAllConversations() {
-        guard !isSavingSettings else { return }
-        isSavingSettings = true
-        settingsErrorMessage = nil
-        Task {
-            do {
-                let settings = try await HopesAPIClient.shared.updateSettings(
-                    customPrompt: nil,
-                    deleteAllChats: true
-                )
-                await MainActor.run {
-                    customPrompt = settings.customPrompt
-                    conversations = []
-                    activeChat = nil
-                    selectedConversationID = nil
-                    isSavingSettings = false
-                }
-            } catch {
-                await MainActor.run {
-                    handleAuthenticationFailure(error)
-                    isSavingSettings = false
-                    settingsErrorMessage = error.localizedDescription
-                }
-            }
-        }
-    }
-
-    private func apply(profile: UserResponse) {
-        profileName = profile.username
-        profileIntroduction = profile.profileInfo
-        profileEmail = profile.email
-        profileMajor = profile.major ?? "미설정"
-        profileCohort = profile.cohort.map { "\($0)기" } ?? "미설정"
-    }
-
-    private func submitInquiry(content: String) {
-        guard !isSendingInquiry else { return }
-        isSendingInquiry = true
-        inquiryErrorMessage = nil
-        Task {
-            do {
-                _ = try await HopesAPIClient.shared.submitInquiry(content: content)
-                await MainActor.run {
-                    isSendingInquiry = false
-                    transition(to: .settings)
-                }
-            } catch {
-                await MainActor.run {
-                    handleAuthenticationFailure(error)
-                    isSendingInquiry = false
-                    inquiryErrorMessage = error.localizedDescription
-                }
-            }
-        }
-    }
-
-    private func logout() {
-        guard !isLoggingOut else { return }
-        isLoggingOut = true
-        settingsErrorMessage = nil
-        Task {
-            do {
-                _ = try await HopesAPIClient.shared.logout()
-                await MainActor.run {
-                    isLoggingOut = false
-                    activeChat = nil
-                    conversations = []
-                    transition(to: .login)
-                }
-            } catch {
-                await MainActor.run {
-                    handleAuthenticationFailure(error)
-                    isLoggingOut = false
-                    settingsErrorMessage = error.localizedDescription
-                }
-            }
-        }
-    }
-
-    private func deleteAccount(password: String) {
-        guard !isDeletingAccount else { return }
-        isDeletingAccount = true
-        accountDeletionErrorMessage = nil
-        Task {
-            do {
-                try await HopesAPIClient.shared.deleteMyAccount(password: password)
-                await MainActor.run {
-                    isDeletingAccount = false
-                    activeChat = nil
-                    conversations = []
-                    selectedConversationID = nil
-                    profileName = ""
-                    profileIntroduction = ""
-                    profileEmail = ""
-                    profileMajor = ""
-                    profileCohort = ""
-                    self.password = ""
-                    transition(to: .login)
-                }
-            } catch {
-                await MainActor.run {
-                    isDeletingAccount = false
-                    accountDeletionErrorMessage = error.localizedDescription
-                    settingsErrorMessage = "회원탈퇴에 실패했습니다. \(error.localizedDescription)"
-                }
-            }
-        }
-    }
-
-    private func loadConversations(searchKeyword: String? = nil) {
-        guard !isLoadingConversations else { return }
-        isLoadingConversations = true
-        conversationErrorMessage = nil
-        Task {
-            do {
-                let response = try await HopesAPIClient.shared.main(searchKeyword: searchKeyword)
-                let mappedConversations = response.chatList.map { summary in
-                    ConversationHistoryView.Conversation(
-                        id: summary.id,
-                        title: summary.title,
-                        period: conversationPeriod(for: summary.updatedAt)
-                    )
-                }
-                await MainActor.run {
-                    conversations = mappedConversations
-                    isLoadingConversations = false
-                }
-            } catch {
-                await MainActor.run {
-                    handleAuthenticationFailure(error)
-                    isLoadingConversations = false
-                    conversationErrorMessage = error.localizedDescription
-                }
-            }
-        }
-    }
-
-    private func startNewChat(with initialMessage: String? = nil) {
-        guard !isLoadingChat else { return }
-        isLoadingChat = true
-        chatErrorMessage = nil
-        activeChat = nil
-        shouldRestoreActiveChat = true
-        transition(to: .chatDetail)
-        Task {
-            do {
-                let createdChat = try await HopesAPIClient.shared.createChat(title: nil)
-                await MainActor.run {
-                    activeChat = createdChat
-                    selectedConversationID = createdChat.id
-                    isLoadingChat = false
-                }
-                if let initialMessage, !initialMessage.isEmpty {
-                    await MainActor.run { chatMessage = "" }
-                    sendMessage(initialMessage)
-                }
-            } catch {
-                await MainActor.run {
-                    handleAuthenticationFailure(error)
-                    isLoadingChat = false
-                    chatErrorMessage = error.localizedDescription
-                }
-            }
-        }
-    }
-
-    private func loadChat(id: Int64) {
-        guard !isLoadingChat else { return }
-        isLoadingChat = true
-        chatErrorMessage = nil
-        activeChat = nil
-        Task {
-            do {
-                let chat = try await HopesAPIClient.shared.chat(id: id)
-                await MainActor.run {
-                    activeChat = chat
-                    isLoadingChat = false
-                }
-            } catch {
-                await MainActor.run {
-                    handleAuthenticationFailure(error)
-                    isLoadingChat = false
-                    chatErrorMessage = error.localizedDescription
-                }
-            }
-        }
-    }
-
-    private func sendMessage(_ content: String) {
-        guard let chatID = activeChat?.id ?? selectedConversationID,
-              !isSendingMessage
-        else { return }
-        isSendingMessage = true
-        chatErrorMessage = nil
-        Task {
-            do {
-                let updatedChat = try await HopesAPIClient.shared.sendMessage(
-                    chatID: chatID,
-                    content: content
-                )
-                await MainActor.run {
-                    activeChat = updatedChat
-                    selectedConversationID = updatedChat.id
-                    isSendingMessage = false
-                    loadConversations()
-                }
-            } catch {
-                await MainActor.run {
-                    handleAuthenticationFailure(error)
-                    isSendingMessage = false
-                    chatErrorMessage = error.localizedDescription
-                }
-            }
-        }
-    }
-
-    private func conversationPeriod(for updatedAt: String) -> ConversationHistoryView.Conversation.Period {
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        let date = formatter.date(from: updatedAt)
-            ?? ISO8601DateFormatter().date(from: updatedAt)
-        guard let date else { return .older }
-        return date >= Date().addingTimeInterval(-7 * 24 * 60 * 60) ? .recent : .older
-    }
-
-    private func login() {
-        guard !isLoggingIn else { return }
-        isLoggingIn = true
-        loginErrorMessage = nil
-
-        Task {
-            do {
-                try await HopesAPIClient.shared.login(
-                    username: email.trimmingCharacters(in: .whitespacesAndNewlines),
-                    password: password
-                )
-                await MainActor.run {
-                    isLoggingIn = false
-                    password = ""
-                    onLogin()
-                    transition(to: .onboarding)
-                }
-            } catch {
-                await MainActor.run {
-                    isLoggingIn = false
-                    loginErrorMessage = (error as? LocalizedError)?.errorDescription
-                        ?? "로그인에 실패했습니다."
-                }
-            }
-        }
-    }
-
-    private func navigateFromTab(_ tab: HopesTab) {
-        switch tab {
-        case .home:
-            transition(to: .onboarding)
-        case .chat:
-            if shouldRestoreActiveChat,
-               activeChat != nil || selectedConversationID != nil || isLoadingChat {
-                transition(to: .chatDetail)
-            } else {
-                transition(to: .chatHome)
-            }
-        case .history:
-            transition(to: .conversationHistory)
-        case .settings:
-            transition(to: .myPage)
-        }
-    }
 }
 
 #Preview("로그인 플로우") {
