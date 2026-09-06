@@ -26,6 +26,10 @@
 		757B88387201661C0B0ACC92 /* ContactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33D386990F830D9749086A6A /* ContactView.swift */; };
 		84FA7C0E51161E5128FDA2D2 /* AccountInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C38C183280A50E03BE297EC /* AccountInfoView.swift */; };
 		850F853AAE6318DB65F7F557 /* LoginFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6C3CBB7C31AFF4347DB81A1 /* LoginFlowView.swift */; };
+		A213B0010000000000000001 /* LoginFlowView+Authentication.swift in Sources */ = {isa = PBXBuildFile; fileRef = A213F0010000000000000001 /* LoginFlowView+Authentication.swift */; };
+		A213B0010000000000000002 /* LoginFlowView+Chat.swift in Sources */ = {isa = PBXBuildFile; fileRef = A213F0010000000000000002 /* LoginFlowView+Chat.swift */; };
+		A213B0010000000000000003 /* LoginFlowView+Navigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A213F0010000000000000003 /* LoginFlowView+Navigation.swift */; };
+		A213B0010000000000000004 /* LoginFlowView+Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A213F0010000000000000004 /* LoginFlowView+Settings.swift */; };
 		93B9A7AC569F2D39F18F17CD /* HopesFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8229377FB12E6AC78153C208 /* HopesFont.swift */; };
 		987B24C6A616C8925DEFB6FE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BD95F9E4E322823649F46F02 /* Assets.xcassets */; };
 		9F54FAF77D98FD02C156B13B /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65426EF2F9D46FA2F7ED581C /* LoginView.swift */; };
@@ -142,6 +146,10 @@
 		9C279A706863504C8A42BDB2 /* HopesQuestionCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HopesQuestionCard.swift; sourceTree = "<group>"; };
 		A3D5CA63E879B2163023DAC7 /* HopesLabeledTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HopesLabeledTextField.swift; sourceTree = "<group>"; };
 		A6C3CBB7C31AFF4347DB81A1 /* LoginFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginFlowView.swift; sourceTree = "<group>"; };
+		A213F0010000000000000001 /* LoginFlowView+Authentication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LoginFlowView+Authentication.swift"; sourceTree = "<group>"; };
+		A213F0010000000000000002 /* LoginFlowView+Chat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LoginFlowView+Chat.swift"; sourceTree = "<group>"; };
+		A213F0010000000000000003 /* LoginFlowView+Navigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LoginFlowView+Navigation.swift"; sourceTree = "<group>"; };
+		A213F0010000000000000004 /* LoginFlowView+Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LoginFlowView+Settings.swift"; sourceTree = "<group>"; };
 		B3F01EEAB25EF4E994D40A63 /* ConversationHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationHistoryView.swift; sourceTree = "<group>"; };
 		B82E6A4A7706C9593066BD32 /* HopesDesignSystem_HopesDesignSystem.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HopesDesignSystem_HopesDesignSystem.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		B1B2C3D4E5F60718293A4B5C /* HopesAPIClient+Account.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Features/HopesAPIClient+Account.swift"; sourceTree = "<group>"; };
@@ -211,6 +219,10 @@
 				B3F01EEAB25EF4E994D40A63 /* ConversationHistoryView.swift */,
 				96966F841E0B72230E67A611 /* GeneralSettingsView.swift */,
 				A6C3CBB7C31AFF4347DB81A1 /* LoginFlowView.swift */,
+				A213F0010000000000000001 /* LoginFlowView+Authentication.swift */,
+				A213F0010000000000000002 /* LoginFlowView+Chat.swift */,
+				A213F0010000000000000003 /* LoginFlowView+Navigation.swift */,
+				A213F0010000000000000004 /* LoginFlowView+Settings.swift */,
 				65426EF2F9D46FA2F7ED581C /* LoginView.swift */,
 				E05202390E13D67A68B767F1 /* MyPageView.swift */,
 				D3106EB932D453712DA27E5A /* OnboardingView.swift */,
@@ -536,6 +548,10 @@
 				E63BDBBBE1102DA6AAC5B4A8 /* ConversationHistoryView.swift in Sources */,
 				491CEB33D7EC1BE900E5BFF9 /* GeneralSettingsView.swift in Sources */,
 				850F853AAE6318DB65F7F557 /* LoginFlowView.swift in Sources */,
+				A213B0010000000000000001 /* LoginFlowView+Authentication.swift in Sources */,
+				A213B0010000000000000002 /* LoginFlowView+Chat.swift in Sources */,
+				A213B0010000000000000003 /* LoginFlowView+Navigation.swift in Sources */,
+				A213B0010000000000000004 /* LoginFlowView+Settings.swift in Sources */,
 				9F54FAF77D98FD02C156B13B /* LoginView.swift in Sources */,
 				B5DC7C0986A35F51232D42CF /* MyPageView.swift in Sources */,
 				4F50C8B58959F9625BA64616 /* OnboardingView.swift in Sources */,
