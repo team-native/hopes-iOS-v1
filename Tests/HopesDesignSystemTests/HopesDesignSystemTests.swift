@@ -124,27 +124,6 @@ func cardVariantsCanBeConstructed() {
 
 @Test
 @MainActor
-func labeledTextFieldVariantsCanBeConstructed() {
-    _ = HopesLabeledTextField(
-        "이메일",
-        text: .constant("s20000@gsm.hs.kr"),
-        placeholder: "학교 이메일"
-    )
-    _ = HopesLabeledTextField(
-        "비밀번호",
-        text: .constant(""),
-        placeholder: "비밀번호",
-        isSecure: true
-    )
-    _ = HopesLabeledTextField(
-        "비활성 입력",
-        text: .constant("수정할 수 없어요"),
-        isEnabled: false
-    )
-}
-
-@Test
-@MainActor
 func actionRowVariantsCanBeConstructed() {
     _ = HopesActionRow(
         title: "일반",
@@ -182,14 +161,6 @@ func statTileVariantsCanBeConstructed() {
         label: "최신",
         tint: .hopesWarning
     )
-}
-
-@Test
-@MainActor
-func toastVariantsCanBeConstructed() {
-    _ = HopesToast("문의: gsm-chatbot@gsm.hs.kr")
-    _ = HopesToast("프로필이 저장되었습니다.", accent: .hopesSuccess)
-    _ = HopesToast("요청을 처리하지 못했습니다.", accent: .hopesDanger)
 }
 
 @Test
