@@ -1,23 +1,23 @@
 import SwiftUI
 
 public struct SettingsView: View {
-    @State private var selectedTab: HopesTab = .settings
-    @State private var isDeletionSheetPresented = false
-    @State private var deletionPasswordAwaitingConfirmation: String?
-    @State private var pendingDeletionPassword: String?
+    @State var selectedTab: HopesTab = .settings
+    @State var isDeletionSheetPresented = false
+    @State var deletionPasswordAwaitingConfirmation: String?
+    @State var pendingDeletionPassword: String?
 
-    private let contactEmail: String
-    private let onBackToChat: () -> Void
-    private let onOpenGeneral: () -> Void
-    private let onOpenPersonalSettings: () -> Void
-    private let onOpenContact: () -> Void
-    private let onLogout: () -> Void
-    private let isDeletingAccount: Bool
-    private let accountDeletionErrorMessage: String?
-    private let onDeleteAccount: (String) -> Void
-    private let onSelectTab: (HopesTab) -> Void
-    private let isLoggingOut: Bool
-    private let errorMessage: String?
+    let contactEmail: String
+    let onBackToChat: () -> Void
+    let onOpenGeneral: () -> Void
+    let onOpenPersonalSettings: () -> Void
+    let onOpenContact: () -> Void
+    let onLogout: () -> Void
+    let isDeletingAccount: Bool
+    let accountDeletionErrorMessage: String?
+    let onDeleteAccount: (String) -> Void
+    let onSelectTab: (HopesTab) -> Void
+    let isLoggingOut: Bool
+    let errorMessage: String?
 
     public init(
         contactEmail: String = "gsm-chatbot@gsm.hs.kr",
@@ -124,104 +124,13 @@ public struct SettingsView: View {
         }
     }
 
-    private var header: some View {
-        HStack(alignment: .top, spacing: 12) {
-            Button(action: onBackToChat) {
-                Image(systemName: "chevron.left")
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundStyle(Color.hopesBrandPrimary)
-                    .frame(width: 38, height: 38)
-                    .background(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 13))
-                    .overlay {
-                        RoundedRectangle(cornerRadius: 13)
-                            .stroke(Color.hopesBorder, lineWidth: 1)
-                    }
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel("마이페이지로 돌아가기")
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text("설정")
-                    .font(.title.weight(.bold))
-                    .foregroundStyle(Color.hopesTextPrimary)
-
-                Text("앱 설정과 도움말을 관리해요.")
-                    .font(.footnote)
-                    .foregroundStyle(Color.hopesTextSecondary)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-        }
-    }
-
-    private var accountActions: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("계정")
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(Color.hopesTextSecondary)
-                .padding(.leading, 8)
-
-            VStack(spacing: 0) {
-                accountActionRow(
-                    title: isLoggingOut ? "로그아웃 중..." : "로그아웃",
-                    icon: "rectangle.portrait.and.arrow.right",
-                    isEnabled: !isLoggingOut,
-                    action: onLogout
-                )
-
-                Divider().padding(.leading, 52)
-
-                accountActionRow(
-                    title: "회원탈퇴",
-                    icon: "person.crop.circle.badge.xmark",
-                    action: { isDeletionSheetPresented = true }
-                )
-            }
-            .background(.white)
-            .clipShape(RoundedRectangle(cornerRadius: HopesMetrics.cardCornerRadius))
-            .overlay {
-                RoundedRectangle(cornerRadius: HopesMetrics.cardCornerRadius)
-                    .stroke(Color.hopesBorder, lineWidth: 1)
-            }
-        }
-    }
-
-    private func accountActionRow(
-        title: String,
-        icon: String,
-        isEnabled: Bool = true,
-        action: @escaping () -> Void
-    ) -> some View {
-        Button(action: action) {
-            HStack(spacing: 14) {
-                Image(systemName: icon)
-                    .font(.system(size: 17, weight: .medium))
-                    .frame(width: 24)
-                Text(title).font(.subheadline.weight(.semibold))
-                Spacer()
-                if isLoggingOut && title == "로그아웃 중..." {
-                    ProgressView().controlSize(.small)
-                } else {
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 13, weight: .semibold))
-                }
-            }
-            .foregroundStyle(Color.hopesDanger)
-            .frame(maxWidth: .infinity, minHeight: 56)
-            .padding(.horizontal, 16)
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .disabled(!isEnabled)
-        .opacity(isEnabled ? 1 : 0.55)
-    }
-
 }
 
 #Preview("설정") {
     SettingsView()
         .frame(width: 402, height: 874)
 }
+
 
 private struct SettingsAccountDeletionView: View {
     @State private var password = ""
