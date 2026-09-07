@@ -8,7 +8,7 @@ App/Derived/
 App/*.xcodeproj/
 App/*.xcworkspace/
 
-# Tuist generated
+# Tuist로 로컬에서 생성되는 앱 프로젝트 파일
 Derived/
 *.xcodeproj/
 *.xcworkspace/
