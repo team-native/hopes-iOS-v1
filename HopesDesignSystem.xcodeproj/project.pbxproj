@@ -31,6 +31,9 @@
 		A213B0010000000000000003 /* LoginFlowView+Navigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A213F0010000000000000003 /* LoginFlowView+Navigation.swift */; };
 		A213B0010000000000000004 /* LoginFlowView+Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A213F0010000000000000004 /* LoginFlowView+Settings.swift */; };
 		A224B0010000000000000001 /* MyPageView+Content.swift in Sources */ = {isa = PBXBuildFile; fileRef = A224F0010000000000000001 /* MyPageView+Content.swift */; };
+		A222B0010000000000000001 /* LoginView+Content.swift in Sources */ = {isa = PBXBuildFile; fileRef = A222F0010000000000000001 /* LoginView+Content.swift */; };
+		A220B0010000000000000001 /* SignUpView+Form.swift in Sources */ = {isa = PBXBuildFile; fileRef = A220F0010000000000000001 /* SignUpView+Form.swift */; };
+		A220B0010000000000000002 /* SignUpView+Validation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A220F0010000000000000002 /* SignUpView+Validation.swift */; };
 		987B24C6A616C8925DEFB6FE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BD95F9E4E322823649F46F02 /* Assets.xcassets */; };
 		9F54FAF77D98FD02C156B13B /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65426EF2F9D46FA2F7ED581C /* LoginView.swift */; };
 		A017239666D0BBB822C5D073 /* ChatHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2917DD60F2C7E2E6E8458691 /* ChatHomeView.swift */; };
@@ -147,6 +150,9 @@
 		A213F0010000000000000003 /* LoginFlowView+Navigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LoginFlowView+Navigation.swift"; sourceTree = "<group>"; };
 		A213F0010000000000000004 /* LoginFlowView+Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LoginFlowView+Settings.swift"; sourceTree = "<group>"; };
 		A224F0010000000000000001 /* MyPageView+Content.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MyPageView+Content.swift"; sourceTree = "<group>"; };
+		A222F0010000000000000001 /* LoginView+Content.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LoginView+Content.swift"; sourceTree = "<group>"; };
+		A220F0010000000000000001 /* SignUpView+Form.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SignUpView+Form.swift"; sourceTree = "<group>"; };
+		A220F0010000000000000002 /* SignUpView+Validation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SignUpView+Validation.swift"; sourceTree = "<group>"; };
 		B3F01EEAB25EF4E994D40A63 /* ConversationHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationHistoryView.swift; sourceTree = "<group>"; };
 		B82E6A4A7706C9593066BD32 /* HopesDesignSystem_HopesDesignSystem.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HopesDesignSystem_HopesDesignSystem.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		B1B2C3D4E5F60718293A4B5C /* HopesAPIClient+Account.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Features/HopesAPIClient+Account.swift"; sourceTree = "<group>"; };
@@ -220,6 +226,9 @@
 				A213F0010000000000000003 /* LoginFlowView+Navigation.swift */,
 				A213F0010000000000000004 /* LoginFlowView+Settings.swift */,
 				A224F0010000000000000001 /* MyPageView+Content.swift */,
+				A222F0010000000000000001 /* LoginView+Content.swift */,
+				A220F0010000000000000001 /* SignUpView+Form.swift */,
+				A220F0010000000000000002 /* SignUpView+Validation.swift */,
 				65426EF2F9D46FA2F7ED581C /* LoginView.swift */,
 				E05202390E13D67A68B767F1 /* MyPageView.swift */,
 				D3106EB932D453712DA27E5A /* OnboardingView.swift */,
@@ -544,6 +553,9 @@
 				A213B0010000000000000003 /* LoginFlowView+Navigation.swift in Sources */,
 				A213B0010000000000000004 /* LoginFlowView+Settings.swift in Sources */,
 				A224B0010000000000000001 /* MyPageView+Content.swift in Sources */,
+				A222B0010000000000000001 /* LoginView+Content.swift in Sources */,
+				A220B0010000000000000001 /* SignUpView+Form.swift in Sources */,
+				A220B0010000000000000002 /* SignUpView+Validation.swift in Sources */,
 				9F54FAF77D98FD02C156B13B /* LoginView.swift in Sources */,
 				B5DC7C0986A35F51232D42CF /* MyPageView.swift in Sources */,
 				4F50C8B58959F9625BA64616 /* OnboardingView.swift in Sources */,
