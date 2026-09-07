@@ -30,6 +30,7 @@
 		A213B0010000000000000002 /* LoginFlowView+Chat.swift in Sources */ = {isa = PBXBuildFile; fileRef = A213F0010000000000000002 /* LoginFlowView+Chat.swift */; };
 		A213B0010000000000000003 /* LoginFlowView+Navigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A213F0010000000000000003 /* LoginFlowView+Navigation.swift */; };
 		A213B0010000000000000004 /* LoginFlowView+Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A213F0010000000000000004 /* LoginFlowView+Settings.swift */; };
+		A224B0010000000000000001 /* MyPageView+Content.swift in Sources */ = {isa = PBXBuildFile; fileRef = A224F0010000000000000001 /* MyPageView+Content.swift */; };
 		A222B0010000000000000001 /* LoginView+Content.swift in Sources */ = {isa = PBXBuildFile; fileRef = A222F0010000000000000001 /* LoginView+Content.swift */; };
 		A220B0010000000000000001 /* SignUpView+Form.swift in Sources */ = {isa = PBXBuildFile; fileRef = A220F0010000000000000001 /* SignUpView+Form.swift */; };
 		A220B0010000000000000002 /* SignUpView+Validation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A220F0010000000000000002 /* SignUpView+Validation.swift */; };
@@ -148,6 +149,7 @@
 		A213F0010000000000000002 /* LoginFlowView+Chat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LoginFlowView+Chat.swift"; sourceTree = "<group>"; };
 		A213F0010000000000000003 /* LoginFlowView+Navigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LoginFlowView+Navigation.swift"; sourceTree = "<group>"; };
 		A213F0010000000000000004 /* LoginFlowView+Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LoginFlowView+Settings.swift"; sourceTree = "<group>"; };
+		A224F0010000000000000001 /* MyPageView+Content.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MyPageView+Content.swift"; sourceTree = "<group>"; };
 		A222F0010000000000000001 /* LoginView+Content.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LoginView+Content.swift"; sourceTree = "<group>"; };
 		A220F0010000000000000001 /* SignUpView+Form.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SignUpView+Form.swift"; sourceTree = "<group>"; };
 		A220F0010000000000000002 /* SignUpView+Validation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SignUpView+Validation.swift"; sourceTree = "<group>"; };
@@ -223,6 +225,7 @@
 				A213F0010000000000000002 /* LoginFlowView+Chat.swift */,
 				A213F0010000000000000003 /* LoginFlowView+Navigation.swift */,
 				A213F0010000000000000004 /* LoginFlowView+Settings.swift */,
+				A224F0010000000000000001 /* MyPageView+Content.swift */,
 				A222F0010000000000000001 /* LoginView+Content.swift */,
 				A220F0010000000000000001 /* SignUpView+Form.swift */,
 				A220F0010000000000000002 /* SignUpView+Validation.swift */,
@@ -549,6 +552,7 @@
 				A213B0010000000000000002 /* LoginFlowView+Chat.swift in Sources */,
 				A213B0010000000000000003 /* LoginFlowView+Navigation.swift in Sources */,
 				A213B0010000000000000004 /* LoginFlowView+Settings.swift in Sources */,
+				A224B0010000000000000001 /* MyPageView+Content.swift in Sources */,
 				A222B0010000000000000001 /* LoginView+Content.swift in Sources */,
 				A220B0010000000000000001 /* SignUpView+Form.swift in Sources */,
 				A220B0010000000000000002 /* SignUpView+Validation.swift in Sources */,
